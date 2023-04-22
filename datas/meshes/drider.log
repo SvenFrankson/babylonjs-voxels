@@ -1,0 +1,126 @@
+Exporter version: 6.4.5, Blender version: 2.90.1
+========= Conversion from Blender to Babylon.js =========
+	Scene settings used :
+		Inline textures     :  false
+		Material Type       :  PBR
+		Positions Precision :  4
+		Normals Precision   :  3
+		UVs Precision       :  3
+		Vert Color Precision:  3
+		Mat Weight Precision:  2
+		Keep Z-up r-handed  :  no
+		Texture directory   :  C:\Users\svent\Documents\Sven Frankson\planet-builder-web\datas\meshes\
+	Python World class constructor completed
+	WARNING: No active camera has been assigned, or is not in a currently selected Blender layer
+	processing begun of mesh:  6-head
+		processing begun of material:  Plastic
+		processing begun of material:  Steel
+		processing begun of material:  Eyes
+		processing begun of multimaterial:  drider.Multimaterial#0
+		num positions      :  679
+		num normals        :  679
+		num tangents       :  0
+		num uvs            :  1358
+		num uvs2           :  1358
+		num colors         :  0
+		num triangles      :  666
+	processing begun of mesh:  3-upper-leg
+		processing begun of material:  Steel
+		processing begun of material:  Plastic
+		registered as also a user of material:  Steel
+		registered as also a user of material:  Plastic
+		processing begun of multimaterial:  drider.Multimaterial#1
+		num positions      :  208
+		num normals        :  208
+		num tangents       :  0
+		num uvs            :  416
+		num uvs2           :  0
+		num colors         :  0
+		num triangles      :  80
+	processing begun of mesh:  4-middle-leg
+		processing begun of material:  Plastic
+		processing begun of material:  Steel
+		processing begun of material:  Material.002
+		registered as also a user of material:  Plastic
+		registered as also a user of material:  Steel
+		processing begun of multimaterial:  drider.Multimaterial#2
+		num positions      :  155
+		num normals        :  155
+		num tangents       :  0
+		num uvs            :  310
+		num uvs2           :  0
+		num colors         :  0
+		num triangles      :  60
+	processing begun of mesh:  2-torso-high
+		processing begun of material:  Plastic
+		processing begun of material:  Steel
+		processing begun of material:  Eyes
+		registered as also a user of material:  Plastic
+		registered as also a user of material:  Steel
+		registered as also a user of material:  Eyes
+		processing begun of multimaterial:  drider.Multimaterial#3
+		num positions      :  251
+		num normals        :  251
+		num tangents       :  0
+		num uvs            :  502
+		num uvs2           :  502
+		num colors         :  0
+		num triangles      :  306
+	processing begun of mesh:  5-lower-leg
+		processing begun of material:  Plastic
+		processing begun of material:  Steel
+		processing begun of material:  Material.002
+		registered as also a user of material:  Plastic
+		registered as also a user of material:  Steel
+		registered as also a user of material:  Material.002
+		processing begun of multimaterial:  drider.Multimaterial#4
+		num positions      :  105
+		num normals        :  105
+		num tangents       :  0
+		num uvs            :  210
+		num uvs2           :  0
+		num colors         :  0
+		num triangles      :  40
+	processing begun of mesh:  1-torso-mid
+		processing begun of material:  Material.002
+		processing begun of material:  Plastic
+		processing begun of material:  Steel
+		processing begun of material:  Eyes
+		registered as also a user of material:  Material.002
+		registered as also a user of material:  Plastic
+		registered as also a user of material:  Steel
+		registered as also a user of material:  Eyes
+		processing begun of multimaterial:  drider.Multimaterial#5
+		num positions      :  29
+		num normals        :  29
+		num tangents       :  0
+		num uvs            :  58
+		num uvs2           :  58
+		num colors         :  0
+		num triangles      :  46
+	processing begun of mesh:  0-torso-low
+		processing begun of material:  Plastic
+		processing begun of material:  Steel
+		processing begun of material:  Eyes
+		registered as also a user of material:  Plastic
+		registered as also a user of material:  Steel
+		registered as also a user of material:  Eyes
+		processing begun of multimaterial:  drider.Multimaterial#6
+		num positions      :  154
+		num normals        :  154
+		num tangents       :  0
+		num uvs            :  308
+		num uvs2           :  308
+		num colors         :  0
+		num triangles      :  276
+========= Writing of JSON file started =========
+	writing mesh:  6-head
+	writing mesh:  3-upper-leg
+	writing mesh:  4-middle-leg
+	writing mesh:  2-torso-high
+	writing mesh:  5-lower-leg
+	writing mesh:  1-torso-mid
+	writing mesh:  0-torso-low
+========= Writing of JSON file completed =========
+========= end of processing =========
+elapsed time:  0 min, 0.1027 secs

@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "outFile": "./app.js",
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": false
+    },
+    "exclude": [
+        "lib"
+    ],
+    "compileOnSave": true,
+    "buildOnSave": true
+}
