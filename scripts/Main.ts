@@ -39,10 +39,23 @@ class Main {
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 5, 0), this.scene);
         this.camera.attachControl();
 
-        let terrain = new Terrain(this.scene);
-        let chunck = new Chunck(0, 0, 0, terrain);
-        chunck.register();
-        terrain.initialize();
+		Config.chunckPartConfiguration.setFilename("chunck-parts", false);
+		Config.chunckPartConfiguration.useXZAxisRotation = true;
+		Config.chunckPartConfiguration.setLodMin(0);
+		Config.chunckPartConfiguration.setLodMax(2);
+
+        ChunckVertexData.InitializeData().then(() => {
+            let terrain = new Terrain(this.scene);
+            let chunck = new Chunck(0, 0, 0, terrain);
+            chunck.register();
+            terrain.initialize();
+    
+            let debugBlock = BABYLON.MeshBuilder.CreateBox("debug-block");
+            debugBlock.position.copyFromFloats(0.5, 0.5, 0.5);
+            debugBlock.position.x += CHUNCK_SIZE;
+            debugBlock.position.y += 4;
+            debugBlock.position.z += CHUNCK_SIZE;
+        });
 	}
 
 	public animate(): void {

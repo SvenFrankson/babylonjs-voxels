@@ -15,6 +15,20 @@ class Chunck {
     public children: Chunck[] = [];
     public parent: Chunck;
 
+    private _isEmpty: boolean = true;
+    public get isEmpty(): boolean {
+        return this._isEmpty;
+    }
+    private _isFull: boolean = false;
+    public get isFull(): boolean {
+        return this._isFull;
+    }
+    private _dataInitialized: boolean = false;
+    public get dataInitialized(): boolean {
+        return this._dataInitialized;
+    }
+    public data: number[][][];
+
     public mesh: BABYLON.Mesh;
 
     private _registered: boolean = false;
@@ -55,6 +69,79 @@ class Chunck {
         )
     }
 
+    public initializeData(): void {
+        if (!this.dataInitialized) {
+            this.data = [];
+            
+            for (let i: number = 0; i <= CHUNCK_LENGTH; i++) {
+                if (!this.data[i]) {
+                    this.data[i] = [];
+                }
+                for (let j: number = 0; j <= CHUNCK_LENGTH; j++) {
+                    if (!this.data[i][j]) {
+                        this.data[i][j] = [];
+                    }
+                    if (this.kPos === 0) {
+                        let h = 3 + Math.floor(3 * Math.random());
+                        if (i === 0 || j === 0 || i === CHUNCK_LENGTH || j === CHUNCK_LENGTH) {
+                            h = 4;
+                        }
+                        h = Math.floor(h / this.levelFactor);
+                        for (let k: number = 0; k <= h; k++) {
+                            if (!this.data[i][j][k]) {
+                                this.data[i][j][k] = BlockType.Dirt;
+                            }
+                        }
+                        for (let k: number = h + 1; k <= CHUNCK_LENGTH; k++) {
+                            if (!this.data[i][j][k]) {
+                                this.data[i][j][k] = BlockType.None;
+                            }
+                        }
+                    }
+                    else {
+                        for (let k: number = 0; k <= CHUNCK_LENGTH; k++) {
+                            if (!this.data[i][j][k]) {
+                                this.data[i][j][k] = BlockType.None;
+                            }
+                        }
+                    }
+                }
+            }
+
+            /*
+            let modData = window.localStorage.getItem(this.getUniqueName());
+            if (modData) {
+                this.modDataOctree = OctreeNode.DeserializeFromString(modData);
+                if (this.modDataOctree) {
+                    this.modDataOctree.forEach((v, i, j, k) => {
+                        this.data[i][j][k] = v;
+                    });
+                }
+            }
+            */
+
+            this._dataInitialized = true;
+            this.updateIsEmptyIsFull();
+        }
+    }
+
+    public updateIsEmptyIsFull(): void {
+        this._isEmpty = true;
+        this._isFull = true;
+        for (let i = 0; i <= CHUNCK_LENGTH; i++) {
+            for (let j = 0; j <= CHUNCK_LENGTH; j++) {
+                for (let k = 0; k <= CHUNCK_LENGTH; k++) {
+                    let block = this.data[i][j][k];
+                    this._isFull = this._isFull && (block > BlockType.Water);
+                    this._isEmpty = this._isEmpty && (block < BlockType.Water);
+                    if (!this._isFull && !this._isEmpty) {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     public register(): void {
         if (!this.registered) {
             this._registered = true;
@@ -70,24 +157,21 @@ class Chunck {
     }
 
     public redrawMesh(): void {
+        if (!this._dataInitialized) {
+            this.initializeData();
+        }
         this.disposeMesh();
-        if (this.kPos === 0) {
-
+        if (!this.isEmpty && !this.isFull) {
             //this.mesh = BABYLON.MeshBuilder.CreateGround("foo", { width: 1, height: 1 });
             this.mesh = new BABYLON.Mesh("foo");
-            ChunckMeshBuilder.BuildVertexData(this).applyToMesh(this.mesh);
+            ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
             this.mesh.position.copyFromFloats(
                 this.iPos * CHUNCK_SIZE * this.levelFactor,
                 this.kPos * CHUNCK_SIZE * this.levelFactor,
                 this.jPos * CHUNCK_SIZE * this.levelFactor
             );
-            this.mesh.position.y = 1 - this.level * 0.1;
-            //this.mesh.scaling.copyFromFloats(1, 1, 1).scaleInPlace(CHUNCK_LENGTH * this.levelFactor - 0.1);
-        }
-        else {
-            //this.mesh = BABYLON.MeshBuilder.CreateBox("foo", { width: 1, height: 1, depth: 1 });
-            //this.mesh.position.copyFrom(this.position);
-            //this.mesh.scaling.copyFromFloats(this.level + 1, this.level + 1, this.level + 1);
+            this.mesh.scaling.copyFromFloats(0.99, 0.99, 0.99);
+            //this.mesh.scaling.copyFromFloats(1, 1, 1).scaleInPlace(CHUNCK_LENGTH * this.levelFactor.1);
         }
 
         if (this.mesh) {
