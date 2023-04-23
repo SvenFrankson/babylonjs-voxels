@@ -2,6 +2,7 @@ var MAX_LEVEL: number = 10;
 var BLOCK_SIZE: number = 1;
 var CHUNCK_LENGTH: number = 8;
 var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
+var KPOS_MAX: number = 20;
 
 class Chunck {
 
@@ -69,14 +70,27 @@ class Chunck {
     }
 
     public redrawMesh(): void {
+        this.disposeMesh();
         if (this.kPos === 0) {
-            this.disposeMesh();
 
-            this.mesh = BABYLON.MeshBuilder.CreateGround("foo", { width: 1, height: 1 });
-            this.mesh.position.copyFrom(this.position);
+            //this.mesh = BABYLON.MeshBuilder.CreateGround("foo", { width: 1, height: 1 });
+            this.mesh = new BABYLON.Mesh("foo");
+            ChunckMeshBuilder.BuildVertexData(this).applyToMesh(this.mesh);
+            this.mesh.position.copyFromFloats(
+                this.iPos * CHUNCK_SIZE * this.levelFactor,
+                this.kPos * CHUNCK_SIZE * this.levelFactor,
+                this.jPos * CHUNCK_SIZE * this.levelFactor
+            );
             this.mesh.position.y = 1 - this.level * 0.1;
-            this.mesh.scaling.copyFromFloats(1, 1, 1).scaleInPlace(CHUNCK_LENGTH * this.levelFactor - 0.1);
+            //this.mesh.scaling.copyFromFloats(1, 1, 1).scaleInPlace(CHUNCK_LENGTH * this.levelFactor - 0.1);
+        }
+        else {
+            //this.mesh = BABYLON.MeshBuilder.CreateBox("foo", { width: 1, height: 1, depth: 1 });
+            //this.mesh.position.copyFrom(this.position);
+            //this.mesh.scaling.copyFromFloats(this.level + 1, this.level + 1, this.level + 1);
+        }
 
+        if (this.mesh) {
             let mat = new BABYLON.StandardMaterial("mat");
             if (this.level % 6 === 0) {
                 mat.diffuseColor.copyFromFloats(1, 0, 0);
@@ -96,7 +110,7 @@ class Chunck {
             else if (this.level % 6 === 5) {
                 mat.diffuseColor.copyFromFloats(1, 0, 1);
             }
-
+    
             this.mesh.material = mat;
         }
     }
@@ -118,7 +132,13 @@ class Chunck {
             return;
         }
         this._subdivided = true;
-        for (let k = 0; k < 2; k++) {
+
+        let kMax = 2;
+        if ((this.kPos * 2 + 1) * this.levelFactor / 2 > KPOS_MAX) {
+            kMax = 1;
+        }
+
+        for (let k = 0; k < kMax; k++) {
             for (let i = 0; i < 2; i++) {
                 for (let j = 0; j < 2; j++) {
                     let chunck = this.children[j + 2 * i + 4 * k];
