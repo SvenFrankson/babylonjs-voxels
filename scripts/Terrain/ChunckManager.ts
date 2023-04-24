@@ -9,21 +9,31 @@ class ChunckRedrawRequest {
     }
 }
 
+interface IChunckManagerProperties {
+    scene?: BABYLON.Scene,
+    terrain: Terrain
+}
+
 class ChunckManager {
     
     private _viewpoint: BABYLON.Vector3;
     private _chunckIndex: number = 0;
     public chuncks: UniqueList<Chunck>;
     private _chunckLevelsSquareDistances: number[];
+    public scene: BABYLON.Scene;
+    public terrain: Terrain;
 
     constructor(
-        public scene: BABYLON.Scene
+        prop: IChunckManagerProperties
     ) {
+        this.scene = prop.scene;
+        this.terrain = prop.terrain;
+
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
         let distance = 80;
         let distances = [];
-        for (let i = 0; i < MAX_LEVEL; i++) {
+        for (let i = 0; i < this.terrain.maxLevel; i++) {
             distances.push(distance);
             distance = distance * 2;
         }

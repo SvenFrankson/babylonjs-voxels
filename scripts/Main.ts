@@ -37,7 +37,7 @@ class Main {
         let light = new BABYLON.HemisphericLight("light", BABYLON.Vector3.One(), this.scene);
 
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 5, 0), this.scene);
-        this.camera.position.copyFromFloats(100, 5, 100);
+        this.camera.position.copyFromFloats(0, 5, 0);
         this.camera.attachControl();
 
 		Config.chunckPartConfiguration.setFilename("chunck-parts", false);
@@ -46,16 +46,20 @@ class Main {
 		Config.chunckPartConfiguration.setLodMax(2);
 
         ChunckVertexData.InitializeData().then(() => {
-            let terrain = new Terrain(this.scene);
+            let terrain = new Terrain({
+                scene: this.scene,
+                kPosMax: 20,
+                maxLevel: 16
+            });
             let chunck = new Chunck(0, 0, 0, terrain);
             chunck.register();
             terrain.initialize();
     
             let debugBlock = BABYLON.MeshBuilder.CreateBox("debug-block");
             debugBlock.position.copyFromFloats(0.5, 0.5, 0.5);
-            debugBlock.position.x += CHUNCK_SIZE;
+            //debugBlock.position.x += CHUNCK_SIZE;
             debugBlock.position.y += 4;
-            debugBlock.position.z += CHUNCK_SIZE;
+            //debugBlock.position.z += CHUNCK_SIZE;
     
             let yAxis = BABYLON.MeshBuilder.CreateBox("yAxis", { width: 0.2, height: 100, depth: 0.2 });
         });

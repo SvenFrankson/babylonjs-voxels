@@ -1,8 +1,6 @@
-var MAX_LEVEL: number = 10;
 var BLOCK_SIZE: number = 1;
 var CHUNCK_LENGTH: number = 8;
 var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
-var KPOS_MAX: number = 20;
 
 class Chunck {
 
@@ -57,15 +55,15 @@ class Chunck {
             this.levelFactor = this.parent.levelFactor / 2;
         }
         else {
-            this.level = MAX_LEVEL;
+            this.level = this.terrain.maxLevel;
             this.levelFactor = Math.pow(2, this.level);
         }
         this.targetLevel = this.level;
 
         this.position = new BABYLON.Vector3(
-            (this.iPos + 0.5) * CHUNCK_SIZE * this.levelFactor,
-            (this.kPos + 0.5) * CHUNCK_SIZE * this.levelFactor,
-            (this.jPos + 0.5) * CHUNCK_SIZE * this.levelFactor,
+            (this.iPos + 0.5) * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainSize,
+            (this.kPos + 0.5) * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainHeight,
+            (this.jPos + 0.5) * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainSize,
         )
     }
 
@@ -81,28 +79,17 @@ class Chunck {
                     if (!this.data[i][j]) {
                         this.data[i][j] = [];
                     }
-                    if (this.kPos === 0) {
-                        let h = 3 + Math.floor(3 * Math.random());
-                        if (i === 0 || j === 0 || i === CHUNCK_LENGTH || j === CHUNCK_LENGTH) {
-                            h = 4;
-                        }
-                        h = Math.floor(h / this.levelFactor);
-                        for (let k: number = 0; k <= h; k++) {
-                            if (!this.data[i][j][k]) {
-                                this.data[i][j][k] = BlockType.Dirt;
-                            }
-                        }
-                        for (let k: number = h + 1; k <= CHUNCK_LENGTH; k++) {
-                            if (!this.data[i][j][k]) {
-                                this.data[i][j][k] = BlockType.None;
-                            }
-                        }
+                    let hGlobal = (3 + Math.floor(3 * Math.random())) + 10 * CHUNCK_SIZE;
+                    if (i === 0 || j === 0 || i === CHUNCK_LENGTH || j === CHUNCK_LENGTH) {
+                        hGlobal = 10 * CHUNCK_SIZE + 4;
                     }
-                    else {
-                        for (let k: number = 0; k <= CHUNCK_LENGTH; k++) {
-                            if (!this.data[i][j][k]) {
-                                this.data[i][j][k] = BlockType.None;
-                            }
+                    for (let k: number = 0; k <= CHUNCK_LENGTH; k++) {
+                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + k * this.levelFactor;
+                        if (kGlobal < hGlobal) {
+                            this.data[i][j][k] = BlockType.Dirt;
+                        }
+                        else {
+                            this.data[i][j][k] = BlockType.None;
                         }
                     }
                 }
@@ -166,9 +153,9 @@ class Chunck {
             this.mesh = new BABYLON.Mesh("foo");
             ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
             this.mesh.position.copyFromFloats(
-                (this.iPos * CHUNCK_SIZE + 0.5) * this.levelFactor,
-                this.kPos * CHUNCK_SIZE * this.levelFactor,
-                (this.jPos * CHUNCK_SIZE + 0.5) * this.levelFactor
+                (this.iPos * CHUNCK_SIZE + 0.5) * this.levelFactor - this.terrain.halfTerrainSize,
+                this.kPos * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainHeight,
+                (this.jPos * CHUNCK_SIZE + 0.5) * this.levelFactor - this.terrain.halfTerrainSize
             );
         }
 
@@ -217,7 +204,7 @@ class Chunck {
         this._subdivided = true;
 
         let kMax = 2;
-        if ((this.kPos * 2 + 1) * this.levelFactor / 2 > KPOS_MAX) {
+        if ((this.kPos * 2 + 1) * this.levelFactor / 2 > this.terrain.kPosMax) {
             kMax = 1;
         }
 
