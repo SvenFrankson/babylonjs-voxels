@@ -74,9 +74,9 @@ class ChunckMeshBuilder {
                             let vData = extendedpartVertexData.vertexData;
                             let partIndexes = [];
                             for (let p = 0; p < vData.positions.length / 3; p++) {
-                                let x = (vData.positions[3 * p] + i) * chunck.levelFactor;
-                                let y = (vData.positions[3 * p + 1] + k) * chunck.levelFactor;
-                                let z = (vData.positions[3 * p + 2] + j) * chunck.levelFactor;
+                                let x = (vData.positions[3 * p] + i - 0.5) * chunck.levelFactor;
+                                let y = (vData.positions[3 * p + 1] + k - 0.5) * chunck.levelFactor;
+                                let z = (vData.positions[3 * p + 2] + j - 0.5) * chunck.levelFactor;
 
                                 let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * x), Math.round(10 * y), Math.round(10 * z));
                                 if (isFinite(existingIndex)) {

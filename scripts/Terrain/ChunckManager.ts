@@ -21,15 +21,12 @@ class ChunckManager {
     ) {
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
-        let distances = [
-            100,
-            200,
-            400,
-            800, 
-            1600, 
-            3200,
-            6400
-        ];
+        let distance = 80;
+        let distances = [];
+        for (let i = 0; i < MAX_LEVEL; i++) {
+            distances.push(distance);
+            distance = distance * 2;
+        }
         this._chunckLevelsSquareDistances = distances.map(v => { return v * v; });
     }
 

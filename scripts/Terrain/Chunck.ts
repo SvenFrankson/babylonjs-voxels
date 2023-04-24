@@ -166,16 +166,15 @@ class Chunck {
             this.mesh = new BABYLON.Mesh("foo");
             ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
             this.mesh.position.copyFromFloats(
-                this.iPos * CHUNCK_SIZE * this.levelFactor,
+                (this.iPos * CHUNCK_SIZE + 0.5) * this.levelFactor,
                 this.kPos * CHUNCK_SIZE * this.levelFactor,
-                this.jPos * CHUNCK_SIZE * this.levelFactor
+                (this.jPos * CHUNCK_SIZE + 0.5) * this.levelFactor
             );
-            this.mesh.scaling.copyFromFloats(0.99, 0.99, 0.99);
-            //this.mesh.scaling.copyFromFloats(1, 1, 1).scaleInPlace(CHUNCK_LENGTH * this.levelFactor.1);
         }
 
         if (this.mesh) {
             let mat = new BABYLON.StandardMaterial("mat");
+            mat.specularColor.copyFromFloats(0, 0, 0);
             if (this.level % 6 === 0) {
                 mat.diffuseColor.copyFromFloats(1, 0, 0);
             }
