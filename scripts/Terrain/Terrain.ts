@@ -1,13 +1,13 @@
 interface ITerrainProperties {
     scene?: BABYLON.Scene,
-    kPosMax?: number,
+    chunckCountHeight?: number,
     maxLevel?: number
 }
 
 class Terrain {
 
     public maxLevel: number = 10;
-    public kPosMax: number = 20;
+    public chunckCountHeight: number = 20;
     public chunckCount: number;
     public terrainHeight: number;
     public halfTerrainHeight: number;
@@ -27,11 +27,11 @@ class Terrain {
         if (isFinite(prop.maxLevel)) {
             this.maxLevel = prop.maxLevel;
         }
-        if (isFinite(prop.kPosMax)) {
-            this.kPosMax = prop.kPosMax;
+        if (isFinite(prop.chunckCountHeight)) {
+            this.chunckCountHeight = prop.chunckCountHeight;
         }
 
-        this.terrainHeight = this.kPosMax * CHUNCK_SIZE;
+        this.terrainHeight = this.chunckCountHeight * CHUNCK_SIZE;
         this.halfTerrainHeight = this.terrainHeight * 0.5;
         this.chunckCount = Math.pow(2, prop.maxLevel);
         this.terrainSize = this.chunckCount * CHUNCK_SIZE;

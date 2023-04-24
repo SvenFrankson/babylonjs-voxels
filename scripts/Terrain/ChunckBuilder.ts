@@ -69,16 +69,16 @@ class ChunckMeshBuilder {
                     }
 
                     if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
-                        let extendedpartVertexData = ChunckVertexData.Get(0, ref);
+                        let extendedpartVertexData = ChunckVertexData.Get(1, ref);
                         if (extendedpartVertexData) {
                             let vData = extendedpartVertexData.vertexData;
                             let partIndexes = [];
                             for (let p = 0; p < vData.positions.length / 3; p++) {
-                                let x = (vData.positions[3 * p] + i - 0.5) * chunck.levelFactor;
-                                let y = (vData.positions[3 * p + 1] + k - 0.5) * chunck.levelFactor;
-                                let z = (vData.positions[3 * p + 2] + j - 0.5) * chunck.levelFactor;
+                                let x = (vData.positions[3 * p] + i) * chunck.levelFactor + 0.5;
+                                let y = (vData.positions[3 * p + 1] + k) * chunck.levelFactor + 0.5 * chunck.levelFactor;
+                                let z = (vData.positions[3 * p + 2] + j) * chunck.levelFactor + 0.5;
 
-                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * x), Math.round(10 * y), Math.round(10 * z));
+                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(100 * x), Math.round(100 * y), Math.round(100 * z));
                                 if (isFinite(existingIndex)) {
                                     partIndexes[p] = existingIndex;
                                 }
@@ -86,7 +86,7 @@ class ChunckMeshBuilder {
                                     let l = positions.length / 3;
                                     partIndexes[p] = l;
                                     positions.push(x, y, z);
-                                    ChunckMeshBuilder._SetVertex(l, Math.round(10 * x), Math.round(10 * y), Math.round(10 * z))
+                                    ChunckMeshBuilder._SetVertex(l, Math.round(100 * x), Math.round(100 * y), Math.round(100 * z))
                                 }
 
                             }
