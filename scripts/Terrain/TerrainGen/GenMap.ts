@@ -23,17 +23,17 @@ class GenMap {
     }
 
     public addData(): void {
-        if (this.level <= 4) {
-            
+        if (this.level <= 8) {
+            /*
             let p0 = RAND.getValue4D(this.terrain.randSeed, this.iPos, this.jPos, 0, this.level);
             let p1 = RAND.getValue4D(this.terrain.randSeed, this.iPos + 1, this.jPos, 0, this.level);
             let p2 = RAND.getValue4D(this.terrain.randSeed, this.iPos + 1, this.jPos + 1, 0, this.level);
             let p3 = RAND.getValue4D(this.terrain.randSeed, this.iPos, this.jPos + 1, 0, this.level);
 
-            p0 = ((p0 - 0.5) * 2) * 4 * Math.pow(2, this.level);
-            p1 = ((p1 - 0.5) * 2) * 4 * Math.pow(2, this.level);
-            p2 = ((p2 - 0.5) * 2) * 4 * Math.pow(2, this.level);
-            p3 = ((p3 - 0.5) * 2) * 4 * Math.pow(2, this.level);
+            p0 = ((p0 - 0.5) * 2) * 2 * Math.pow(2, this.level);
+            p1 = ((p1 - 0.5) * 2) * 2 * Math.pow(2, this.level);
+            p2 = ((p2 - 0.5) * 2) * 2 * Math.pow(2, this.level);
+            p3 = ((p3 - 0.5) * 2) * 2 * Math.pow(2, this.level);
 
             for (let i = 0; i <= CHUNCK_LENGTH; i++) {
                 for (let j = 0; j <= CHUNCK_LENGTH; j++) {
@@ -42,6 +42,17 @@ class GenMap {
                     let p01 = p0 * (1 - di) + p1 * di;
                     let p32 = p3 * (1 - di) + p2 * di;
                     let p = p01 * (1 - dj) + p32 * dj;
+                    this.data[i][j] += p;
+                }
+            }
+            */
+           
+            for (let i = 0; i <= CHUNCK_LENGTH; i++) {
+                for (let j = 0; j <= CHUNCK_LENGTH; j++) {
+                    let I = i + this.iPos * CHUNCK_LENGTH;
+                    let J = j + this.jPos * CHUNCK_LENGTH;
+                    let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
+                    p = ((p - 0.5) * 2) * 0.15 * Math.pow(2, this.level);
                     this.data[i][j] += p;
                 }
             }

@@ -69,7 +69,7 @@ class ChunckMeshBuilder {
                     }
 
                     if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
-                        let extendedpartVertexData = ChunckVertexData.Get(1, ref);
+                        let extendedpartVertexData = ChunckVertexData.Get(2, ref);
                         if (extendedpartVertexData) {
                             let vData = extendedpartVertexData.vertexData;
                             let partIndexes = [];
