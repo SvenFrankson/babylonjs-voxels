@@ -1,4 +1,5 @@
 interface ITerrainProperties {
+    randSeed?: RandSeed,
     scene?: BABYLON.Scene,
     chunckCountHeight?: number,
     maxLevel?: number
@@ -6,6 +7,7 @@ interface ITerrainProperties {
 
 class Terrain {
 
+    public randSeed: RandSeed;
     public maxLevel: number = 10;
     public chunckCountHeight: number = 20;
     public chunckCount: number;
@@ -17,6 +19,8 @@ class Terrain {
     public chunckManager: ChunckManager;
     public scene: BABYLON.Scene;
 
+    public genMaps: GenMap[][][] = [];
+
     constructor(prop: ITerrainProperties) {
         if (!prop.scene) {
             this.scene = BABYLON.Engine.Instances[0].scenes[0];
@@ -24,12 +28,19 @@ class Terrain {
         else {
             this.scene = prop.scene;
         }
+        if (!prop.randSeed) {
+            this.randSeed = new RandSeed("undefined");
+        }
+        else {
+            this.randSeed = prop.randSeed;
+        }
         if (isFinite(prop.maxLevel)) {
             this.maxLevel = prop.maxLevel;
         }
         if (isFinite(prop.chunckCountHeight)) {
             this.chunckCountHeight = prop.chunckCountHeight;
         }
+
 
         this.terrainHeight = this.chunckCountHeight * CHUNCK_SIZE;
         this.halfTerrainHeight = this.terrainHeight * 0.5;
@@ -56,5 +67,25 @@ class Terrain {
 
     public dispose(): void {
         this.chunckManager.dispose();
+    }
+
+    public getGenMap(level: number, iPos: number, jPos: number): GenMap {
+        if (this.genMaps[level]) {
+            if (this.genMaps[level][iPos]) {
+                if (this.genMaps[level][iPos][jPos]) {
+                    return this.genMaps[level][iPos][jPos];
+                }
+            }
+        }
+    }
+
+    public addGenMap(genMap: GenMap) {
+        if (!this.genMaps[genMap.level]) {
+            this.genMaps[genMap.level] = [];
+        }
+        if (!this.genMaps[genMap.level][genMap.iPos]) {
+            this.genMaps[genMap.level][genMap.iPos] = [];
+        }
+        this.genMaps[genMap.level][genMap.iPos][genMap.jPos] = genMap;
     }
 }

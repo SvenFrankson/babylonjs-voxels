@@ -85,3 +85,5 @@ class Rand {
         return v;
     }
 }
+
+var RAND = new Rand();

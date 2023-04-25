@@ -52,6 +52,7 @@ class Main {
                 maxLevel: 16
             });
             let chunck = new Chunck(0, 0, 0, terrain);
+            chunck.genMap = new GenMap(chunck.level, 0, 0, terrain);
             chunck.register();
             terrain.initialize();
 

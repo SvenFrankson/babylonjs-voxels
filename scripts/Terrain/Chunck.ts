@@ -5,6 +5,7 @@ var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
 class Chunck {
 
     public terrain: Terrain;
+    public genMap: GenMap;
 
     public position: BABYLON.Vector3;
     public level: number = 0;
@@ -79,10 +80,7 @@ class Chunck {
                     if (!this.data[i][j]) {
                         this.data[i][j] = [];
                     }
-                    let hGlobal = (3 + Math.floor(3 * Math.random())) + 10 * CHUNCK_SIZE;
-                    if (i === 0 || j === 0 || i === CHUNCK_LENGTH || j === CHUNCK_LENGTH) {
-                        hGlobal = 10 * CHUNCK_SIZE + 4;
-                    }
+                    let hGlobal = this.genMap.data[i][j];
                     for (let k: number = 0; k <= CHUNCK_LENGTH; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + k * this.levelFactor;
                         if (kGlobal < hGlobal) {
@@ -237,12 +235,14 @@ class Chunck {
             kMax = 1;
         }
 
+        let genMaps = this.genMap.subdivide();
         for (let k = 0; k < kMax; k++) {
             for (let i = 0; i < 2; i++) {
                 for (let j = 0; j < 2; j++) {
                     let chunck = this.children[j + 2 * i + 4 * k];
                     if (!chunck) {
                         chunck = new Chunck(this.iPos * 2 + i, this.jPos * 2 + j, this.kPos * 2 + k, this);
+                        chunck.genMap = genMaps[i][j];
                         this.children[j + 2 * i + 4 * k] = chunck;
                     }
                     chunck.redrawMesh();
