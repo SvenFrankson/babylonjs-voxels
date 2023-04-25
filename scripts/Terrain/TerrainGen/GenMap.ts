@@ -80,10 +80,10 @@ class GenMap {
         
         for (let i = 0; i <= CHUNCK_LENGTH / 2; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH / 2; j++) {
-                maps[0][0].data[i][j];
-                maps[1][0].data[i + CHUNCK_LENGTH / 2][j];
-                maps[0][1].data[i][j + CHUNCK_LENGTH / 2];
-                maps[1][1].data[i + CHUNCK_LENGTH / 2][j + CHUNCK_LENGTH / 2];
+                maps[0][0].data[2 * i][2 * j] = this.data[i][j];
+                maps[1][0].data[2 * i][2 * j] = this.data[i + CHUNCK_LENGTH / 2][j];
+                maps[0][1].data[2 * i][2 * j] = this.data[i][j + CHUNCK_LENGTH / 2];
+                maps[1][1].data[2 * i][2 * j] = this.data[i + CHUNCK_LENGTH / 2][j + CHUNCK_LENGTH / 2];
             }
         }
         
