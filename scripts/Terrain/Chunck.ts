@@ -6,6 +6,7 @@ var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
 
 class Chunck {
 
+    public name: string;
     public terrain: Terrain;
     public genMap: GenMap;
 
@@ -62,6 +63,8 @@ class Chunck {
             this.levelFactor = Math.pow(2, this.level);
         }
         this.targetLevel = this.level;
+        
+        this.name = "chunck:" + this.level + ":" + this.iPos + "-" + this.jPos	+ "-" + this.kPos;
 
         this.position = new BABYLON.Vector3(
             (this.iPos + 0.5) * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainSize,
@@ -127,6 +130,28 @@ class Chunck {
                 }
             }
         }
+    }
+
+    public getChunck(level: number, iPos: number, jPos: number, kPos: number): Chunck {
+        if (this.level - level === 1) {
+            let i = Math.floor((iPos - 2 * this.iPos));
+            let j = Math.floor((jPos - 2 * this.jPos));
+            let k = Math.floor((kPos - 2 * this.kPos));
+            let child = this.children[j + 2 * i + 4 * k];
+            if (child instanceof Chunck) {
+                return child;
+            }
+        }
+        else {
+            let i = Math.floor((iPos - this.levelFactor * this.iPos) / (this.levelFactor / 2));
+            let j = Math.floor((jPos - this.levelFactor * this.jPos) / (this.levelFactor / 2));
+            let k = Math.floor((kPos - this.levelFactor * this.kPos) / (this.levelFactor / 2));
+            let child = this.children[j + 2 * i + 4 * k];
+            if (child instanceof Chunck) {
+                return child.getChunck(level, iPos, jPos, kPos);
+            }
+        }
+        return undefined;
     }
 
     public register(): void {

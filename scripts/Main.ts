@@ -16,6 +16,7 @@ class Main {
     public vertexDataLoader: VertexDataLoader;
 
     public rand: Rand;
+    public terrain: Terrain;
 
     public isTouch: boolean = false;
 
@@ -49,15 +50,14 @@ class Main {
         perfDebug.show();
 
         ChunckVertexData.InitializeData().then(() => {
-            let terrain = new Terrain({
+            this.terrain = new Terrain({
                 scene: this.scene,
                 chunckCountHeight: 20,
                 maxLevel: 15
             });
-            let chunck = new Chunck(0, 0, 0, terrain);
-            chunck.genMap = new GenMap(chunck.level, 0, 0, terrain);
-            chunck.register();
-            terrain.initialize();
+            this.terrain.root.genMap = new GenMap(this.terrain.root.level, 0, 0, this.terrain);
+            this.terrain.root.register();
+            this.terrain.initialize();
 
             setTimeout(() => {
                 //terrain.chunckManager.dispose();

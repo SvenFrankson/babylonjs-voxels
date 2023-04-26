@@ -16,6 +16,7 @@ class Terrain {
     public terrainSize: number;
     public halfTerrainSize: number;
 
+    public root: Chunck;
     public chunckManager: ChunckManager;
     public scene: BABYLON.Scene;
 
@@ -65,6 +66,8 @@ class Terrain {
             scene: this.scene,
             terrain: this
         });
+
+        this.root = new Chunck(0, 0, 0, this);
     }
 
     public initialize(): void {
@@ -93,5 +96,9 @@ class Terrain {
             this.genMaps[genMap.level][genMap.iPos] = [];
         }
         this.genMaps[genMap.level][genMap.iPos][genMap.jPos] = genMap;
+    }
+
+    public getChunck(level: number, iPos: number, jPos: number, kPos: number): Chunck {
+        return this.root.getChunck(level, iPos, jPos, kPos);
     }
 }
