@@ -52,7 +52,7 @@ class Main {
             let terrain = new Terrain({
                 scene: this.scene,
                 chunckCountHeight: 20,
-                maxLevel: 16
+                maxLevel: 15
             });
             let chunck = new Chunck(0, 0, 0, terrain);
             chunck.genMap = new GenMap(chunck.level, 0, 0, terrain);

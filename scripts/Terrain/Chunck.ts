@@ -160,6 +160,7 @@ class Chunck {
                 );
                 this.mesh.material = this.terrain.material;
                 this.mesh.freezeWorldMatrix();
+                /*
                 if (this.level === 0) {
                     if (this.iPos === this.terrain.chunckCount / 2) {
                         if (this.jPos === this.terrain.chunckCount / 2) {
@@ -184,6 +185,7 @@ class Chunck {
                         }
                     }
                 }
+                */
             }
 
             /*
