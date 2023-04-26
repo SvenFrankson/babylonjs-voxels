@@ -66,8 +66,27 @@ class Main {
             //let debugBlock = BABYLON.MeshBuilder.CreateBox("debug-block");
             //debugBlock.position.copyFromFloats(0.5, 0.5, 0.5);
             //debugBlock.position.y += 4;
-    
-            let yAxis = BABYLON.MeshBuilder.CreateBox("yAxis", { width: 0.2, height: 100, depth: 0.2 });
+
+            let redMaterial = new BABYLON.StandardMaterial("debug");
+            redMaterial.specularColor.copyFromFloats(0, 0, 0);
+            redMaterial.diffuseColor.copyFromFloats(1, 0, 0);
+            let xAxis = BABYLON.MeshBuilder.CreateBox("xAxis", { width: 20, height: 0.2, depth: 0.2 });
+            xAxis.position.x = 11;
+            xAxis.material = redMaterial;
+
+            let greenMaterial = new BABYLON.StandardMaterial("debug");
+            greenMaterial.specularColor.copyFromFloats(0, 0, 0);
+            greenMaterial.diffuseColor.copyFromFloats(0, 1, 0);
+            let yAxis = BABYLON.MeshBuilder.CreateBox("yAxis", { width: 0.2, height: 20, depth: 0.2 });
+            yAxis.position.y = 11;
+            yAxis.material = greenMaterial;
+
+            let blueMaterial = new BABYLON.StandardMaterial("debug");
+            blueMaterial.specularColor.copyFromFloats(0, 0, 0);
+            blueMaterial.diffuseColor.copyFromFloats(0, 0, 1);
+            let zAxis = BABYLON.MeshBuilder.CreateBox("zAxis", { width: 0.2, height: 0.2, depth: 20 });
+            zAxis.position.z = 11;
+            zAxis.material = blueMaterial;
         });
 	}
 

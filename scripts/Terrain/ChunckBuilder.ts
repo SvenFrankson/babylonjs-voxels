@@ -139,23 +139,23 @@ class ChunckMeshBuilder {
         let iMax = CHUNCK_LENGTH;
         let jMax = CHUNCK_LENGTH;
         let kMax = CHUNCK_LENGTH;
-        if (chunck.povCorner < 4) {
-            kMin = - 1;
-        }
-        else {
-            kMax = CHUNCK_LENGTH + 1;
-        }
-        if (chunck.povCorner % 2 === 0) {
-            iMin = - 1;
-        }
-        else {
+        if (chunck.povDir.x > 0) {
             iMax = CHUNCK_LENGTH + 1;
         }
-        if (chunck.povCorner % 4 < 2) {
-            jMin = - 1;
+        else {
+            iMin = - 1;
+        }
+        if (chunck.povDir.y > 0) {
+            kMax = CHUNCK_LENGTH + 1;
         }
         else {
+            kMin = - 1;
+        }
+        if (chunck.povDir.z > 0) {
             jMax = CHUNCK_LENGTH + 1;
+        }
+        else {
+            jMin = - 1;
         }
 
 		for (let i = iMin ; i < iMax; i++) {

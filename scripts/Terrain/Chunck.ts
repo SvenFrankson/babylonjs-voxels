@@ -32,6 +32,7 @@ class Chunck {
     public data: number[][][];
 
     public mesh: BABYLON.Mesh;
+    public barycenterMesh: BABYLON.Mesh;
 
     private _registered: boolean = false;
     public get registered(): boolean {
@@ -44,6 +45,7 @@ class Chunck {
     }
 
     public povCorner: number;
+    public povDir: BABYLON.Vector3;
 
     constructor(iPos: number, jPos: number, kPos: number, parent: Chunck);
     constructor(iPos: number, jPos: number, kPos: number, terrain: Terrain);
@@ -74,10 +76,11 @@ class Chunck {
         this.name = "chunck:" + this.level + ":" + this.iPos + "-" + this.jPos	+ "-" + this.kPos;
 
         this.position = new BABYLON.Vector3(
-            (this.iPos + 0.5) * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainSize,
-            (this.kPos + 0.5) * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainHeight,
-            (this.jPos + 0.5) * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainSize,
-        )
+            ((this.iPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
+            ((this.kPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight,
+            ((this.jPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+        );
+        this.povDir = BABYLON.Vector3.One();
     }
 
     public initializeData(): void {
@@ -174,8 +177,11 @@ class Chunck {
             this.terrain.chunckManager.unregisterChunck(this);
         }   
     }
+    
 
     public setPovCornerFromDir(dir: BABYLON.Vector3): void {
+        this.povDir.copyFrom(dir);
+        return;
         this.povCorner = 0;
         if (dir.y > 0) {
             this.povCorner += 4;
@@ -205,11 +211,44 @@ class Chunck {
                 }
                 this.mesh.position.copyFromFloats(
                     (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-                    this.kPos * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainHeight,
+                    (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight,
                     (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
                 );
                 this.mesh.material = this.terrain.material;
                 this.mesh.freezeWorldMatrix();
+                
+                /*
+                this.barycenterMesh = BABYLON.MeshBuilder.CreateBox("barycenter", { width: 1, height: 1, depth: 1 });
+                let barycenterNeedle = BABYLON.MeshBuilder.CreateBox("barycenter", { width: 0.2, height: 0.2, depth: 10 });
+                barycenterNeedle.parent = this.barycenterMesh;
+                barycenterNeedle.position.z = 5;
+                let mat = new BABYLON.StandardMaterial("barycenter");
+                mat.specularColor.copyFromFloats(0, 0, 0);
+                if (this.level % 6 === 0) {
+                    mat.diffuseColor.copyFromFloats(1, 0, 0);
+                }
+                else if (this.level % 6 === 1) {
+                    mat.diffuseColor.copyFromFloats(0, 1, 0);
+                }
+                else if (this.level % 6 === 2) {
+                    mat.diffuseColor.copyFromFloats(0, 0, 1);
+                }
+                else if (this.level % 6 === 3) {
+                    mat.diffuseColor.copyFromFloats(1, 1, 0);
+                }
+                else if (this.level % 6 === 4) {
+                    mat.diffuseColor.copyFromFloats(0, 1, 1);
+                }
+                else if (this.level % 6 === 5) {
+                    mat.diffuseColor.copyFromFloats(1, 0, 1);
+                }
+        
+                this.barycenterMesh.material = mat;
+                this.barycenterMesh.position.copyFrom(this.position);
+                this.barycenterMesh.rotationQuaternion = BABYLON.Quaternion.Identity();
+                VMath.QuaternionFromZYAxisToRef(this.povDir, BABYLON.Axis.Y, this.barycenterMesh.rotationQuaternion);
+                */
+                
                 /*
                 if (this.level === 0) {
                     if (this.iPos === this.terrain.chunckCount / 2) {
@@ -237,33 +276,6 @@ class Chunck {
                 }
                 */
             }
-
-            /*
-            if (this.mesh) {
-                let mat = new BABYLON.StandardMaterial("mat");
-                mat.specularColor.copyFromFloats(0, 0, 0);
-                if (this.level % 6 === 0) {
-                    mat.diffuseColor.copyFromFloats(1, 0, 0);
-                }
-                else if (this.level % 6 === 1) {
-                    mat.diffuseColor.copyFromFloats(0, 1, 0);
-                }
-                else if (this.level % 6 === 2) {
-                    mat.diffuseColor.copyFromFloats(0, 0, 1);
-                }
-                else if (this.level % 6 === 3) {
-                    mat.diffuseColor.copyFromFloats(1, 1, 0);
-                }
-                else if (this.level % 6 === 4) {
-                    mat.diffuseColor.copyFromFloats(0, 1, 1);
-                }
-                else if (this.level % 6 === 5) {
-                    mat.diffuseColor.copyFromFloats(1, 0, 1);
-                }
-        
-                this.mesh.material = mat;
-            }
-            */
         }
     }
 
@@ -271,6 +283,10 @@ class Chunck {
         if (this.mesh) {
             this.mesh.dispose();
             this.mesh = undefined;
+        }
+        if (this.barycenterMesh) {
+            this.barycenterMesh.dispose();
+            this.barycenterMesh = undefined;
         }
     }
 
@@ -296,6 +312,7 @@ class Chunck {
                         chunck.genMap = genMaps[i][j];
                         this.children[j + 2 * i + 4 * k] = chunck;
                     }
+                    chunck.setPovCornerFromDir(this.povDir);
                     chunck.redrawMesh();
                     chunck.register();
                 }

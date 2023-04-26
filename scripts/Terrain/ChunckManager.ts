@@ -31,7 +31,7 @@ class ChunckManager {
 
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
-        let distance = 200;
+        let distance = 100;
         let distances = [];
         for (let i = 0; i < this.terrain.maxLevel; i++) {
             distances.push(distance);
@@ -88,8 +88,9 @@ class ChunckManager {
 
             let chunck = this.chuncks.get(this._chunckIndex);
             let dir = this._viewpoint.subtract(chunck.position);
-            chunck.setPovCornerFromDir(dir);
             let sqrDist = dir.lengthSquared();
+            dir.normalize();
+            chunck.setPovCornerFromDir(dir);
             chunck.targetLevel = this._getChunckLevel(sqrDist);
             if (chunck.level < chunck.targetLevel) {
                 chunck.collapse();
