@@ -133,9 +133,34 @@ class ChunckMeshBuilder {
             return data[ii][jj][kk];
         }
 
-		for (let i = -1 ; i < CHUNCK_LENGTH + 1; i++) {
-            for (let j = -1 ; j < CHUNCK_LENGTH + 1; j++) {
-                for (let k = -1 ; k < CHUNCK_LENGTH + 1; k++) {
+        let iMin = 0;
+        let jMin = 0;
+        let kMin = 0;
+        let iMax = CHUNCK_LENGTH;
+        let jMax = CHUNCK_LENGTH;
+        let kMax = CHUNCK_LENGTH;
+        if (chunck.povCorner < 4) {
+            kMin = - 1;
+        }
+        else {
+            kMax = CHUNCK_LENGTH + 1;
+        }
+        if (chunck.povCorner % 2 === 0) {
+            iMin = - 1;
+        }
+        else {
+            iMax = CHUNCK_LENGTH + 1;
+        }
+        if (chunck.povCorner % 4 < 2) {
+            jMin = - 1;
+        }
+        else {
+            jMax = CHUNCK_LENGTH + 1;
+        }
+
+		for (let i = iMin ; i < iMax; i++) {
+            for (let j = jMin ; j < jMax; j++) {
+                for (let k = kMin ; k < kMax; k++) {
 
                     let ref = 0b0;
                     let d0 = getData(i, j, k);

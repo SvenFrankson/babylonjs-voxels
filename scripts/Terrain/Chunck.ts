@@ -38,6 +38,13 @@ class Chunck {
         return this._registered;
     }
 
+    private _subdivided: boolean = false;
+    public get subdivided(): boolean {
+        return this._subdivided;
+    }
+
+    public povCorner: number;
+
     constructor(iPos: number, jPos: number, kPos: number, parent: Chunck);
     constructor(iPos: number, jPos: number, kPos: number, terrain: Terrain);
     constructor(
@@ -168,6 +175,19 @@ class Chunck {
         }   
     }
 
+    public setPovCornerFromDir(dir: BABYLON.Vector3): void {
+        this.povCorner = 0;
+        if (dir.y > 0) {
+            this.povCorner += 4;
+        }
+        if (dir.z > 0) {
+            this.povCorner += 2;
+        }
+        if (dir.x > 0) {
+            this.povCorner += 1;
+        }
+    }
+
     public redrawMesh(): void {
         if (!this._dataInitialized) {
             this.initializeData();
@@ -254,10 +274,6 @@ class Chunck {
         }
     }
 
-    private _subdivided: boolean = false;
-    public get subdivided(): boolean {
-        return this._subdivided;
-    }
     public subdivide(): void {
         this.unregister();
         if (this._subdivided) {

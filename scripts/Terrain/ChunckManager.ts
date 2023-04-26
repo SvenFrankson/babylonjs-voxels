@@ -87,7 +87,9 @@ class ChunckManager {
             this._chunckIndex = (this._chunckIndex + 1) % this.chuncks.length;
 
             let chunck = this.chuncks.get(this._chunckIndex);
-            let sqrDist = BABYLON.Vector3.DistanceSquared(chunck.position, this._viewpoint);
+            let dir = this._viewpoint.subtract(chunck.position);
+            chunck.setPovCornerFromDir(dir);
+            let sqrDist = dir.lengthSquared();
             chunck.targetLevel = this._getChunckLevel(sqrDist);
             if (chunck.level < chunck.targetLevel) {
                 chunck.collapse();
