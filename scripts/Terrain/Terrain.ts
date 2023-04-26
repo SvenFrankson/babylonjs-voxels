@@ -21,6 +21,8 @@ class Terrain {
 
     public genMaps: GenMap[][][] = [];
 
+    public material: BABYLON.StandardMaterial;
+
     constructor(prop: ITerrainProperties) {
         if (!prop.scene) {
             this.scene = BABYLON.Engine.Instances[0].scenes[0];
@@ -54,6 +56,10 @@ class Terrain {
         let kmSize = this.terrainSize / 1000;
         let surface = kmSize * kmSize;
         console.log("surface " + surface);
+
+        this.material = new BABYLON.StandardMaterial("debug");
+        this.material.specularColor.copyFromFloats(0, 0, 0);
+        this.material.diffuseColor.copyFromFloats(0, 1, 1);
 
         this.chunckManager = new ChunckManager({
             scene: this.scene,

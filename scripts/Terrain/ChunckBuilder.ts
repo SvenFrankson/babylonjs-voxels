@@ -24,6 +24,10 @@ class ChunckMeshBuilder {
 		ChunckMeshBuilder._Vertices = [];
 
         let data = chunck.data;
+        let lod = 2;
+        if (chunck.level === 0) {
+            lod = 0;
+        }
 
 		let vertexData = new BABYLON.VertexData();
 		let positions: number[] = [];
@@ -69,24 +73,24 @@ class ChunckMeshBuilder {
                     }
 
                     if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
-                        let extendedpartVertexData = ChunckVertexData.Get(1, ref);
+                        let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
                         if (extendedpartVertexData) {
                             let vData = extendedpartVertexData.vertexData;
                             let partIndexes = [];
                             for (let p = 0; p < vData.positions.length / 3; p++) {
-                                let x = (vData.positions[3 * p] + i) * chunck.levelFactor + 0.5;
-                                let y = (vData.positions[3 * p + 1] + k) * chunck.levelFactor + 0.5 * chunck.levelFactor;
-                                let z = (vData.positions[3 * p + 2] + j) * chunck.levelFactor + 0.5;
+                                let x = (vData.positions[3 * p] + i);
+                                let y = (vData.positions[3 * p + 1] + k);
+                                let z = (vData.positions[3 * p + 2] + j);
 
-                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(100 * x), Math.round(100 * y), Math.round(100 * z));
+                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * x), Math.round(10 * y), Math.round(10 * z));
                                 if (isFinite(existingIndex)) {
                                     partIndexes[p] = existingIndex;
                                 }
                                 else {
                                     let l = positions.length / 3;
+                                    ChunckMeshBuilder._SetVertex(l, Math.round(10 * x), Math.round(10 * y), Math.round(10 * z));
                                     partIndexes[p] = l;
-                                    positions.push(x, y, z);
-                                    ChunckMeshBuilder._SetVertex(l, Math.round(100 * x), Math.round(100 * y), Math.round(100 * z))
+                                    positions.push(x * chunck.levelFactor + 0.5, y * chunck.levelFactor + 0.5 * chunck.levelFactor, z * chunck.levelFactor + 0.5);
                                 }
 
                             }

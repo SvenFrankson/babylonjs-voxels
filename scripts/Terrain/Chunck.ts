@@ -1,5 +1,7 @@
 var BLOCK_SIZE: number = 1;
-var CHUNCK_LENGTH: number = 8;
+var CHUNCK_LENGTH: number = 16;
+var CHUNCK_LENGTH_2: number = CHUNCK_LENGTH * CHUNCK_LENGTH;
+var CHUNCK_LENGTH_3: number = CHUNCK_LENGTH_2 * CHUNCK_LENGTH;
 var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
 
 class Chunck {
@@ -156,6 +158,7 @@ class Chunck {
                     this.kPos * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainHeight,
                     (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
                 );
+                this.mesh.material = this.terrain.material;
                 this.mesh.freezeWorldMatrix();
                 if (this.level === 0) {
                     if (this.iPos === this.terrain.chunckCount / 2) {

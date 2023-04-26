@@ -31,7 +31,7 @@ class ChunckManager {
 
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
-        let distance = 100;
+        let distance = 200;
         let distances = [];
         for (let i = 0; i < this.terrain.maxLevel; i++) {
             distances.push(distance);
@@ -71,7 +71,7 @@ class ChunckManager {
         return this._chunckLevelsSquareDistances.length - 1;
     }
 
-    private _checkDuration: number = 30;
+    private _checkDuration: number = 15;
     private _update = () => {
         if (this.scene.activeCameras && this.scene.activeCameras.length > 0) {
             this._viewpoint.copyFrom(this.scene.activeCameras[0].globalPosition);
