@@ -89,14 +89,32 @@ class ChunckManager {
             let chunck = this.chuncks.get(this._chunckIndex);
             let dir = this._viewpoint.subtract(chunck.position);
             let sqrDist = dir.lengthSquared();
-            dir.normalize();
+            chunck.povSqrDist = sqrDist;
             chunck.setPovCornerFromDir(dir);
             chunck.targetLevel = this._getChunckLevel(sqrDist);
             if (chunck.level < chunck.targetLevel) {
-                chunck.collapse();
+                let parentChunck = chunck.collapse();
+                if (parentChunck) {
+                    let parentDir = this._viewpoint.subtract(parentChunck.position);
+                    let parentSqrDist = parentDir.lengthSquared();
+                    parentChunck.povSqrDist = parentSqrDist;
+                    parentChunck.register();
+                    parentChunck.setPovCornerFromDir(parentDir);
+                    parentChunck.redrawMesh();
+                }
             }
             if (chunck.level > chunck.targetLevel) {
-                chunck.subdivide();
+                let children = chunck.subdivide();
+                if (children) {
+                    children.forEach(childChunck => {
+                        let childDir = this._viewpoint.subtract(childChunck.position);
+                        let childSqrDist = childDir.lengthSquared();
+                        childChunck.povSqrDist = childSqrDist;
+                        childChunck.register();
+                        childChunck.setPovCornerFromDir(childDir);
+                        childChunck.redrawMesh();
+                    })
+                }
             }
 
             t = performance.now();

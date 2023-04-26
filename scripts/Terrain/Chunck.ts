@@ -46,6 +46,7 @@ class Chunck {
 
     public povCorner: number;
     public povDir: BABYLON.Vector3;
+    public povSqrDist: number;
 
     constructor(iPos: number, jPos: number, kPos: number, parent: Chunck);
     constructor(iPos: number, jPos: number, kPos: number, terrain: Terrain);
@@ -290,7 +291,7 @@ class Chunck {
         }
     }
 
-    public subdivide(): void {
+    public subdivide(): Chunck[] {
         this.unregister();
         if (this._subdivided) {
             return;
@@ -312,13 +313,11 @@ class Chunck {
                         chunck.genMap = genMaps[i][j];
                         this.children[j + 2 * i + 4 * k] = chunck;
                     }
-                    chunck.setPovCornerFromDir(this.povDir);
-                    chunck.redrawMesh();
-                    chunck.register();
                 }
             }
         }
         this.disposeMesh();
+        return this.children;
     }
 
     public canCollapse(): boolean {
@@ -334,13 +333,13 @@ class Chunck {
         }
     }
 
-    public collapse(): void {
+    public collapse(): Chunck {
         if (this.canCollapse()) {
-            this.parent.collapseChildren();
+            return this.parent.collapseChildren();
         }
     }
 
-    public collapseChildren(): void {
+    public collapseChildren(): Chunck {
         for (let i = 0; i < this.children.length; i++) {
             let child = this.children[i];
             child.unregister();
@@ -351,7 +350,6 @@ class Chunck {
         }
         this.children = [];
         this._subdivided = false;
-        this.register();
-        this.redrawMesh();
+        return this;
     }
 }
