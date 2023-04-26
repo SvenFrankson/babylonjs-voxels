@@ -109,6 +109,105 @@ class ChunckMeshBuilder {
 		return vertexData;
 	}
 
+    public static BuildMeshShell(chunck: Chunck): BABYLON.VertexData {
+		ChunckMeshBuilder._Vertices = [];
+
+        let data = chunck.data;
+        let lod = 2;
+        if (chunck.level === 0) {
+            lod = 0;
+        }
+
+		let vertexData = new BABYLON.VertexData();
+		let positions: number[] = [];
+		let indices: number[] = [];
+        let normals: number[] = [];
+
+        let getData = (ii, jj, kk) => {
+            if (ii < 0 || jj < 0 || kk < 0) {
+                return BlockType.None;
+            }
+            if (ii > CHUNCK_LENGTH || jj > CHUNCK_LENGTH || kk > CHUNCK_LENGTH) {
+                return BlockType.None;
+            }
+            return data[ii][jj][kk];
+        }
+
+		for (let i = -1 ; i < CHUNCK_LENGTH + 1; i++) {
+            for (let j = -1 ; j < CHUNCK_LENGTH + 1; j++) {
+                for (let k = -1 ; k < CHUNCK_LENGTH + 1; k++) {
+
+                    let ref = 0b0;
+                    let d0 = getData(i, j, k);
+                    if (d0 > BlockType.Water) {
+                        ref |= 0b1 << 0;
+                    }
+                    let d4 = getData(i, j, k + 1);
+                    if (d4 > BlockType.Water) {
+                        ref |= 0b1 << 4;
+                    }
+                    let d1 = getData(i + 1, j, k);
+                    if (d1 > BlockType.Water) {
+                        ref |= 0b1 << 1;
+                    }
+                    let d2 = getData(i + 1, j + 1, k);
+                    if (d2 > BlockType.Water) {
+                        ref |= 0b1 << 2;
+                    }
+                    let d3 = getData(i, j + 1, k);
+                    if (d3 > BlockType.Water) {
+                        ref |= 0b1 << 3;
+                    }
+                    let d5 = getData(i + 1, j, k + 1);
+                    if (d5 > BlockType.Water) {
+                        ref |= 0b1 << 5;
+                    }
+                    let d6 = getData(i + 1, j + 1, k + 1);
+                    if (d6 > BlockType.Water) {
+                        ref |= 0b1 << 6;
+                    }
+                    let d7 = getData(i, j + 1, k + 1);
+                    if (d7 > BlockType.Water) {
+                        ref |= 0b1 << 7;
+                    }
+
+                    if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
+                        let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
+                        if (extendedpartVertexData) {
+                            let vData = extendedpartVertexData.vertexData;
+                            let partIndexes = [];
+                            for (let p = 0; p < vData.positions.length / 3; p++) {
+                                let x = (vData.positions[3 * p] + i);
+                                let y = (vData.positions[3 * p + 1] + k);
+                                let z = (vData.positions[3 * p + 2] + j);
+
+                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * x), Math.round(10 * y), Math.round(10 * z));
+                                if (isFinite(existingIndex)) {
+                                    partIndexes[p] = existingIndex;
+                                }
+                                else {
+                                    let l = positions.length / 3;
+                                    ChunckMeshBuilder._SetVertex(l, Math.round(10 * x), Math.round(10 * y), Math.round(10 * z));
+                                    partIndexes[p] = l;
+                                    positions.push(x * chunck.levelFactor + 0.5, y * chunck.levelFactor + 0.5 * chunck.levelFactor, z * chunck.levelFactor + 0.5);
+                                }
+
+                            }
+                            indices.push(...vData.indices.map(index => { return partIndexes[index]; }));
+                        }
+                    }
+                }
+			}
+		}
+
+        BABYLON.VertexData.ComputeNormals(positions, indices, normals);
+		vertexData.positions = positions;
+		vertexData.indices = indices;
+		vertexData.normals = normals;
+
+		return vertexData;
+	}
+
     public static BuildVertexData(chunck: Chunck): BABYLON.VertexData {
         let vertexData = new BABYLON.VertexData();
         let positions: number[] = [];

@@ -152,7 +152,12 @@ class Chunck {
             if (!this.isEmpty && !this.isFull) {
                 //this.mesh = BABYLON.MeshBuilder.CreateGround("foo", { width: 1, height: 1 });
                 this.mesh = new BABYLON.Mesh("foo");
-                ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
+                if (this.level === 0) {
+                    ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
+                }
+                else {
+                    ChunckMeshBuilder.BuildMeshShell(this).applyToMesh(this.mesh);
+                }
                 this.mesh.position.copyFromFloats(
                     (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
                     this.kPos * CHUNCK_SIZE * this.levelFactor - this.terrain.halfTerrainHeight,
