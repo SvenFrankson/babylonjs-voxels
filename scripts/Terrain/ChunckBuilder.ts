@@ -1,28 +1,27 @@
 class ChunckMeshBuilder {
 
-    private static SIZE = 200; 
-	private static _Vertices: Int16Array = new Int16Array(ChunckMeshBuilder.SIZE * ChunckMeshBuilder.SIZE * ChunckMeshBuilder.SIZE);
+	private static _Vertices: number[][][] = [];
 
     private static _GetVertex(i: number, j: number, k: number): number {
-        if (i < 0 || j < 0 || k < 0) {
-            debugger;
-        }
-		return ChunckMeshBuilder._Vertices[i * ChunckMeshBuilder.SIZE * ChunckMeshBuilder.SIZE + j * ChunckMeshBuilder.SIZE + k];
+		if (ChunckMeshBuilder._Vertices[i]) {
+			if (ChunckMeshBuilder._Vertices[i][j]) {
+				return ChunckMeshBuilder._Vertices[i][j][k];
+			}
+		}
 	}
 
 	private static _SetVertex(v: number, i: number, j: number, k: number): void {
-        if (i < 0 || j < 0 || k < 0) {
-            debugger;
-        }
-		ChunckMeshBuilder._Vertices[i * ChunckMeshBuilder.SIZE * ChunckMeshBuilder.SIZE + j * ChunckMeshBuilder.SIZE + k] = v;
-	}
-
-	private static _ClearVertices(): void {
-        ChunckMeshBuilder._Vertices.fill(-1);
+		if (!ChunckMeshBuilder._Vertices[i]) {
+			ChunckMeshBuilder._Vertices[i] = [];
+		}
+		if (!ChunckMeshBuilder._Vertices[i][j]) {
+			ChunckMeshBuilder._Vertices[i][j] = [];
+		}
+		ChunckMeshBuilder._Vertices[i][j][k] = v;
 	}
 
     public static BuildMesh(chunck: Chunck): BABYLON.VertexData {
-        ChunckMeshBuilder._ClearVertices();
+		ChunckMeshBuilder._Vertices = [];
 
         let data = chunck.data;
         let lod = 2;
@@ -83,13 +82,13 @@ class ChunckMeshBuilder {
                                 let y = (vData.positions[3 * p + 1] + k);
                                 let z = (vData.positions[3 * p + 2] + j);
 
-                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(8 * x), Math.round(8 * y), Math.round(8 * z));
-                                if (existingIndex != - 1) {
+                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
+                                if (isFinite(existingIndex)) {
                                     partIndexes[p] = existingIndex;
                                 }
                                 else {
                                     let l = positions.length / 3;
-                                    ChunckMeshBuilder._SetVertex(l, Math.round(8 * x), Math.round(8 * y), Math.round(8 * z));
+                                    ChunckMeshBuilder._SetVertex(l, Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
                                     partIndexes[p] = l;
                                     positions.push(x * chunck.levelFactor + 0.5, y * chunck.levelFactor + 0.5 * chunck.levelFactor, z * chunck.levelFactor + 0.5);
                                 }
@@ -111,7 +110,7 @@ class ChunckMeshBuilder {
 	}
 
     public static BuildMeshShell(chunck: Chunck): BABYLON.VertexData {
-        ChunckMeshBuilder._ClearVertices();
+		ChunckMeshBuilder._Vertices = [];
 
         let data = chunck.data;
         let lod = 2;
@@ -162,64 +161,65 @@ class ChunckMeshBuilder {
 		for (let i = iMin ; i < iMax; i++) {
             for (let j = jMin ; j < jMax; j++) {
                 for (let k = kMin ; k < kMax; k++) {
+                    if (i < 0 || i === CHUNCK_LENGTH || j < 0 || j === CHUNCK_LENGTH || k < 0 || k === CHUNCK_LENGTH) {
+                        let ref = 0b0;
+                        let d0 = getData(i, j, k);
+                        if (d0 > BlockType.Water) {
+                            ref |= 0b1 << 0;
+                        }
+                        let d4 = getData(i, j, k + 1);
+                        if (d4 > BlockType.Water) {
+                            ref |= 0b1 << 4;
+                        }
+                        let d1 = getData(i + 1, j, k);
+                        if (d1 > BlockType.Water) {
+                            ref |= 0b1 << 1;
+                        }
+                        let d2 = getData(i + 1, j + 1, k);
+                        if (d2 > BlockType.Water) {
+                            ref |= 0b1 << 2;
+                        }
+                        let d3 = getData(i, j + 1, k);
+                        if (d3 > BlockType.Water) {
+                            ref |= 0b1 << 3;
+                        }
+                        let d5 = getData(i + 1, j, k + 1);
+                        if (d5 > BlockType.Water) {
+                            ref |= 0b1 << 5;
+                        }
+                        let d6 = getData(i + 1, j + 1, k + 1);
+                        if (d6 > BlockType.Water) {
+                            ref |= 0b1 << 6;
+                        }
+                        let d7 = getData(i, j + 1, k + 1);
+                        if (d7 > BlockType.Water) {
+                            ref |= 0b1 << 7;
+                        }
 
-                    let ref = 0b0;
-                    let d0 = getData(i, j, k);
-                    if (d0 > BlockType.Water) {
-                        ref |= 0b1 << 0;
-                    }
-                    let d4 = getData(i, j, k + 1);
-                    if (d4 > BlockType.Water) {
-                        ref |= 0b1 << 4;
-                    }
-                    let d1 = getData(i + 1, j, k);
-                    if (d1 > BlockType.Water) {
-                        ref |= 0b1 << 1;
-                    }
-                    let d2 = getData(i + 1, j + 1, k);
-                    if (d2 > BlockType.Water) {
-                        ref |= 0b1 << 2;
-                    }
-                    let d3 = getData(i, j + 1, k);
-                    if (d3 > BlockType.Water) {
-                        ref |= 0b1 << 3;
-                    }
-                    let d5 = getData(i + 1, j, k + 1);
-                    if (d5 > BlockType.Water) {
-                        ref |= 0b1 << 5;
-                    }
-                    let d6 = getData(i + 1, j + 1, k + 1);
-                    if (d6 > BlockType.Water) {
-                        ref |= 0b1 << 6;
-                    }
-                    let d7 = getData(i, j + 1, k + 1);
-                    if (d7 > BlockType.Water) {
-                        ref |= 0b1 << 7;
-                    }
+                        if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
+                            let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
+                            if (extendedpartVertexData) {
+                                let vData = extendedpartVertexData.vertexData;
+                                let partIndexes = [];
+                                for (let p = 0; p < vData.positions.length / 3; p++) {
+                                    let x = (vData.positions[3 * p] + i);
+                                    let y = (vData.positions[3 * p + 1] + k);
+                                    let z = (vData.positions[3 * p + 2] + j);
 
-                    if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
-                        let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
-                        if (extendedpartVertexData) {
-                            let vData = extendedpartVertexData.vertexData;
-                            let partIndexes = [];
-                            for (let p = 0; p < vData.positions.length / 3; p++) {
-                                let x = (vData.positions[3 * p] + i);
-                                let y = (vData.positions[3 * p + 1] + k);
-                                let z = (vData.positions[3 * p + 2] + j);
+                                    let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
+                                    if (isFinite(existingIndex)) {
+                                        partIndexes[p] = existingIndex;
+                                    }
+                                    else {
+                                        let l = positions.length / 3;
+                                        ChunckMeshBuilder._SetVertex(l, Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
+                                        partIndexes[p] = l;
+                                        positions.push(x * chunck.levelFactor + 0.5, y * chunck.levelFactor + 0.5 * chunck.levelFactor, z * chunck.levelFactor + 0.5);
+                                    }
 
-                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(8 * (x - iMin)), Math.round(8 * (y - kMin)), Math.round(8 * (z - jMin)));
-                                if (existingIndex != - 1) {
-                                    partIndexes[p] = existingIndex;
                                 }
-                                else {
-                                    let l = positions.length / 3;
-                                    ChunckMeshBuilder._SetVertex(l, Math.round(8 * (x - iMin)), Math.round(8 * (y - kMin)), Math.round(8 * (z - jMin)));
-                                    partIndexes[p] = l;
-                                    positions.push(x * chunck.levelFactor + 0.5, y * chunck.levelFactor + 0.5 * chunck.levelFactor, z * chunck.levelFactor + 0.5);
-                                }
-
+                                indices.push(...vData.indices.map(index => { return partIndexes[index]; }));
                             }
-                            indices.push(...vData.indices.map(index => { return partIndexes[index]; }));
                         }
                     }
                 }

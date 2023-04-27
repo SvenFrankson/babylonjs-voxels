@@ -32,6 +32,7 @@ class Chunck {
     public data: number[][][];
 
     public mesh: BABYLON.Mesh;
+    public shellMesh: BABYLON.Mesh;
     public barycenterMesh: BABYLON.Mesh;
 
     private _registered: boolean = false;
@@ -199,83 +200,25 @@ class Chunck {
         if (!this._dataInitialized) {
             this.initializeData();
         }
-        if (this.level < 3) {
+        if (this.level < 4) {
             this.disposeMesh();
             if (!this.isEmpty && !this.isFull) {
-                //this.mesh = BABYLON.MeshBuilder.CreateGround("foo", { width: 1, height: 1 });
                 this.mesh = new BABYLON.Mesh("foo");
-                if (this.level === 0) {
-                    ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
-                }
-                else {
-                    ChunckMeshBuilder.BuildMeshShell(this).applyToMesh(this.mesh);
-                }
+                ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
                 this.mesh.position.copyFromFloats(
                     (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
                     (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight,
                     (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
                 );
                 this.mesh.material = this.terrain.material;
+
+                if (this.level > 0) {
+                    this.shellMesh = new BABYLON.Mesh("foo");
+                    ChunckMeshBuilder.BuildMeshShell(this).applyToMesh(this.shellMesh);
+                    this.shellMesh.parent = this.mesh;
+                    this.shellMesh.material = this.mesh.material;
+                }
                 this.mesh.freezeWorldMatrix();
-                
-                /*
-                this.barycenterMesh = BABYLON.MeshBuilder.CreateBox("barycenter", { width: 1, height: 1, depth: 1 });
-                let barycenterNeedle = BABYLON.MeshBuilder.CreateBox("barycenter", { width: 0.2, height: 0.2, depth: 10 });
-                barycenterNeedle.parent = this.barycenterMesh;
-                barycenterNeedle.position.z = 5;
-                let mat = new BABYLON.StandardMaterial("barycenter");
-                mat.specularColor.copyFromFloats(0, 0, 0);
-                if (this.level % 6 === 0) {
-                    mat.diffuseColor.copyFromFloats(1, 0, 0);
-                }
-                else if (this.level % 6 === 1) {
-                    mat.diffuseColor.copyFromFloats(0, 1, 0);
-                }
-                else if (this.level % 6 === 2) {
-                    mat.diffuseColor.copyFromFloats(0, 0, 1);
-                }
-                else if (this.level % 6 === 3) {
-                    mat.diffuseColor.copyFromFloats(1, 1, 0);
-                }
-                else if (this.level % 6 === 4) {
-                    mat.diffuseColor.copyFromFloats(0, 1, 1);
-                }
-                else if (this.level % 6 === 5) {
-                    mat.diffuseColor.copyFromFloats(1, 0, 1);
-                }
-        
-                this.barycenterMesh.material = mat;
-                this.barycenterMesh.position.copyFrom(this.position);
-                this.barycenterMesh.rotationQuaternion = BABYLON.Quaternion.Identity();
-                VMath.QuaternionFromZYAxisToRef(this.povDir, BABYLON.Axis.Y, this.barycenterMesh.rotationQuaternion);
-                */
-                
-                /*
-                if (this.level === 0) {
-                    if (this.iPos === this.terrain.chunckCount / 2) {
-                        if (this.jPos === this.terrain.chunckCount / 2) {
-                            if (this.kPos === this.terrain.chunckCountHeight / 2) {
-                                let mat = new BABYLON.StandardMaterial("debug");
-                                mat.specularColor.copyFromFloats(0, 0, 0);
-                                mat.diffuseColor.copyFromFloats(0, 1, 1);
-                                mat.alpha = 0.2;
-                                for (let i = 0; i < CHUNCK_LENGTH; i++) {
-                                    for (let j = 0; j < CHUNCK_LENGTH; j++) {
-                                        for (let k = 0; k < CHUNCK_LENGTH; k++) {
-                                            if (this.data[i][j][k]) {
-                                                let debugBlock = BABYLON.MeshBuilder.CreateBox("debug-block", { size: 1.05 });
-                                                debugBlock.position.copyFromFloats(0.5 + i, 0.5 + k, 0.5 + j);
-                                                debugBlock.material = mat;
-                                                debugBlock.parent = this.mesh;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                */
             }
         }
     }
@@ -284,6 +227,10 @@ class Chunck {
         if (this.mesh) {
             this.mesh.dispose();
             this.mesh = undefined;
+        }
+        if (this.shellMesh) {
+            this.shellMesh.dispose();
+            this.shellMesh = undefined;
         }
         if (this.barycenterMesh) {
             this.barycenterMesh.dispose();
