@@ -90,7 +90,11 @@ class ChunckMeshBuilder {
                                     let l = positions.length / 3;
                                     ChunckMeshBuilder._SetVertex(l, Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
                                     partIndexes[p] = l;
-                                    positions.push(x * chunck.levelFactor + 0.5, y * chunck.levelFactor + 0.5 * chunck.levelFactor, z * chunck.levelFactor + 0.5);
+                                    positions.push(
+                                        x * chunck.levelFactor + 0.5,
+                                        y * chunck.levelFactor + 0.5 * chunck.levelFactor,
+                                        z * chunck.levelFactor + 0.5
+                                    );
                                 }
 
                             }
@@ -109,7 +113,7 @@ class ChunckMeshBuilder {
 		return vertexData;
 	}
 
-    public static BuildMeshShell(chunck: Chunck): BABYLON.VertexData {
+    public static BuildMeshShell(chunck: Chunck, sides: number): BABYLON.VertexData {
 		ChunckMeshBuilder._Vertices = [];
 
         let data = chunck.data;
@@ -139,23 +143,29 @@ class ChunckMeshBuilder {
         let iMax = CHUNCK_LENGTH;
         let jMax = CHUNCK_LENGTH;
         let kMax = CHUNCK_LENGTH;
-        if (chunck.povDir.x > 0) {
-            iMax = CHUNCK_LENGTH + 1;
-        }
-        else {
+        if (sides & 0b1) {
+            console.log("a");
             iMin = - 1;
         }
-        if (chunck.povDir.y > 0) {
-            kMax = CHUNCK_LENGTH + 1;
+        if (sides & 0b10) {
+            console.log("b");
+            iMax = CHUNCK_LENGTH + 1;
         }
-        else {
-            kMin = - 1;
+        if (sides & 0b100) {
+            console.log("c");
+            jMin = - 1;
         }
-        if (chunck.povDir.z > 0) {
+        if (sides & 0b1000) {
+            console.log("d");
             jMax = CHUNCK_LENGTH + 1;
         }
-        else {
-            jMin = - 1;
+        if (sides & 0b10000) {
+            console.log("e");
+            kMin = - 1;
+        }
+        if (sides & 0b100000) {
+            console.log("f");
+            kMax = CHUNCK_LENGTH + 1;
         }
 
 		for (let i = iMin ; i < iMax; i++) {
@@ -214,7 +224,11 @@ class ChunckMeshBuilder {
                                         let l = positions.length / 3;
                                         ChunckMeshBuilder._SetVertex(l, Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
                                         partIndexes[p] = l;
-                                        positions.push(x * chunck.levelFactor + 0.5, y * chunck.levelFactor + 0.5 * chunck.levelFactor, z * chunck.levelFactor + 0.5);
+                                        positions.push(
+                                            x * chunck.levelFactor + 0.5,
+                                            y * chunck.levelFactor + 0.5 * chunck.levelFactor,
+                                            z * chunck.levelFactor + 0.5
+                                        );
                                     }
 
                                 }

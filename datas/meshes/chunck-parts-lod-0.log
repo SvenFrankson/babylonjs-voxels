@@ -9,18 +9,18 @@ Exporter version: 6.4.5, Blender version: 2.90.1
 		Vert Color Precision:  3
 		Mat Weight Precision:  2
 		Keep Z-up r-handed  :  no
-		Texture directory   :  C:\Users\svent\Documents\Sven Frankson\planet-builder-web\datas\meshes\
+		Texture directory   :  C:\Users\svent\Documents\sven-frankson\babylonjs-voxels\datas\meshes\
 	Python World class constructor completed
 	WARNING: No active camera has been assigned, or is not in a currently selected Blender layer
 	processing begun of mesh:  11110000
 		processing begun of material:  Green
-		num positions      :  4
-		num normals        :  4
+		num positions      :  9
+		num normals        :  9
 		num tangents       :  0
-		num uvs            :  8
+		num uvs            :  18
 		num uvs2           :  0
 		num colors         :  0
-		num triangles      :  2
+		num triangles      :  8
 	processing begun of mesh:  10000000
 		processing begun of material:  Green
 		registered as also a user of material:  Green
@@ -34,33 +34,33 @@ Exporter version: 6.4.5, Blender version: 2.90.1
 	processing begun of mesh:  11000000
 		processing begun of material:  Green
 		registered as also a user of material:  Green
-		num positions      :  8
-		num normals        :  8
+		num positions      :  12
+		num normals        :  12
 		num tangents       :  0
-		num uvs            :  16
+		num uvs            :  24
 		num uvs2           :  0
 		num colors         :  0
-		num triangles      :  6
+		num triangles      :  12
 	processing begun of mesh:  10110010
 		processing begun of material:  Green
 		registered as also a user of material:  Green
-		num positions      :  25
-		num normals        :  25
+		num positions      :  23
+		num normals        :  23
 		num tangents       :  0
-		num uvs            :  50
+		num uvs            :  46
 		num uvs2           :  0
 		num colors         :  0
-		num triangles      :  30
+		num triangles      :  28
 	processing begun of mesh:  11100000
 		processing begun of material:  Green
 		registered as also a user of material:  Green
-		num positions      :  21
-		num normals        :  21
+		num positions      :  19
+		num normals        :  19
 		num tangents       :  0
-		num uvs            :  42
+		num uvs            :  38
 		num uvs2           :  0
 		num colors         :  0
-		num triangles      :  25
+		num triangles      :  23
 	processing begun of mesh:  11100100
 		processing begun of material:  Green
 		registered as also a user of material:  Green
@@ -84,13 +84,13 @@ Exporter version: 6.4.5, Blender version: 2.90.1
 	processing begun of mesh:  10101000
 		processing begun of material:  Green
 		registered as also a user of material:  Green
-		num positions      :  29
-		num normals        :  29
+		num positions      :  27
+		num normals        :  27
 		num tangents       :  0
-		num uvs            :  58
+		num uvs            :  54
 		num uvs2           :  0
 		num colors         :  0
-		num triangles      :  35
+		num triangles      :  33
 ========= Writing of JSON file started =========
 	writing mesh:  11110000
 	writing mesh:  10000000
@@ -102,4 +102,4 @@ Exporter version: 6.4.5, Blender version: 2.90.1
 	writing mesh:  10101000
 ========= Writing of JSON file completed =========
 ========= end of processing =========
-elapsed time:  0 min, 0.0269 secs
+elapsed time:  0 min, 0.0344 secs

@@ -4,6 +4,15 @@ var CHUNCK_LENGTH_2: number = CHUNCK_LENGTH * CHUNCK_LENGTH;
 var CHUNCK_LENGTH_3: number = CHUNCK_LENGTH_2 * CHUNCK_LENGTH;
 var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
 
+enum AdjacentAxis {
+    IPrev = 0,
+    INext = 1,
+    JPrev = 2,
+    JNext = 3,
+    KPrev = 4,
+    KNext = 5
+}
+
 class Chunck {
 
     public name: string;
@@ -14,6 +23,7 @@ class Chunck {
     public level: number = 0;
     public targetLevel: number = 0;
     public levelFactor: number = 0;
+    public adjacents: Chunck[] = [];
     public children: Chunck[] = [];
     public parent: Chunck;
 
@@ -33,7 +43,6 @@ class Chunck {
 
     public mesh: BABYLON.Mesh;
     public shellMesh: BABYLON.Mesh;
-    public barycenterMesh: BABYLON.Mesh;
 
     private _registered: boolean = false;
     public get registered(): boolean {
@@ -83,6 +92,83 @@ class Chunck {
             ((this.jPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
         );
         this.povDir = BABYLON.Vector3.One();
+    }
+
+    public findAdjacents(): void {
+        let iPrevChunck = this.terrain.getChunck(this.level, this.iPos - 1, this.jPos, this.kPos);
+        if (iPrevChunck) {
+            this.adjacents[AdjacentAxis.IPrev] = iPrevChunck;
+            iPrevChunck.adjacents[AdjacentAxis.INext] = this;
+        }
+        let iNextChunck = this.terrain.getChunck(this.level, this.iPos + 1, this.jPos, this.kPos);
+        if (iNextChunck) {
+            this.adjacents[AdjacentAxis.INext] = iNextChunck;
+            iNextChunck.adjacents[AdjacentAxis.IPrev] = this;
+        }
+        let jPrevChunck = this.terrain.getChunck(this.level, this.iPos, this.jPos - 1, this.kPos);
+        if (jPrevChunck) {
+            this.adjacents[AdjacentAxis.JPrev] = jPrevChunck;
+            jPrevChunck.adjacents[AdjacentAxis.JNext] = this;
+        }
+        let jNextChunck = this.terrain.getChunck(this.level, this.iPos, this.jPos + 1, this.kPos);
+        if (jNextChunck) {
+            this.adjacents[AdjacentAxis.JNext] = jNextChunck;
+            jNextChunck.adjacents[AdjacentAxis.JPrev] = this;
+        }
+        let kPrevChunck = this.terrain.getChunck(this.level, this.iPos, this.jPos, this.kPos - 1);
+        if (kPrevChunck) {
+            this.adjacents[AdjacentAxis.KPrev] = kPrevChunck;
+            kPrevChunck.adjacents[AdjacentAxis.KNext] = this;
+        }
+        let kNextChunck = this.terrain.getChunck(this.level, this.iPos, this.jPos, this.kPos + 1);
+        if (kNextChunck) {
+            this.adjacents[AdjacentAxis.KNext] = kNextChunck;
+            kNextChunck.adjacents[AdjacentAxis.KPrev] = this;
+        }
+    }
+
+    public setAdjacent(other: Chunck): void {
+        if (other.level === this.level) {
+            if (other.iPos === this.iPos - 1) {
+                this.adjacents[AdjacentAxis.IPrev] = other;
+                other.adjacents[AdjacentAxis.INext] = this;
+            }
+            else if (other.iPos === this.iPos + 1) {
+                this.adjacents[AdjacentAxis.INext] = other;
+                other.adjacents[AdjacentAxis.IPrev] = this;
+            }
+            else if (other.jPos === this.jPos - 1) {
+                this.adjacents[AdjacentAxis.JPrev] = other;
+                other.adjacents[AdjacentAxis.JNext] = this;
+            }
+            else if (other.jPos === this.jPos + 1) {
+                this.adjacents[AdjacentAxis.JNext] = other;
+                other.adjacents[AdjacentAxis.JPrev] = this;
+            }
+            else if (other.kPos === this.kPos - 1) {
+                this.adjacents[AdjacentAxis.KPrev] = other;
+                other.adjacents[AdjacentAxis.KNext] = this;
+            }
+            else if (other.kPos === this.kPos + 1) {
+                this.adjacents[AdjacentAxis.KNext] = other;
+                other.adjacents[AdjacentAxis.KPrev] = this;
+            }
+        }
+    }
+
+    public removeFromAdjacents(): void {
+        for (let index = 0; index < 6; index++) {
+            let other = this.adjacents[index];
+            if (other) {
+                this.adjacents[index] = undefined;
+                if (index % 2 === 0) {
+                    other[index + 1] = undefined;
+                }
+                else {
+                    other[index - 1] = undefined;
+                }
+            }
+        }
     }
 
     public initializeData(): void {
@@ -183,7 +269,6 @@ class Chunck {
 
     public setPovCornerFromDir(dir: BABYLON.Vector3): void {
         this.povDir.copyFrom(dir);
-        return;
         this.povCorner = 0;
         if (dir.y > 0) {
             this.povCorner += 4;
@@ -203,6 +288,7 @@ class Chunck {
         if (this.level < 4) {
             this.disposeMesh();
             if (!this.isEmpty && !this.isFull) {
+
                 this.mesh = new BABYLON.Mesh("foo");
                 ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
                 this.mesh.position.copyFromFloats(
@@ -211,31 +297,61 @@ class Chunck {
                     (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
                 );
                 this.mesh.material = this.terrain.material;
-
-                if (this.level > 0) {
-                    this.shellMesh = new BABYLON.Mesh("foo");
-                    ChunckMeshBuilder.BuildMeshShell(this).applyToMesh(this.shellMesh);
-                    this.shellMesh.parent = this.mesh;
-                    this.shellMesh.material = this.mesh.material;
-                }
                 this.mesh.freezeWorldMatrix();
             }
         }
     }
 
+    private _lastDrawnSides: number = 0b0;
+    public redrawShellMesh(): void {
+        if (this.level > 0 && this.level < 4) {
+            let sides = 0b0;
+            for (let i = 0; i < 6; i++) {
+                let adj = this.adjacents[i];
+                if (adj && adj.subdivided) {
+                    sides |= 0b1 << i;
+                }
+            }
+            console.log(this.adjacents.length + " " + sides.toString(2));
+            if (this._lastDrawnSides != sides) {
+                this.doRedrawShellMesh(sides);
+                this._lastDrawnSides = sides;
+            }
+        }
+    }
+
+    public doRedrawShellMesh(sides: number): void {
+        if (!this._dataInitialized) {
+            this.initializeData();
+        }
+        this.disposeShellMesh();
+        if (!this.isEmpty && !this.isFull) {
+
+            this.shellMesh = new BABYLON.Mesh("foo");
+            ChunckMeshBuilder.BuildMeshShell(this, sides).applyToMesh(this.shellMesh);
+            this.shellMesh.parent = this.mesh;
+            this.shellMesh.material = this.mesh.material;
+        }
+    }
+
+    public disposeAllMeshes(): void {
+        this.disposeMesh();
+        this.disposeShellMesh();
+    }
+
     public disposeMesh(): void {
         if (this.mesh) {
             this.mesh.dispose();
-            this.mesh = undefined;
         }
+        this.mesh = undefined;
+    }
+
+    public disposeShellMesh(): void {
         if (this.shellMesh) {
             this.shellMesh.dispose();
-            this.shellMesh = undefined;
         }
-        if (this.barycenterMesh) {
-            this.barycenterMesh.dispose();
-            this.barycenterMesh = undefined;
-        }
+        this.shellMesh = undefined;
+        this._lastDrawnSides = 0b0;
     }
 
     public subdivide(): Chunck[] {
@@ -258,12 +374,13 @@ class Chunck {
                     if (!chunck) {
                         chunck = new Chunck(this.iPos * 2 + i, this.jPos * 2 + j, this.kPos * 2 + k, this);
                         chunck.genMap = genMaps[i][j];
+                        chunck.findAdjacents();
                         this.children[j + 2 * i + 4 * k] = chunck;
                     }
                 }
             }
         }
-        this.disposeMesh();
+        this.disposeAllMeshes();
         return this.children;
     }
 
@@ -290,13 +407,15 @@ class Chunck {
         for (let i = 0; i < this.children.length; i++) {
             let child = this.children[i];
             child.unregister();
-            child.disposeMesh();
+            child.disposeAllMeshes();
+            child.removeFromAdjacents();
             if (child.subdivided) {
                 child.collapseChildren();
             }
         }
         this.children = [];
         this._subdivided = false;
+        this.findAdjacents();
         return this;
     }
 }

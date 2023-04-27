@@ -101,6 +101,7 @@ class ChunckManager {
                     parentChunck.register();
                     parentChunck.setPovCornerFromDir(parentDir);
                     parentChunck.redrawMesh();
+                    parentChunck.redrawShellMesh();
                 }
             }
             if (chunck.level > chunck.targetLevel) {
@@ -113,6 +114,7 @@ class ChunckManager {
                         childChunck.register();
                         childChunck.setPovCornerFromDir(childDir);
                         childChunck.redrawMesh();
+                        childChunck.redrawShellMesh();
                     })
                 }
             }
