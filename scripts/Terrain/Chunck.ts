@@ -125,6 +125,10 @@ class Chunck {
             this.adjacents[AdjacentAxis.KNext] = kNextChunck;
             kNextChunck.adjacents[AdjacentAxis.KPrev] = this;
         }
+        return;
+        if (this.adjacents.length > 0) {
+            console.log(this.adjacents.map(chunck => { return (chunck ? 1 : 0) as number; }).reduce((a, b) => { return a + b; }));
+        }
     }
 
     public setAdjacent(other: Chunck): void {
@@ -312,7 +316,12 @@ class Chunck {
                     sides |= 0b1 << i;
                 }
             }
-            console.log(this.adjacents.length + " " + sides.toString(2));
+            if (this.adjacents.length > 0) {
+                console.log(this.adjacents.map(chunck => { return (chunck ? 1 : 0) as number; }).reduce((a, b) => { return a + b; }) + " " + sides);
+            }
+            else {
+                console.log("0 " + sides);
+            }
             if (this._lastDrawnSides != sides) {
                 this.doRedrawShellMesh(sides);
                 this._lastDrawnSides = sides;
@@ -374,8 +383,8 @@ class Chunck {
                     if (!chunck) {
                         chunck = new Chunck(this.iPos * 2 + i, this.jPos * 2 + j, this.kPos * 2 + k, this);
                         chunck.genMap = genMaps[i][j];
-                        chunck.findAdjacents();
                         this.children[j + 2 * i + 4 * k] = chunck;
+                        chunck.findAdjacents();
                     }
                 }
             }
