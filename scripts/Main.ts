@@ -22,7 +22,14 @@ class Main {
 
     public static Test1(): Chunck {
         let current = Main.Instance.terrain.getChunckAtPos(Main.Instance.camera.position, 0);
+        let doLog = (c: Chunck) => {
+            console.log(c.name);
+            if (c.parent) {
+                doLog(c.parent);
+            }
+        }
         if (current) {
+            doLog(current);
             current.highlight();
             setTimeout(() => {
                 current.unlit();

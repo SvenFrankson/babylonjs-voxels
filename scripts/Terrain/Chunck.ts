@@ -239,6 +239,7 @@ class Chunck {
             return this;
         }
         else {
+            // Note : (this.levelFactor / 2) is wrong.
             let i = Math.floor((iPos - this.levelFactor * this.iPos) / (this.levelFactor / 2));
             let j = Math.floor((jPos - this.levelFactor * this.jPos) / (this.levelFactor / 2));
             let k = Math.floor((kPos - this.levelFactor * this.kPos) / (this.levelFactor / 2));
@@ -394,6 +395,9 @@ class Chunck {
                     chunck.findAdjacents();
                 }
             }
+        }
+        if (this.children.length === 0) {
+            console.log("wtf ?");
         }
         this.disposeAllMeshes();
         return this.children;
