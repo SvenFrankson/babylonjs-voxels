@@ -20,6 +20,17 @@ class Main {
 
     public isTouch: boolean = false;
 
+    public static Test1(): Chunck {
+        let current = Main.Instance.terrain.getChunckAtPos(Main.Instance.camera.position, 0);
+        if (current) {
+            current.highlight();
+            setTimeout(() => {
+                current.unlit();
+            }, 3000);
+        }
+        return current;
+    }
+
     constructor(canvasElement: string) {
         Main.Instance = this;
         
@@ -32,7 +43,8 @@ class Main {
 
     public createScene(): void {
 		this.scene = new BABYLON.Scene(this.engine);
-		this.scene.clearColor.copyFromFloats(166 / 255, 231 / 255, 255 / 255, 1);
+		//this.scene.clearColor.copyFromFloats(166 / 255, 231 / 255, 255 / 255, 1);
+        this.scene.clearColor = BABYLON.Color4.FromHexString("#eb4034ff");
         this.vertexDataLoader = new VertexDataLoader(this.scene);
 
         let light = new BABYLON.HemisphericLight("light", BABYLON.Vector3.One(), this.scene);

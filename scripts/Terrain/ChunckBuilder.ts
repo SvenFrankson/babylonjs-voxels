@@ -144,27 +144,21 @@ class ChunckMeshBuilder {
         let jMax = CHUNCK_LENGTH;
         let kMax = CHUNCK_LENGTH;
         if (sides & 0b1) {
-            console.log("a");
             iMin = - 1;
         }
         if (sides & 0b10) {
-            console.log("b");
             iMax = CHUNCK_LENGTH + 1;
         }
         if (sides & 0b100) {
-            console.log("c");
             jMin = - 1;
         }
         if (sides & 0b1000) {
-            console.log("d");
             jMax = CHUNCK_LENGTH + 1;
         }
         if (sides & 0b10000) {
-            console.log("e");
             kMin = - 1;
         }
         if (sides & 0b100000) {
-            console.log("f");
             kMax = CHUNCK_LENGTH + 1;
         }
 

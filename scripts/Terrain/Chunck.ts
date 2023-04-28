@@ -125,8 +125,8 @@ class Chunck {
             this.adjacents[AdjacentAxis.KNext] = kNextChunck;
             kNextChunck.adjacents[AdjacentAxis.KPrev] = this;
         }
-        return;
-        if (this.adjacents.length > 0) {
+        
+        if (this.level > 0 && this.adjacents.length > 0) {
             console.log(this.adjacents.map(chunck => { return (chunck ? 1 : 0) as number; }).reduce((a, b) => { return a + b; }));
         }
     }
@@ -235,14 +235,8 @@ class Chunck {
     }
 
     public getChunck(level: number, iPos: number, jPos: number, kPos: number): Chunck {
-        if (this.level - level === 1) {
-            let i = Math.floor((iPos - 2 * this.iPos));
-            let j = Math.floor((jPos - 2 * this.jPos));
-            let k = Math.floor((kPos - 2 * this.kPos));
-            let child = this.children[j + 2 * i + 4 * k];
-            if (child instanceof Chunck) {
-                return child;
-            }
+        if (this.level === level) {
+            return this;
         }
         else {
             let i = Math.floor((iPos - this.levelFactor * this.iPos) / (this.levelFactor / 2));
@@ -285,6 +279,18 @@ class Chunck {
         }
     }
 
+    public highlight(): void {
+        if (this.mesh) {
+            this.mesh.material = undefined;
+        }
+    }
+
+    public unlit(): void {
+        if (this.mesh) {
+            this.mesh.material = this.terrain.material;
+        }
+    }
+
     public redrawMesh(): void {
         if (!this._dataInitialized) {
             this.initializeData();
@@ -317,10 +323,10 @@ class Chunck {
                 }
             }
             if (this.adjacents.length > 0) {
-                console.log(this.adjacents.map(chunck => { return (chunck ? 1 : 0) as number; }).reduce((a, b) => { return a + b; }) + " " + sides);
+                //console.log(this.adjacents.map(chunck => { return (chunck ? 1 : 0) as number; }).reduce((a, b) => { return a + b; }) + " " + sides);
             }
             else {
-                console.log("0 " + sides);
+                //console.log("0 " + sides);
             }
             if (this._lastDrawnSides != sides) {
                 this.doRedrawShellMesh(sides);
@@ -384,8 +390,8 @@ class Chunck {
                         chunck = new Chunck(this.iPos * 2 + i, this.jPos * 2 + j, this.kPos * 2 + k, this);
                         chunck.genMap = genMaps[i][j];
                         this.children[j + 2 * i + 4 * k] = chunck;
-                        chunck.findAdjacents();
                     }
+                    chunck.findAdjacents();
                 }
             }
         }
@@ -425,6 +431,7 @@ class Chunck {
         this.children = [];
         this._subdivided = false;
         this.findAdjacents();
+        console.log("cocolapse");
         return this;
     }
 }

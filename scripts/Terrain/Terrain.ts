@@ -60,7 +60,7 @@ class Terrain {
 
         this.material = new BABYLON.StandardMaterial("debug");
         this.material.specularColor.copyFromFloats(0, 0, 0);
-        this.material.diffuseColor.copyFromFloats(0, 1, 1);
+        this.material.diffuseColor = BABYLON.Color3.FromHexString("#33eb39");
 
         this.chunckManager = new ChunckManager({
             scene: this.scene,
@@ -100,5 +100,12 @@ class Terrain {
 
     public getChunck(level: number, iPos: number, jPos: number, kPos: number): Chunck {
         return this.root.getChunck(level, iPos, jPos, kPos);
+    }
+
+    public getChunckAtPos(pos: BABYLON.Vector3, level: number): Chunck {
+        let iPos = Math.floor((pos.x + this.halfTerrainSize) / CHUNCK_SIZE);
+        let jPos = Math.floor((pos.z + this.halfTerrainSize) / CHUNCK_SIZE);
+        let kPos = Math.floor((pos.y + this.halfTerrainHeight) / CHUNCK_SIZE);
+        return this.getChunck(level, iPos, jPos, kPos);
     }
 }
