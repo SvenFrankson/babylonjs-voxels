@@ -78,6 +78,7 @@ class Terrain {
         this.chunckManager.dispose();
     }
 
+    /*
     public getGenMap(level: number, iPos: number, jPos: number): GenMap {
         if (this.genMaps[level]) {
             if (this.genMaps[level][iPos]) {
@@ -97,9 +98,14 @@ class Terrain {
         }
         this.genMaps[genMap.level][genMap.iPos][genMap.jPos] = genMap;
     }
+    */
 
     public getChunck(level: number, iPos: number, jPos: number, kPos: number): Chunck {
         return this.root.getChunck(level, iPos, jPos, kPos);
+    }
+
+    public getGenMap(level: number, iPos: number, jPos: number): GenMap {
+        return this.root.genMap.getGenMap(level, iPos, jPos);
     }
 
     public getChunckAtPos(pos: BABYLON.Vector3, level: number): Chunck {

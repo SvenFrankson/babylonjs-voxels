@@ -8,6 +8,11 @@ class GenMap {
     public data: number[][];
     public children: GenMap[][];
 
+    private _subdivided: boolean = false;
+    public get subdivided(): boolean {
+        return this._subdivided;
+    }
+
     constructor(
         public level: number,
         public iPos: number,
@@ -80,18 +85,10 @@ class GenMap {
     }
 
     public subdivide(): GenMap[][] {
-        if (this.terrain.getGenMap(this.level - 1, this.iPos * 2, this.jPos * 2)) {
-            return [
-                [
-                    this.terrain.getGenMap(this.level - 1, this.iPos * 2, this.jPos * 2),
-                    this.terrain.getGenMap(this.level - 1, this.iPos * 2, this.jPos * 2 + 1)
-                ],
-                [
-                    this.terrain.getGenMap(this.level - 1, this.iPos * 2 + 1, this.jPos * 2),
-                    this.terrain.getGenMap(this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1)
-                ]
-            ];
+        if (this._subdivided) {
+            return this.children;
         }
+        this._subdivided = true;
 
         let maps: GenMap[][] = [
             [
@@ -106,10 +103,12 @@ class GenMap {
 
         this.children = maps;
 
+        /*
         this.terrain.addGenMap(maps[0][0]);
         this.terrain.addGenMap(maps[1][0]);
         this.terrain.addGenMap(maps[1][1]);
         this.terrain.addGenMap(maps[0][1]);
+        */
         
         for (let i = 0; i <= CHUNCK_LENGTH / 2; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH / 2; j++) {
