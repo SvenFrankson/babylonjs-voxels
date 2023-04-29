@@ -220,6 +220,16 @@ class Chunck {
                         if (kGlobal < hGlobal) {
                             this.data[i + m][j + m][k + m] = BlockType.Dirt;
                         }
+                        /*
+                        else if (i > 1 && j > 1 && i < CHUNCK_LENGTH - 2 && j < CHUNCK_LENGTH - 2 && kGlobal < hGlobal + 5) {
+                            if (Math.random() < 0.5) {
+                                this.data[i + m][j + m][k + m] = BlockType.Dirt;
+                            }
+                            else {
+                                this.data[i + m][j + m][k + m] = BlockType.None;
+                            }
+                        }
+                        */
                         else {
                             this.data[i + m][j + m][k + m] = BlockType.None;
                         }
