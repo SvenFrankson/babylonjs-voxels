@@ -17,7 +17,7 @@ class Chunck {
 
     public name: string;
     public terrain: Terrain;
-    public genMap: GenMap;
+    public genMaps: GenMap[];
 
     public position: BABYLON.Vector3;
     public level: number = 0;
@@ -178,7 +178,7 @@ class Chunck {
         for (let i = 0; i < 3; i++) {
             genMaps[i] = [];
             for (let j = 0; j < 3; j++) {
-                genMaps[i][j] = this.terrain.getGenMap(this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                genMaps[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
             }
         }
         if (!this.dataInitialized) {
@@ -247,10 +247,10 @@ class Chunck {
     public updateIsEmptyIsFull(): void {
         this._isEmpty = true;
         this._isFull = true;
-        for (let i = 0; i <= CHUNCK_LENGTH + 2 * this.m; i++) {
-            for (let j = 0; j <= CHUNCK_LENGTH + 2 * this.m; j++) {
-                for (let k = 0; k <= CHUNCK_LENGTH + 2 * this.m; k++) {
-                    let block = this.data[i][j][k];
+        for (let i = 0; i <= CHUNCK_LENGTH; i++) {
+            for (let j = 0; j <= CHUNCK_LENGTH; j++) {
+                for (let k = 0; k <= CHUNCK_LENGTH; k++) {
+                    let block = this.data[i + this.m][j + this.m][k + this.m];
                     this._isFull = this._isFull && (block > BlockType.Water);
                     this._isEmpty = this._isEmpty && (block < BlockType.Water);
                     if (!this._isFull && !this._isEmpty) {
@@ -414,14 +414,12 @@ class Chunck {
             kMax = 1;
         }
 
-        let genMaps = this.genMap.subdivide();
         for (let k = 0; k < kMax; k++) {
             for (let i = 0; i < 2; i++) {
                 for (let j = 0; j < 2; j++) {
                     let chunck = this.children[j + 2 * i + 4 * k];
                     if (!chunck) {
                         chunck = new Chunck(this.iPos * 2 + i, this.jPos * 2 + j, this.kPos * 2 + k, this);
-                        chunck.genMap = genMaps[i][j];
                         this.children[j + 2 * i + 4 * k] = chunck;
                     }
                     chunck.findAdjacents();

@@ -20,8 +20,6 @@ class Terrain {
     public chunckManager: ChunckManager;
     public scene: BABYLON.Scene;
 
-    public genMaps: GenMap[][][] = [];
-
     public material: BABYLON.StandardMaterial;
 
     constructor(prop: ITerrainProperties) {
@@ -78,34 +76,12 @@ class Terrain {
         this.chunckManager.dispose();
     }
 
-    /*
-    public getGenMap(level: number, iPos: number, jPos: number): GenMap {
-        if (this.genMaps[level]) {
-            if (this.genMaps[level][iPos]) {
-                if (this.genMaps[level][iPos][jPos]) {
-                    return this.genMaps[level][iPos][jPos];
-                }
-            }
-        }
-    }
-
-    public addGenMap(genMap: GenMap) {
-        if (!this.genMaps[genMap.level]) {
-            this.genMaps[genMap.level] = [];
-        }
-        if (!this.genMaps[genMap.level][genMap.iPos]) {
-            this.genMaps[genMap.level][genMap.iPos] = [];
-        }
-        this.genMaps[genMap.level][genMap.iPos][genMap.jPos] = genMap;
-    }
-    */
-
     public getChunck(level: number, iPos: number, jPos: number, kPos: number): Chunck {
         return this.root.getChunck(level, iPos, jPos, kPos);
     }
 
-    public getGenMap(level: number, iPos: number, jPos: number): GenMap {
-        return this.root.genMap.getGenMap(level, iPos, jPos);
+    public getGenMap(index: number, level: number, iPos: number, jPos: number): GenMap {
+        return this.root.genMaps[index].getGenMap(level, iPos, jPos);
     }
 
     public getChunckAtPos(pos: BABYLON.Vector3, level: number): Chunck {

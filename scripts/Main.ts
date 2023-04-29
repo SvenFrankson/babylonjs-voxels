@@ -74,7 +74,9 @@ class Main {
                 chunckCountHeight: 20,
                 maxLevel: 15
             });
-            this.terrain.root.genMap = new GenMap(this.terrain.root.level, 0, 0, this.terrain);
+            this.terrain.root.genMaps = [
+                new GenMap(this.terrain.root.level, 0, 0, this.terrain)
+            ];
             this.terrain.root.register();
             this.terrain.initialize();
 
