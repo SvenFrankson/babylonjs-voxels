@@ -323,7 +323,7 @@ class Chunck {
         if (!this._dataInitialized) {
             this.initializeData();
         }
-        if (this.level < 4) {
+        if (this.level < 6) {
             this.disposeMesh();
             if (!this.isEmpty && !this.isFull) {
 

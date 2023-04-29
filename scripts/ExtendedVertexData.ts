@@ -1,8 +1,8 @@
 class ExtendedVertexData {
 
     public trianglesData: number[] = [];
-    public fastData: number[] = [];
-    public fastNormals: number[] = [];
+    public fastTriangles: BABYLON.Vector3[][] = [];
+    public fastNormals: BABYLON.Vector3[] = [];
 
     private static SquaredLength(x: number, y: number, z: number): number {
         return x * x + y * y + z * z;
@@ -21,32 +21,39 @@ class ExtendedVertexData {
             let y1 = vertexData.positions[3 * i1 + 1];
             let z1 = vertexData.positions[3 * i1 + 2];
 
-            this.fastData.push(Math.floor(x1 * 2));
-            this.fastData.push(Math.floor(y1 * 2));
-            this.fastData.push(Math.floor(z1 * 2));
-
             let x2 = vertexData.positions[3 * i2];
             let y2 = vertexData.positions[3 * i2 + 1];
             let z2 = vertexData.positions[3 * i2 + 2];
-
-            this.fastData.push(Math.floor(x2 * 2));
-            this.fastData.push(Math.floor(y2 * 2));
-            this.fastData.push(Math.floor(z2 * 2));
 
             let x3 = vertexData.positions[3 * i3];
             let y3 = vertexData.positions[3 * i3 + 1];
             let z3 = vertexData.positions[3 * i3 + 2];
 
-            this.fastData.push(Math.floor(x3 * 2));
-            this.fastData.push(Math.floor(y3 * 2));
-            this.fastData.push(Math.floor(z3 * 2));
+            this.fastTriangles.push([
+                new BABYLON.Vector3(Math.floor(x1 * 2), Math.floor(y1 * 2), Math.floor(z1 * 2)),
+                new BABYLON.Vector3(Math.floor(x2 * 2), Math.floor(y2 * 2), Math.floor(z2 * 2)),
+                new BABYLON.Vector3(Math.floor(x3 * 2), Math.floor(y3 * 2), Math.floor(z3 * 2))
+            ]);
 
             let v1 = new BABYLON.Vector3(x1, y1, z1);
             let v2 = new BABYLON.Vector3(x2, y2, z2);
             let v3 = new BABYLON.Vector3(x3, y3, z3);
             let n = BABYLON.Vector3.Cross(v3.subtract(v1), v2.subtract(v1));
             n.normalize();
-            this.fastNormals.push(n.x, n.y, n.z);
+            let exists = false;
+            for (let j = 0; j < this.fastNormals.length; j++) {
+                let existingN = this.fastNormals[j];
+                if (BABYLON.Vector3.Dot(existingN, n) > 0.99) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (exists) {
+                this.fastNormals.push(BABYLON.Vector3.Zero());
+            }
+            else {
+                this.fastNormals.push(n);
+            }
         }
         let colors: number[] = [];
         let uvs: number[] = [];
