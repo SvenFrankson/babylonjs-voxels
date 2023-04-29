@@ -171,26 +171,57 @@ class Chunck {
         }
     }
 
+    public m: number = 1;
     public initializeData(): void {
+        let m = this.m;
+        let genMaps = [];
+        for (let i = 0; i < 3; i++) {
+            genMaps[i] = [];
+            for (let j = 0; j < 3; j++) {
+                genMaps[i][j] = this.terrain.getGenMap(this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+            }
+        }
         if (!this.dataInitialized) {
             this.data = [];
             
-            for (let i: number = 0; i <= CHUNCK_LENGTH; i++) {
-                if (!this.data[i]) {
-                    this.data[i] = [];
+            for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
+                if (!this.data[i + m]) {
+                    this.data[i + m] = [];
                 }
-                for (let j: number = 0; j <= CHUNCK_LENGTH; j++) {
-                    if (!this.data[i][j]) {
-                        this.data[i][j] = [];
+                for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
+                    if (!this.data[i + m][j + m]) {
+                        this.data[i + m][j + m] = [];
                     }
-                    let hGlobal = this.genMap.data[i][j];
-                    for (let k: number = 0; k <= CHUNCK_LENGTH; k++) {
+
+                    let IMap = 1;
+                    let JMap = 1;
+                    let ii = i;
+                    if (ii < 0) {
+                        ii += CHUNCK_LENGTH;
+                        IMap--;
+                    }
+                    if (ii > CHUNCK_LENGTH) {
+                        ii -= CHUNCK_LENGTH;
+                        IMap++;
+                    }
+                    let jj = j;
+                    if (jj < 0) {
+                        jj += CHUNCK_LENGTH;
+                        JMap--;
+                    }
+                    if (jj > CHUNCK_LENGTH) {
+                        jj -= CHUNCK_LENGTH;
+                        JMap++;
+                    }
+                    let hGlobal = genMaps[IMap][JMap].data[ii][jj];
+
+                    for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
                         if (kGlobal < hGlobal) {
-                            this.data[i][j][k] = BlockType.Dirt;
+                            this.data[i + m][j + m][k + m] = BlockType.Dirt;
                         }
                         else {
-                            this.data[i][j][k] = BlockType.None;
+                            this.data[i + m][j + m][k + m] = BlockType.None;
                         }
                     }
                 }
@@ -216,9 +247,9 @@ class Chunck {
     public updateIsEmptyIsFull(): void {
         this._isEmpty = true;
         this._isFull = true;
-        for (let i = 0; i <= CHUNCK_LENGTH; i++) {
-            for (let j = 0; j <= CHUNCK_LENGTH; j++) {
-                for (let k = 0; k <= CHUNCK_LENGTH; k++) {
+        for (let i = 0; i <= CHUNCK_LENGTH + 2 * this.m; i++) {
+            for (let j = 0; j <= CHUNCK_LENGTH + 2 * this.m; j++) {
+                for (let k = 0; k <= CHUNCK_LENGTH + 2 * this.m; k++) {
                     let block = this.data[i][j][k];
                     this._isFull = this._isFull && (block > BlockType.Water);
                     this._isEmpty = this._isEmpty && (block < BlockType.Water);
@@ -303,6 +334,7 @@ class Chunck {
                     (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
                     (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
                 );
+                //this.mesh.position.y += Math.random();
                 this.mesh.material = this.terrain.material;
                 this.mesh.freezeWorldMatrix();
             }
@@ -311,6 +343,7 @@ class Chunck {
 
     private _lastDrawnSides: number = 0b0;
     public redrawShellMesh(): void {
+        return;
         if (this.level > 0 && this.level < 4) {
             let sides = 0b0;
             for (let i = 0; i < 6; i++) {

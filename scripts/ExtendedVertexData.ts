@@ -2,6 +2,7 @@ class ExtendedVertexData {
 
     public trianglesData: number[] = [];
     public fastData: number[] = [];
+    public fastNormals: number[] = [];
 
     private static SquaredLength(x: number, y: number, z: number): number {
         return x * x + y * y + z * z;
@@ -39,6 +40,13 @@ class ExtendedVertexData {
             this.fastData.push(Math.floor(x3 * 2));
             this.fastData.push(Math.floor(y3 * 2));
             this.fastData.push(Math.floor(z3 * 2));
+
+            let v1 = new BABYLON.Vector3(x1, y1, z1);
+            let v2 = new BABYLON.Vector3(x2, y2, z2);
+            let v3 = new BABYLON.Vector3(x3, y3, z3);
+            let n = BABYLON.Vector3.Cross(v3.subtract(v1), v2.subtract(v1));
+            n.normalize();
+            this.fastNormals.push(n.x, n.y, n.z);
         }
         let colors: number[] = [];
         let uvs: number[] = [];

@@ -76,6 +76,8 @@ class GenMap {
             }
             let i = Math.floor((iPos - Math.pow(2, this.level - level) * this.iPos) / (Math.pow(2, this.level - level) / 2));
             let j = Math.floor((jPos - Math.pow(2, this.level - level) * this.jPos) / (Math.pow(2, this.level - level) / 2));
+            i = Math.max(Math.min(i, 1), 0);
+            j = Math.max(Math.min(j, 1), 0);
             let child = this.children[i][j];
             if (child instanceof GenMap) {
                 return child.getGenMap(level, iPos, jPos);
