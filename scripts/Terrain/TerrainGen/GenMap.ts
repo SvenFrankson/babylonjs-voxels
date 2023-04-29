@@ -6,6 +6,7 @@ interface IGenMapHarmonic {
 class GenMap {
 
     public data: number[][];
+    public children: GenMap[][];
 
     constructor(
         public level: number,
@@ -23,7 +24,7 @@ class GenMap {
     }
 
     public addData(): void {
-        if (this.level <= 8) {
+        if (this.level <= 9) {
             /*
             let p0 = RAND.getValue4D(this.terrain.randSeed, this.iPos, this.jPos, 0, this.level);
             let p1 = RAND.getValue4D(this.terrain.randSeed, this.iPos + 1, this.jPos, 0, this.level);
@@ -52,11 +53,30 @@ class GenMap {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
                     let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
-                    p = ((p - 0.5) * 2) * 0.15 * Math.pow(2, this.level);
+                    p = ((p - 0.5) * 2) * 0.08 * Math.pow(2, this.level);
                     this.data[i][j] += p;
                 }
             }
         }
+    }
+
+    public getGenMap(level: number, iPos: number, jPos: number): GenMap {
+        if (this.level === level) {
+            return this;
+        }
+        else {
+            // Note : (this.levelFactor / 2) is wrong.
+            if (!this.children) {
+                this.subdivide();
+            }
+            let i = Math.floor((iPos - Math.pow(2, this.level - level) * this.iPos) / (Math.pow(2, this.level - level) / 2));
+            let j = Math.floor((jPos - Math.pow(2, this.level - level) * this.jPos) / (Math.pow(2, this.level - level) / 2));
+            let child = this.children[i][j];
+            if (child instanceof GenMap) {
+                return child.getGenMap(level, iPos, jPos);
+            }
+        }
+        return undefined;
     }
 
     public subdivide(): GenMap[][] {
@@ -83,6 +103,8 @@ class GenMap {
                 new GenMap(this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain)
             ]
         ];
+
+        this.children = maps;
 
         this.terrain.addGenMap(maps[0][0]);
         this.terrain.addGenMap(maps[1][0]);

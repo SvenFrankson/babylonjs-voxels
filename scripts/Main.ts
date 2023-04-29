@@ -57,7 +57,7 @@ class Main {
         let light = new BABYLON.HemisphericLight("light", BABYLON.Vector3.One(), this.scene);
 
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(-3, 6, -3), this.scene);
-        this.camera.position.copyFromFloats(0, 5, 0);
+        this.camera.position.copyFromFloats(0, 25, 0);
         this.camera.attachControl();
 
 		Config.chunckPartConfiguration.setFilename("chunck-parts", false);
@@ -79,8 +79,8 @@ class Main {
             this.terrain.initialize();
 
             setTimeout(() => {
-                //terrain.chunckManager.dispose();
-            }, 3000);
+                //this.terrain.chunckManager.dispose();
+            }, 6000);
     
             //let debugBlock = BABYLON.MeshBuilder.CreateBox("debug-block");
             //debugBlock.position.copyFromFloats(0.5, 0.5, 0.5);

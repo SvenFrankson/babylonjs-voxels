@@ -1,6 +1,7 @@
 class ExtendedVertexData {
 
     public trianglesData: number[] = [];
+    public fastData: number[] = [];
 
     private static SquaredLength(x: number, y: number, z: number): number {
         return x * x + y * y + z * z;
@@ -10,6 +11,35 @@ class ExtendedVertexData {
         ref: number,
         public vertexData: BABYLON.VertexData
     ) {
+        for (let i = 0; i < vertexData.indices.length / 3; i++) {
+            let i1 = vertexData.indices[3 * i];
+            let i2 = vertexData.indices[3 * i + 1];
+            let i3 = vertexData.indices[3 * i + 2];
+
+            let x1 = vertexData.positions[3 * i1];
+            let y1 = vertexData.positions[3 * i1 + 1];
+            let z1 = vertexData.positions[3 * i1 + 2];
+
+            this.fastData.push(Math.floor(x1 * 2));
+            this.fastData.push(Math.floor(y1 * 2));
+            this.fastData.push(Math.floor(z1 * 2));
+
+            let x2 = vertexData.positions[3 * i2];
+            let y2 = vertexData.positions[3 * i2 + 1];
+            let z2 = vertexData.positions[3 * i2 + 2];
+
+            this.fastData.push(Math.floor(x2 * 2));
+            this.fastData.push(Math.floor(y2 * 2));
+            this.fastData.push(Math.floor(z2 * 2));
+
+            let x3 = vertexData.positions[3 * i3];
+            let y3 = vertexData.positions[3 * i3 + 1];
+            let z3 = vertexData.positions[3 * i3 + 2];
+
+            this.fastData.push(Math.floor(x3 * 2));
+            this.fastData.push(Math.floor(y3 * 2));
+            this.fastData.push(Math.floor(z3 * 2));
+        }
         let colors: number[] = [];
         let uvs: number[] = [];
 

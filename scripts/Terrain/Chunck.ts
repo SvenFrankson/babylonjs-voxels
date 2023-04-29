@@ -125,10 +125,6 @@ class Chunck {
             this.adjacents[AdjacentAxis.KNext] = kNextChunck;
             kNextChunck.adjacents[AdjacentAxis.KPrev] = this;
         }
-        
-        if (this.level > 0 && this.adjacents.length > 0) {
-            console.log(this.adjacents.map(chunck => { return (chunck ? 1 : 0) as number; }).reduce((a, b) => { return a + b; }));
-        }
     }
 
     public setAdjacent(other: Chunck): void {
@@ -189,7 +185,7 @@ class Chunck {
                     }
                     let hGlobal = this.genMap.data[i][j];
                     for (let k: number = 0; k <= CHUNCK_LENGTH; k++) {
-                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + k * this.levelFactor;
+                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
                         if (kGlobal < hGlobal) {
                             this.data[i][j][k] = BlockType.Dirt;
                         }
@@ -240,9 +236,9 @@ class Chunck {
         }
         else {
             // Note : (this.levelFactor / 2) is wrong.
-            let i = Math.floor((iPos - this.levelFactor * this.iPos) / (this.levelFactor / 2));
-            let j = Math.floor((jPos - this.levelFactor * this.jPos) / (this.levelFactor / 2));
-            let k = Math.floor((kPos - this.levelFactor * this.kPos) / (this.levelFactor / 2));
+            let i = Math.floor((iPos - Math.pow(2, this.level - level) * this.iPos) / (Math.pow(2, this.level - level) / 2));
+            let j = Math.floor((jPos - Math.pow(2, this.level - level) * this.jPos) / (Math.pow(2, this.level - level) / 2));
+            let k = Math.floor((kPos - Math.pow(2, this.level - level) * this.kPos) / (Math.pow(2, this.level - level) / 2));
             let child = this.children[j + 2 * i + 4 * k];
             if (child instanceof Chunck) {
                 return child.getChunck(level, iPos, jPos, kPos);
@@ -304,7 +300,7 @@ class Chunck {
                 ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
                 this.mesh.position.copyFromFloats(
                     (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-                    (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight,
+                    (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
                     (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
                 );
                 this.mesh.material = this.terrain.material;
@@ -329,7 +325,7 @@ class Chunck {
             else {
                 //console.log("0 " + sides);
             }
-            if (this._lastDrawnSides != sides) {
+            if (sides && this._lastDrawnSides != sides) {
                 this.doRedrawShellMesh(sides);
                 this._lastDrawnSides = sides;
             }
@@ -343,10 +339,13 @@ class Chunck {
         this.disposeShellMesh();
         if (!this.isEmpty && !this.isFull) {
 
-            this.shellMesh = new BABYLON.Mesh("foo");
-            ChunckMeshBuilder.BuildMeshShell(this, sides).applyToMesh(this.shellMesh);
-            this.shellMesh.parent = this.mesh;
-            this.shellMesh.material = this.mesh.material;
+            let vData = ChunckMeshBuilder.BuildMeshShell(this, sides);
+            if (vData.positions.length > 0) {
+                this.shellMesh = new BABYLON.Mesh("foo");
+                vData.applyToMesh(this.shellMesh);
+                this.shellMesh.parent = this.mesh;
+                this.shellMesh.material = this.mesh.material;
+            }
         }
     }
 
@@ -396,9 +395,6 @@ class Chunck {
                 }
             }
         }
-        if (this.children.length === 0) {
-            console.log("wtf ?");
-        }
         this.disposeAllMeshes();
         return this.children;
     }
@@ -435,7 +431,6 @@ class Chunck {
         this.children = [];
         this._subdivided = false;
         this.findAdjacents();
-        console.log("cocolapse");
         return this;
     }
 }

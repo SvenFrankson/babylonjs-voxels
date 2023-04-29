@@ -1,8 +1,12 @@
 class ChunckMeshBuilder {
 
+    private static FlatMesh: boolean = true;
 	private static _Vertices: number[][][] = [];
 
     private static _GetVertex(i: number, j: number, k: number): number {
+        if (ChunckMeshBuilder.FlatMesh) {
+            return undefined;
+        }
 		if (ChunckMeshBuilder._Vertices[i]) {
 			if (ChunckMeshBuilder._Vertices[i][j]) {
 				return ChunckMeshBuilder._Vertices[i][j][k];
@@ -11,6 +15,9 @@ class ChunckMeshBuilder {
 	}
 
 	private static _SetVertex(v: number, i: number, j: number, k: number): void {
+        if (ChunckMeshBuilder.FlatMesh) {
+            return;
+        }
 		if (!ChunckMeshBuilder._Vertices[i]) {
 			ChunckMeshBuilder._Vertices[i] = [];
 		}
@@ -26,7 +33,7 @@ class ChunckMeshBuilder {
         let data = chunck.data;
         let lod = 2;
         if (chunck.level === 0) {
-            lod = 0;
+            lod = 2;
         }
 
 		let vertexData = new BABYLON.VertexData();
@@ -75,39 +82,58 @@ class ChunckMeshBuilder {
                     if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
                         let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
                         if (extendedpartVertexData) {
-                            let vData = extendedpartVertexData.vertexData;
-                            let partIndexes = [];
-                            for (let p = 0; p < vData.positions.length / 3; p++) {
-                                let x = (vData.positions[3 * p] + i);
-                                let y = (vData.positions[3 * p + 1] + k);
-                                let z = (vData.positions[3 * p + 2] + j);
+                            let fastData = extendedpartVertexData.fastData;
+                            for (let dataIndex = 0; dataIndex < fastData.length / 9; dataIndex++) {
+                                let x1 = fastData[9 * dataIndex + 0];
+                                let y1 = fastData[9 * dataIndex + 1];
+                                let z1 = fastData[9 * dataIndex + 2];
 
-                                let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
-                                if (isFinite(existingIndex)) {
-                                    partIndexes[p] = existingIndex;
-                                }
-                                else {
-                                    let l = positions.length / 3;
-                                    ChunckMeshBuilder._SetVertex(l, Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
-                                    partIndexes[p] = l;
-                                    positions.push(
-                                        x * chunck.levelFactor + 0.5,
-                                        y * chunck.levelFactor + 0.5 * chunck.levelFactor,
-                                        z * chunck.levelFactor + 0.5
-                                    );
+                                let x2 = fastData[9 * dataIndex + 3];
+                                let y2 = fastData[9 * dataIndex + 4];
+                                let z2 = fastData[9 * dataIndex + 5];
+                                
+                                let x3 = fastData[9 * dataIndex + 6];
+                                let y3 = fastData[9 * dataIndex + 7];
+                                let z3 = fastData[9 * dataIndex + 8];
+
+                                let i1 = ChunckMeshBuilder._GetVertex(x1 + i * 2, y1 + k * 2, z1 + j * 2);
+                                if (!isFinite(i1)) {
+                                    i1 = positions.length / 3;
+                                    positions.push(x1 * 0.5 + i, y1 * 0.5 + k, z1 * 0.5 + j);
+                                    ChunckMeshBuilder._SetVertex(i1, x1 + i * 2, y1 + k * 2, z1 + j * 2)
                                 }
 
+                                let i2 = ChunckMeshBuilder._GetVertex(x2 + i * 2, y2 + k * 2, z2 + j * 2);
+                                if (!isFinite(i2)) {
+                                    i2 = positions.length / 3;
+                                    positions.push(x2 * 0.5 + i, y2 * 0.5 + k, z2 * 0.5 + j);
+                                    ChunckMeshBuilder._SetVertex(i2, x2 + i * 2, y2 + k * 2, z2 + j * 2)
+                                }
+
+                                let i3 = ChunckMeshBuilder._GetVertex(x3 + i * 2, y3 + k * 2, z3 + j * 2);
+                                if (!isFinite(i3)) {
+                                    i3 = positions.length / 3;
+                                    positions.push(x3 * 0.5 + i, y3 * 0.5 + k, z3 * 0.5 + j);
+                                    ChunckMeshBuilder._SetVertex(i3, x3 + i * 2, y3 + k * 2, z3 + j * 2)
+                                }
+
+                                indices.push(i1, i2, i3);
                             }
-                            indices.push(...vData.indices.map(index => { return partIndexes[index]; }));
                         }
                     }
                 }
 			}
 		}
 
+        for (let i = 0; i < positions.length / 3; i++) {
+            positions[3 * i] = positions[3 * i] * chunck.levelFactor;
+            positions[3 * i + 1] = positions[3 * i + 1] * chunck.levelFactor;
+            positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor;
+        }
         BABYLON.VertexData.ComputeNormals(positions, indices, normals);
 		vertexData.positions = positions;
 		vertexData.indices = indices;
+        
 		vertexData.normals = normals;
 
 		return vertexData;
@@ -119,7 +145,7 @@ class ChunckMeshBuilder {
         let data = chunck.data;
         let lod = 2;
         if (chunck.level === 0) {
-            lod = 0;
+            lod = 2;
         }
 
 		let vertexData = new BABYLON.VertexData();
@@ -203,36 +229,55 @@ class ChunckMeshBuilder {
                         if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
                             let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
                             if (extendedpartVertexData) {
-                                let vData = extendedpartVertexData.vertexData;
-                                let partIndexes = [];
-                                for (let p = 0; p < vData.positions.length / 3; p++) {
-                                    let x = (vData.positions[3 * p] + i);
-                                    let y = (vData.positions[3 * p + 1] + k);
-                                    let z = (vData.positions[3 * p + 2] + j);
+                                let fastData = extendedpartVertexData.fastData;
+                                for (let dataIndex = 0; dataIndex < fastData.length / 9; dataIndex++) {
+                                    let x1 = fastData[9 * dataIndex + 0];
+                                    let y1 = fastData[9 * dataIndex + 1];
+                                    let z1 = fastData[9 * dataIndex + 2];
 
-                                    let existingIndex = ChunckMeshBuilder._GetVertex(Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
-                                    if (isFinite(existingIndex)) {
-                                        partIndexes[p] = existingIndex;
-                                    }
-                                    else {
-                                        let l = positions.length / 3;
-                                        ChunckMeshBuilder._SetVertex(l, Math.round(10 * (x + 1)), Math.round(10 * (y + 1)), Math.round(10 * (z + 1)));
-                                        partIndexes[p] = l;
-                                        positions.push(
-                                            x * chunck.levelFactor + 0.5,
-                                            y * chunck.levelFactor + 0.5 * chunck.levelFactor,
-                                            z * chunck.levelFactor + 0.5
-                                        );
+                                    let x2 = fastData[9 * dataIndex + 3];
+                                    let y2 = fastData[9 * dataIndex + 4];
+                                    let z2 = fastData[9 * dataIndex + 5];
+                                    
+                                    let x3 = fastData[9 * dataIndex + 6];
+                                    let y3 = fastData[9 * dataIndex + 7];
+                                    let z3 = fastData[9 * dataIndex + 8];
+
+                                    let i1 = ChunckMeshBuilder._GetVertex(x1 + i * 2, y1 + k * 2, z1 + j * 2);
+                                    if (!isFinite(i1)) {
+                                        i1 = positions.length / 3;
+                                        positions.push(x1 * 0.5 + i, y1 * 0.5 + k, z1 * 0.5 + j);
+                                        ChunckMeshBuilder._SetVertex(i1, x1 + i * 2, y1 + k * 2, z1 + j * 2)
                                     }
 
+                                    let i2 = ChunckMeshBuilder._GetVertex(x2 + i * 2, y2 + k * 2, z2 + j * 2);
+                                    if (!isFinite(i2)) {
+                                        i2 = positions.length / 3;
+                                        positions.push(x2 * 0.5 + i, y2 * 0.5 + k, z2 * 0.5 + j);
+                                        ChunckMeshBuilder._SetVertex(i2, x2 + i * 2, y2 + k * 2, z2 + j * 2)
+                                    }
+
+                                    let i3 = ChunckMeshBuilder._GetVertex(x3 + i * 2, y3 + k * 2, z3 + j * 2);
+                                    if (!isFinite(i3)) {
+                                        i3 = positions.length / 3;
+                                        positions.push(x3 * 0.5 + i, y3 * 0.5 + k, z3 * 0.5 + j);
+                                        ChunckMeshBuilder._SetVertex(i3, x3 + i * 2, y3 + k * 2, z3 + j * 2)
+                                    }
+
+                                    indices.push(i1, i2, i3);
                                 }
-                                indices.push(...vData.indices.map(index => { return partIndexes[index]; }));
                             }
                         }
                     }
                 }
 			}
 		}
+
+        for (let i = 0; i < positions.length / 3; i++) {
+            positions[3 * i] = positions[3 * i] * chunck.levelFactor;
+            positions[3 * i + 1] = positions[3 * i + 1] * chunck.levelFactor;
+            positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor;
+        }
 
         BABYLON.VertexData.ComputeNormals(positions, indices, normals);
 		vertexData.positions = positions;
