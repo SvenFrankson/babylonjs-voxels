@@ -171,7 +171,7 @@ class Chunck {
         }
     }
 
-    public m: number = 1;
+    public m: number = 2;
     public initializeData(): void {
         let m = this.m;
         let genMaps = [];

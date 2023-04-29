@@ -47,6 +47,8 @@ class ChunckMeshBuilder {
 
 		let vertexData = new BABYLON.VertexData();
 		let positions: number[] = [];
+		let summedPositions: number[] = [];
+        let summedPositionsCount: number[] = [];
 		let indices: number[] = [];
         let normals: number[] = [];
 
@@ -93,33 +95,59 @@ class ChunckMeshBuilder {
                         if (extendedpartVertexData) {
                             let fastData = extendedpartVertexData.fastData;
                             let fastNormals = extendedpartVertexData.fastNormals;
-                            for (let dataIndex = 0; dataIndex < fastData.length / 9; dataIndex++) {
+                            for (let triIndex = 0; triIndex < fastData.length / 9; triIndex++) {
                                 let triIndexes = [];
                                 let addTri = true;
+                                let sumX = 0;
+                                let sumY = 0;
+                                let sumZ = 0;
                                 for (let n = 0; n < 3; n++) {
-                                    let x = fastData[9 * dataIndex + 3 * n];
-                                    let y = fastData[9 * dataIndex + 3 * n + 1];
-                                    let z = fastData[9 * dataIndex + 3 * n + 2];
+                                    let x = fastData[9 * triIndex + 3 * n];
+                                    let y = fastData[9 * triIndex + 3 * n + 1];
+                                    let z = fastData[9 * triIndex + 3 * n + 2];
 
                                     let xIndex = x + i * 2;
                                     let yIndex = y + k * 2;
                                     let zIndex = z + j * 2;
 
+                                    x = x * 0.5 + i;
+                                    y = y * 0.5 + k;
+                                    z = z * 0.5 + j;
+
+                                    sumX += x;
+                                    sumY += y;
+                                    sumZ += z;
+
+
+                                    let pIndex = -1;
                                     if (xIndex >= 0 && yIndex >= 0 && zIndex >= 0 && xIndex < vertexLength && yIndex < vertexLength && zIndex < vertexLength) {
-                                        let pIndex = ChunckMeshBuilder._GetVertex(xIndex, yIndex, zIndex);
+                                        pIndex = ChunckMeshBuilder._GetVertex(xIndex, yIndex, zIndex);
                                         if (!isFinite(pIndex)) {
                                             pIndex = positions.length / 3;
-                                            positions.push(x * 0.5 + i, y * 0.5 + k, z * 0.5 + j);
+                                            positions.push(x, y, z);
+                                            summedPositions.push(0, 0, 0);
+                                            summedPositionsCount.push(0);
                                             normals.push(0, 0, 0);
                                             ChunckMeshBuilder._SetVertex(pIndex, xIndex, yIndex, zIndex)
                                         }
-                                        normals[3 * pIndex] += fastNormals[3 * dataIndex];
-                                        normals[3 * pIndex + 1] += fastNormals[3 * dataIndex + 1];
-                                        normals[3 * pIndex + 2] += fastNormals[3 * dataIndex + 2];
-                                        triIndexes[n] = pIndex;
+
+                                        normals[3 * pIndex] += fastNormals[3 * triIndex];
+                                        normals[3 * pIndex + 1] += fastNormals[3 * triIndex + 1];
+                                        normals[3 * pIndex + 2] += fastNormals[3 * triIndex + 2];
                                     }
                                     else {
                                         addTri = false;
+                                    }
+                                    triIndexes[n] = pIndex;
+                                }
+
+                                for (let n1 = 0; n1 < 3; n1++) {
+                                    let pIndex = triIndexes[n1];
+                                    if (pIndex != - 1) {
+                                        summedPositions[3 * pIndex] += sumX;
+                                        summedPositions[3 * pIndex + 1] += sumY;
+                                        summedPositions[3 * pIndex + 2] += sumZ;
+                                        summedPositionsCount[pIndex] += 3;
                                     }
                                 }
 
@@ -132,6 +160,12 @@ class ChunckMeshBuilder {
                 }
 			}
 		}
+
+        for (let i = 0; i < positions.length / 3; i++) {
+            positions[3 * i] = summedPositions[3 * i] / summedPositionsCount[i];
+            positions[3 * i + 1] = summedPositions[3 * i + 1] / summedPositionsCount[i];
+            positions[3 * i + 2] = summedPositions[3 * i + 2] / summedPositionsCount[i];
+        }
 
         for (let i = 0; i < positions.length / 3; i++) {
             positions[3 * i] = positions[3 * i] * chunck.levelFactor;
