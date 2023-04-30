@@ -1,5 +1,5 @@
 var BLOCK_SIZE: number = 1;
-var CHUNCK_LENGTH: number = 32;
+var CHUNCK_LENGTH: number = 16;
 var CHUNCK_LENGTH_2: number = CHUNCK_LENGTH * CHUNCK_LENGTH;
 var CHUNCK_LENGTH_3: number = CHUNCK_LENGTH_2 * CHUNCK_LENGTH;
 var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
@@ -54,10 +54,6 @@ class Chunck {
         return this._subdivided;
     }
 
-    public povCorner: number;
-    public povDir: BABYLON.Vector3;
-    public povSqrDist: number;
-
     constructor(iPos: number, jPos: number, kPos: number, parent: Chunck);
     constructor(iPos: number, jPos: number, kPos: number, terrain: Terrain);
     constructor(
@@ -91,7 +87,6 @@ class Chunck {
             ((this.kPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight,
             ((this.jPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
         );
-        this.povDir = BABYLON.Vector3.One();
     }
 
     public findAdjacents(): void {
@@ -301,21 +296,6 @@ class Chunck {
             this.terrain.chunckManager.unregisterChunck(this);
         }   
     }
-    
-
-    public setPovCornerFromDir(dir: BABYLON.Vector3): void {
-        this.povDir.copyFrom(dir);
-        this.povCorner = 0;
-        if (dir.y > 0) {
-            this.povCorner += 4;
-        }
-        if (dir.z > 0) {
-            this.povCorner += 2;
-        }
-        if (dir.x > 0) {
-            this.povCorner += 1;
-        }
-    }
 
     public highlight(): void {
         if (this.mesh) {
@@ -334,7 +314,7 @@ class Chunck {
             this.initializeData();
         }
         if (this.level < 5) {
-            this.disposeMesh();
+            this.disposeAllMeshes();
             if (!this.isEmpty && !this.isFull) {
 
                 this.mesh = new BABYLON.Mesh("foo");
@@ -353,15 +333,16 @@ class Chunck {
 
     private _lastDrawnSides: number = 0b0;
     public redrawShellMesh(): void {
-        if (this.level > 0 && this.level < 4) {
+        if (this.level > 0 && this.level < 5) {
             if (!this.subdivided) {
                 this.disposeShellMesh();
                 return;
             }
+            this.findAdjacents();
             let sides = 0b0;
             for (let i = 0; i < 6; i++) {
                 let adj = this.adjacents[i];
-                if (adj && !adj.subdivided) {
+                if (adj && adj.level === this.level && !adj.subdivided) {
                     sides |= 0b1 << i;
                 }
             }
@@ -421,12 +402,11 @@ class Chunck {
     }
 
     public subdivide(): Chunck[] {
-        if (this.parent) {
-            this.parent.disposeShellMesh();
-            this.parent.unregister();
-        }
         if (this._subdivided) {
             return;
+        }
+        if (this.parent) {
+            this.parent.disposeShellMesh();
         }
         this._subdivided = true;
 
@@ -443,9 +423,13 @@ class Chunck {
                         chunck = new Chunck(this.iPos * 2 + i, this.jPos * 2 + j, this.kPos * 2 + k, this);
                         this.children[j + 2 * i + 4 * k] = chunck;
                     }
+                    chunck.register();
                     chunck.findAdjacents();
                 }
             }
+        }
+        if (this.parent) {
+            this.parent.disposeShellMesh();
         }
         this.disposeMesh();
         return this.children;
@@ -453,9 +437,15 @@ class Chunck {
 
     public canCollapse(): boolean {
         if (this.parent) {
+            if (!this.parent.subdivided) {
+                console.error("oupsy " + this.children.length);
+            }
             let siblings = this.parent.children;
             for (let i = 0; i < siblings.length; i++) {
                 let sib = siblings[i];
+                if (sib.subdivided) {
+                    return false;
+                }
                 if (sib.targetLevel < this.targetLevel) {
                     return false;
                 }
@@ -466,6 +456,7 @@ class Chunck {
 
     public collapse(): Chunck {
         if (this.canCollapse()) {
+            console.log("collapse " + this.name);
             return this.parent.collapseChildren();
         }
     }
@@ -473,12 +464,13 @@ class Chunck {
     public collapseChildren(): Chunck {
         for (let i = 0; i < this.children.length; i++) {
             let child = this.children[i];
+            child.disposeShellMesh();
             child.unregister();
             child.disposeMesh();
             child.removeFromAdjacents();
-            if (child.subdivided) {
-                child.collapseChildren();
-            }
+        }
+        if (this.parent) {
+            this.parent.register();
         }
         this.children = [];
         this._subdivided = false;

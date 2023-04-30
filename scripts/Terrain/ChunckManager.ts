@@ -20,6 +20,7 @@ class ChunckManager {
     private _chunckIndex: number = 0;
     public chuncks: UniqueList<Chunck>;
     private _chunckLevelsSquareDistances: number[];
+    private _chunckLevelsCubeDistances: number[];
     public scene: BABYLON.Scene;
     public terrain: Terrain;
 
@@ -36,10 +37,12 @@ class ChunckManager {
 
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
-        let distance = 100;
+        let distance = 150;
         let distances = [];
+        this._chunckLevelsCubeDistances = [];
         for (let i = 0; i < this.terrain.maxLevel; i++) {
             distances.push(distance);
+            this._chunckLevelsCubeDistances.push(distance);
             distance = distance * 2;
         }
         this._chunckLevelsSquareDistances = distances.map(v => { return v * v; });
@@ -76,6 +79,15 @@ class ChunckManager {
         return this._chunckLevelsSquareDistances.length - 1;
     }
 
+    private _getChunckLevelCube(sqrDistance: number): number {
+        for (let i = 0; i < this._chunckLevelsCubeDistances.length - 1; i++) {
+            if (sqrDistance < this._chunckLevelsCubeDistances[i]) {
+                return i;
+            }
+        }
+        return this._chunckLevelsCubeDistances.length - 1;
+    }
+
     private _update = () => {
         if (this.scene.activeCameras && this.scene.activeCameras.length > 0) {
             this._viewpoint.copyFrom(this.scene.activeCameras[0].globalPosition);
@@ -93,47 +105,29 @@ class ChunckManager {
 
             let chunck = this.chuncks.get(this._chunckIndex);
             let dir = this._viewpoint.subtract(chunck.position);
-            let sqrDist = dir.lengthSquared();
-            chunck.povSqrDist = sqrDist;
-            chunck.setPovCornerFromDir(dir);
-            chunck.targetLevel = this._getChunckLevel(sqrDist);
+            let dist = Math.max(
+                Math.abs(dir.x),
+                Math.abs(dir.y),
+                Math.abs(dir.z)
+            )
+
+            chunck.targetLevel = this._getChunckLevelCube(dist);
+            chunck.redrawShellMesh();
             if (chunck.level < chunck.targetLevel) {
                 let parentChunck = chunck.collapse();
                 if (parentChunck) {
                     count++;
-                    let parentDir = this._viewpoint.subtract(parentChunck.position);
-                    let parentSqrDist = parentDir.lengthSquared();
-                    parentChunck.povSqrDist = parentSqrDist;
-                    if (parentChunck.parent) {
-                        parentChunck.parent.register();
-                    }
-                    parentChunck.setPovCornerFromDir(parentDir);
                     parentChunck.redrawMesh();
-                    parentChunck.redrawShellMesh();
                 }
             }
             else if (chunck.level > chunck.targetLevel) {
-                if (chunck.subdivided) {
-                    chunck.redrawShellMesh();
+                let children = chunck.subdivide();
+                if (children) {
+                    count++;
+                    children.forEach(childChunck => {
+                        childChunck.redrawMesh();
+                    })
                 }
-                else {
-                    let children = chunck.subdivide();
-                    if (children) {
-                        count++;
-                        children.forEach(childChunck => {
-                            let childDir = this._viewpoint.subtract(childChunck.position);
-                            let childSqrDist = childDir.lengthSquared();
-                            childChunck.povSqrDist = childSqrDist;
-                            childChunck.register();
-                            childChunck.setPovCornerFromDir(childDir);
-                            childChunck.redrawMesh();
-                            childChunck.redrawShellMesh();
-                        })
-                    }
-                }
-            }
-            else {
-                chunck.redrawShellMesh();
             }
 
             t = performance.now();

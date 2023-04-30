@@ -11,6 +11,7 @@ class DebugTerrainPerf {
     private _frameRate: DebugDisplayFrameValue;
     private _checkDuration: DebugDisplayFrameValue;
     private _meshesCount: DebugDisplayTextValue;
+    private _registeredChuncks: DebugDisplayTextValue;
 
     public get scene(): BABYLON.Scene {
         return this.main.scene;
@@ -67,6 +68,15 @@ class DebugTerrainPerf {
             this.container.appendChild(this._meshesCount);
         }
 
+        let registeredChuncksId = "#registered-chuncks-count";
+        this._registeredChuncks = document.querySelector(registeredChuncksId) as DebugDisplayTextValue;
+        if (!this._registeredChuncks) {
+            this._registeredChuncks = document.createElement("debug-display-text-value") as DebugDisplayTextValue;
+            this._registeredChuncks.id = registeredChuncksId;
+            this._registeredChuncks.setAttribute("label", "Registered Chuncks");
+            this.container.appendChild(this._registeredChuncks);
+        }
+
         this._initialized = true;
     }
 
@@ -75,6 +85,7 @@ class DebugTerrainPerf {
         if (this.main.terrain) {
             if (this.main.terrain.chunckManager) {
                 this._checkDuration.addValue(this.main.terrain.chunckManager.checkDuration);
+                this._registeredChuncks.setText(this.main.terrain.chunckManager.chuncks.length.toFixed(0));
             }
         }
         this._meshesCount.setText(this.main.scene.meshes.length.toFixed(0));

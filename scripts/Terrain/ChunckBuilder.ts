@@ -202,7 +202,6 @@ class ChunckMeshBuilder {
 
     public static BuildMeshShell(chunck: Chunck, sides: number): BABYLON.VertexData {
 
-        console.log("sides " + sides.toString(2));
 		ChunckMeshBuilder._Vertices = [];
 
         let m = chunck.m;
