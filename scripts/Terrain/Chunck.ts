@@ -1,5 +1,5 @@
 var BLOCK_SIZE: number = 1;
-var CHUNCK_LENGTH: number = 16;
+var CHUNCK_LENGTH: number = 32;
 var CHUNCK_LENGTH_2: number = CHUNCK_LENGTH * CHUNCK_LENGTH;
 var CHUNCK_LENGTH_3: number = CHUNCK_LENGTH_2 * CHUNCK_LENGTH;
 var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
@@ -333,7 +333,7 @@ class Chunck {
         if (!this._dataInitialized) {
             this.initializeData();
         }
-        if (this.level < 6) {
+        if (this.level < 5) {
             this.disposeMesh();
             if (!this.isEmpty && !this.isFull) {
 

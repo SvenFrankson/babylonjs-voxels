@@ -25,6 +25,4 @@ void main()
   vNormalW = normalize(vec3(world * vec4(normal, 0.0)));
 
   vUv = uv;
-  vUv2 = uv2;
-  vColor = color;
 }

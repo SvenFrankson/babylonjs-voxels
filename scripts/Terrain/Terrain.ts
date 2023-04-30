@@ -20,7 +20,7 @@ class Terrain {
     public chunckManager: ChunckManager;
     public scene: BABYLON.Scene;
 
-    public material: BABYLON.StandardMaterial;
+    public material: TerrainMaterial;
 
     constructor(prop: ITerrainProperties) {
         if (!prop.scene) {
@@ -56,9 +56,7 @@ class Terrain {
         let surface = kmSize * kmSize;
         console.log("surface " + surface);
 
-        this.material = new BABYLON.StandardMaterial("debug");
-        this.material.specularColor.copyFromFloats(0, 0, 0);
-        this.material.diffuseColor = BABYLON.Color3.FromHexString("#33eb39");
+        this.material = new TerrainMaterial("terrain-material", this.scene);
 
         this.chunckManager = new ChunckManager({
             scene: this.scene,

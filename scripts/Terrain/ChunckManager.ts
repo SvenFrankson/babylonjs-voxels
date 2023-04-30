@@ -23,6 +23,11 @@ class ChunckManager {
     public scene: BABYLON.Scene;
     public terrain: Terrain;
 
+    private _checkDuration: number = 15;
+    public get checkDuration(): number {
+        return this._checkDuration;
+    }
+
     constructor(
         prop: IChunckManagerProperties
     ) {
@@ -31,7 +36,7 @@ class ChunckManager {
 
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
-        let distance = 100;
+        let distance = 200;
         let distances = [];
         for (let i = 0; i < this.terrain.maxLevel; i++) {
             distances.push(distance);
@@ -71,7 +76,6 @@ class ChunckManager {
         return this._chunckLevelsSquareDistances.length - 1;
     }
 
-    private _checkDuration: number = 15;
     private _update = () => {
         if (this.scene.activeCameras && this.scene.activeCameras.length > 0) {
             this._viewpoint.copyFrom(this.scene.activeCameras[0].globalPosition);
@@ -83,6 +87,7 @@ class ChunckManager {
         let t0 = performance.now();
         let t = t0;
         
+        let count = 0;
         while ((t - t0) < this._checkDuration) {
             this._chunckIndex = (this._chunckIndex + 1) % this.chuncks.length;
 
@@ -95,6 +100,7 @@ class ChunckManager {
             if (chunck.level < chunck.targetLevel) {
                 let parentChunck = chunck.collapse();
                 if (parentChunck) {
+                    count++;
                     let parentDir = this._viewpoint.subtract(parentChunck.position);
                     let parentSqrDist = parentDir.lengthSquared();
                     parentChunck.povSqrDist = parentSqrDist;
@@ -107,6 +113,7 @@ class ChunckManager {
             else if (chunck.level > chunck.targetLevel) {
                 let children = chunck.subdivide();
                 if (children) {
+                    count++;
                     children.forEach(childChunck => {
                         let childDir = this._viewpoint.subtract(childChunck.position);
                         let childSqrDist = childDir.lengthSquared();
@@ -124,5 +131,9 @@ class ChunckManager {
 
             t = performance.now();
         }
+
+        let newDuration = count / 5 * 30;
+        newDuration = Math.min(Math.max(0.1, newDuration), 30);
+        this._checkDuration = this._checkDuration * 0.9 + newDuration * 0.1;
     }
 }

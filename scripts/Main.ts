@@ -65,7 +65,7 @@ class Main {
 		Config.chunckPartConfiguration.setLodMin(0);
 		Config.chunckPartConfiguration.setLodMax(2);
 
-        let perfDebug = new DebugPlanetPerf(this);
+        let perfDebug = new DebugTerrainPerf(this);
         perfDebug.show();
 
         ChunckVertexData.InitializeData().then(() => {
