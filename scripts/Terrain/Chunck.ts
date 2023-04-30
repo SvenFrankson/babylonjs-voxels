@@ -35,6 +35,10 @@ class Chunck {
     public get isFull(): boolean {
         return this._isFull;
     }
+    private _filledSide: number = 0b0;
+    public get filledSide(): number {
+        return this._filledSide;
+    }
     private _dataInitialized: boolean = false;
     public get dataInitialized(): boolean {
         return this._dataInitialized;
@@ -215,16 +219,6 @@ class Chunck {
                         if (kGlobal < hGlobal) {
                             this.data[i + m][j + m][k + m] = BlockType.Dirt;
                         }
-                        /*
-                        else if (i > 1 && j > 1 && i < CHUNCK_LENGTH - 2 && j < CHUNCK_LENGTH - 2 && kGlobal < hGlobal + 5) {
-                            if (Math.random() < 0.5) {
-                                this.data[i + m][j + m][k + m] = BlockType.Dirt;
-                            }
-                            else {
-                                this.data[i + m][j + m][k + m] = BlockType.None;
-                            }
-                        }
-                        */
                         else {
                             this.data[i + m][j + m][k + m] = BlockType.None;
                         }
@@ -252,6 +246,13 @@ class Chunck {
     public updateIsEmptyIsFull(): void {
         this._isEmpty = true;
         this._isFull = true;
+
+        for (let a = 0; a <= CHUNCK_LENGTH; a++) {
+            for (let b = 0; b <= CHUNCK_LENGTH; b++) {
+         
+            }
+        }
+
         for (let i = 0; i <= CHUNCK_LENGTH; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                 for (let k = 0; k <= CHUNCK_LENGTH; k++) {
@@ -326,6 +327,7 @@ class Chunck {
                 );
                 //this.mesh.position.y += Math.random();
                 this.mesh.material = this.terrain.material;
+                //this.mesh.material = this.terrain.testMaterials[this.level];
                 this.mesh.freezeWorldMatrix();
             }
         }
@@ -342,7 +344,7 @@ class Chunck {
             let sides = 0b0;
             for (let i = 0; i < 6; i++) {
                 let adj = this.adjacents[i];
-                if (adj && adj.level === this.level && !adj.subdivided) {
+                if (adj && adj.level === this.level && !adj.subdivided && !adj.isFull) {
                     sides |= 0b1 << i;
                 }
             }
@@ -375,7 +377,8 @@ class Chunck {
                     (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
                     (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
                 );
-                this.shellMesh.material = this.terrain.shellMaterial;
+                this.shellMesh.material = this.terrain.material;
+                //this.shellMesh.material = this.terrain.testMaterials[5];
                 this.shellMesh.freezeWorldMatrix();
             }
         }

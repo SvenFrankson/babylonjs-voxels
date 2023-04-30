@@ -239,7 +239,7 @@ class ChunckMeshBuilder {
             jMax = CHUNCK_LENGTH - 1;
         }
         if (sides & 0b10000) {
-            kMin = 1;
+            kMin = 0;
         }
         if (sides & 0b100000) {
             kMax = CHUNCK_LENGTH - 1;
