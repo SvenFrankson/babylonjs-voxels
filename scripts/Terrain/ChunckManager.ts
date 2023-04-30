@@ -23,6 +23,7 @@ class ChunckManager {
     private _chunckLevelsCubeDistances: number[];
     public scene: BABYLON.Scene;
     public terrain: Terrain;
+    public pause: boolean = false;
 
     private _checkDuration: number = 15;
     public get checkDuration(): number {
@@ -89,6 +90,9 @@ class ChunckManager {
     }
 
     private _update = () => {
+        if (this.pause) {
+            return;
+        }
         if (this.scene.activeCameras && this.scene.activeCameras.length > 0) {
             this._viewpoint.copyFrom(this.scene.activeCameras[0].globalPosition);
         }
@@ -133,8 +137,8 @@ class ChunckManager {
             t = performance.now();
         }
 
-        let newDuration = count / 5 * 30;
-        newDuration = Math.min(Math.max(0.1, newDuration), 30);
+        let newDuration = count / 5 * 15;
+        newDuration = Math.min(Math.max(0.1, newDuration), 15);
         this._checkDuration = this._checkDuration * 0.9 + newDuration * 0.1;
     }
 }

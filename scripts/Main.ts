@@ -80,6 +80,12 @@ class Main {
             this.terrain.root.register();
             this.terrain.initialize();
 
+            window.addEventListener("keyup", (ev: KeyboardEvent) => {
+                if (ev.code === "KeyX") {
+                    this.terrain.chunckManager.pause = !this.terrain.chunckManager.pause;
+                }
+            })
+
             setTimeout(() => {
                 //this.terrain.chunckManager.dispose();
             }, 6000);
