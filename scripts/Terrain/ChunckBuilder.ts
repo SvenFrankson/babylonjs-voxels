@@ -201,7 +201,12 @@ class ChunckMeshBuilder {
 	}
 
     public static BuildMeshShell(chunck: Chunck, sides: number): BABYLON.VertexData {
+
+        console.log("sides " + sides.toString(2));
 		ChunckMeshBuilder._Vertices = [];
+
+        let m = chunck.m;
+        let vertexLength = 2 * CHUNCK_LENGTH + 1;
 
         let data = chunck.data;
         let lod = 2;
@@ -211,122 +216,145 @@ class ChunckMeshBuilder {
 
 		let vertexData = new BABYLON.VertexData();
 		let positions: number[] = [];
+		let summedPositions: number[] = [];
+        let summedPositionsCount: number[] = [];
 		let indices: number[] = [];
         let normals: number[] = [];
 
-        /*
-        let getData = (ii, jj, kk) => {
-            if (ii < 0 || jj < 0 || kk < 0) {
-                return BlockType.None;
-            }
-            if (ii > CHUNCK_LENGTH || jj > CHUNCK_LENGTH || kk > CHUNCK_LENGTH) {
-                return BlockType.None;
-            }
-            return data[ii][jj][kk];
-        }
-
-        let iMin = 0;
-        let jMin = 0;
-        let kMin = 0;
-        let iMax = CHUNCK_LENGTH;
-        let jMax = CHUNCK_LENGTH;
-        let kMax = CHUNCK_LENGTH;
+        let iMin = - m;
+        let jMin = - m;
+        let kMin = - m;
+        let iMax = CHUNCK_LENGTH + m;
+        let jMax = CHUNCK_LENGTH + m;
+        let kMax = CHUNCK_LENGTH + m;
         if (sides & 0b1) {
-            iMin = - 1;
+            iMin = 1;
         }
         if (sides & 0b10) {
-            iMax = CHUNCK_LENGTH + 1;
+            iMax = CHUNCK_LENGTH - 1;
         }
         if (sides & 0b100) {
-            jMin = - 1;
+            jMin = 1;
         }
         if (sides & 0b1000) {
-            jMax = CHUNCK_LENGTH + 1;
+            jMax = CHUNCK_LENGTH - 1;
         }
         if (sides & 0b10000) {
-            kMin = - 1;
+            kMin = 1;
         }
         if (sides & 0b100000) {
-            kMax = CHUNCK_LENGTH + 1;
+            kMax = CHUNCK_LENGTH - 1;
         }
 
-		for (let i = iMin ; i < iMax; i++) {
-            for (let j = jMin ; j < jMax; j++) {
-                for (let k = kMin ; k < kMax; k++) {
-                    if (i < 0 || i === CHUNCK_LENGTH || j < 0 || j === CHUNCK_LENGTH || k < 0 || k === CHUNCK_LENGTH) {
-                        let ref = 0b0;
-                        let d0 = getData(i, j, k);
-                        if (d0 > BlockType.Water) {
-                            ref |= 0b1 << 0;
-                        }
-                        let d4 = getData(i, j, k + 1);
-                        if (d4 > BlockType.Water) {
-                            ref |= 0b1 << 4;
-                        }
-                        let d1 = getData(i + 1, j, k);
-                        if (d1 > BlockType.Water) {
-                            ref |= 0b1 << 1;
-                        }
-                        let d2 = getData(i + 1, j + 1, k);
-                        if (d2 > BlockType.Water) {
-                            ref |= 0b1 << 2;
-                        }
-                        let d3 = getData(i, j + 1, k);
-                        if (d3 > BlockType.Water) {
-                            ref |= 0b1 << 3;
-                        }
-                        let d5 = getData(i + 1, j, k + 1);
-                        if (d5 > BlockType.Water) {
-                            ref |= 0b1 << 5;
-                        }
-                        let d6 = getData(i + 1, j + 1, k + 1);
-                        if (d6 > BlockType.Water) {
-                            ref |= 0b1 << 6;
-                        }
-                        let d7 = getData(i, j + 1, k + 1);
-                        if (d7 > BlockType.Water) {
-                            ref |= 0b1 << 7;
-                        }
+        let getData = (ii: number, jj: number, kk: number) => {
+            if (ii > iMin && jj > jMin && kk > kMin && ii < iMax && jj < jMax && kk < kMax) {
+                return BlockType.None;
+            }
+            return data[ii + m][jj + m][kk + m];
+        }
 
-                        if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
-                            let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
-                            if (extendedpartVertexData) {
-                                let fastData = extendedpartVertexData.fastTriangles[0];
-                                for (let dataIndex = 0; dataIndex < fastData.length / 9; dataIndex++) {
-                                    let x1 = fastData[9 * dataIndex + 0];
-                                    let y1 = fastData[9 * dataIndex + 1];
-                                    let z1 = fastData[9 * dataIndex + 2];
+		for (let i = - m; i < CHUNCK_LENGTH + m; i++) {
+            for (let j = - m; j < CHUNCK_LENGTH + m; j++) {
+                for (let k = - m; k < CHUNCK_LENGTH + m; k++) {
 
-                                    let x2 = fastData[9 * dataIndex + 3];
-                                    let y2 = fastData[9 * dataIndex + 4];
-                                    let z2 = fastData[9 * dataIndex + 5];
-                                    
-                                    let x3 = fastData[9 * dataIndex + 6];
-                                    let y3 = fastData[9 * dataIndex + 7];
-                                    let z3 = fastData[9 * dataIndex + 8];
+                    let ref = 0b0;
+                    let d0 = getData(i, j, k);
+                    if (d0 > BlockType.Water) {
+                        ref |= 0b1 << 0;
+                    }
+                    let d4 = getData(i, j, k + 1);
+                    if (d4 > BlockType.Water) {
+                        ref |= 0b1 << 4;
+                    }
+                    let d1 = getData(i + 1, j, k);
+                    if (d1 > BlockType.Water) {
+                        ref |= 0b1 << 1;
+                    }
+                    let d2 = getData(i + 1, j + 1, k);
+                    if (d2 > BlockType.Water) {
+                        ref |= 0b1 << 2;
+                    }
+                    let d3 = getData(i, j + 1, k);
+                    if (d3 > BlockType.Water) {
+                        ref |= 0b1 << 3;
+                    }
+                    let d5 = getData(i + 1, j, k + 1);
+                    if (d5 > BlockType.Water) {
+                        ref |= 0b1 << 5;
+                    }
+                    let d6 = getData(i + 1, j + 1, k + 1);
+                    if (d6 > BlockType.Water) {
+                        ref |= 0b1 << 6;
+                    }
+                    let d7 = getData(i, j + 1, k + 1);
+                    if (d7 > BlockType.Water) {
+                        ref |= 0b1 << 7;
+                    }
 
-                                    let i1 = ChunckMeshBuilder._GetVertex(x1 + i * 2, y1 + k * 2, z1 + j * 2);
-                                    if (!isFinite(i1)) {
-                                        i1 = positions.length / 3;
-                                        positions.push(x1 * 0.5 + i, y1 * 0.5 + k, z1 * 0.5 + j);
-                                        ChunckMeshBuilder._SetVertex(i1, x1 + i * 2, y1 + k * 2, z1 + j * 2)
+                    if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
+                        let extendedpartVertexData = ChunckVertexData.Get(lod, ref);
+                        if (extendedpartVertexData) {
+                            let fastTriangles = extendedpartVertexData.fastTriangles;
+                            let fastNormals = extendedpartVertexData.fastNormals;
+                            for (let triIndex = 0; triIndex < fastTriangles.length; triIndex++) {
+                                let triIndexes = [];
+                                let addTri = true;
+                                let sumX = 0;
+                                let sumY = 0;
+                                let sumZ = 0;
+                                for (let vIndex = 0; vIndex < 3; vIndex++) {
+                                    let x = fastTriangles[triIndex][vIndex].x;
+                                    let y = fastTriangles[triIndex][vIndex].y;
+                                    let z = fastTriangles[triIndex][vIndex].z;
+
+                                    let xIndex = x + i * 2;
+                                    let yIndex = y + k * 2;
+                                    let zIndex = z + j * 2;
+
+                                    x = x * 0.5 + i;
+                                    y = y * 0.5 + k;
+                                    z = z * 0.5 + j;
+
+                                    sumX += x;
+                                    sumY += y;
+                                    sumZ += z;
+
+                                    let pIndex = -1;
+                                    if (xIndex >= 0 && yIndex >= 0 && zIndex >= 0 && xIndex < vertexLength && yIndex < vertexLength && zIndex < vertexLength) {
+                                        pIndex = ChunckMeshBuilder._GetVertex(xIndex, yIndex, zIndex);
+                                        if (!isFinite(pIndex)) {
+                                            pIndex = positions.length / 3;
+                                            positions.push(x, y, z);
+                                            summedPositions.push(0, 0, 0);
+                                            summedPositionsCount.push(0);
+                                            normals.push(0, 0, 0);
+                                            ChunckMeshBuilder._SetVertex(pIndex, xIndex, yIndex, zIndex)
+                                        }
+
+                                        if (xIndex === 0 || yIndex === 0 || zIndex === 0 || xIndex === (vertexLength - 1) || yIndex === (vertexLength - 1) || zIndex === (vertexLength - 1)) {
+                                            normals[3 * pIndex] += fastNormals[triIndex].x;
+                                            normals[3 * pIndex + 1] += fastNormals[triIndex].y;
+                                            normals[3 * pIndex + 2] += fastNormals[triIndex].z;
+                                        }
                                     }
-
-                                    let i2 = ChunckMeshBuilder._GetVertex(x2 + i * 2, y2 + k * 2, z2 + j * 2);
-                                    if (!isFinite(i2)) {
-                                        i2 = positions.length / 3;
-                                        positions.push(x2 * 0.5 + i, y2 * 0.5 + k, z2 * 0.5 + j);
-                                        ChunckMeshBuilder._SetVertex(i2, x2 + i * 2, y2 + k * 2, z2 + j * 2)
+                                    else {
+                                        addTri = false;
                                     }
+                                    triIndexes[vIndex] = pIndex;
+                                }
 
-                                    let i3 = ChunckMeshBuilder._GetVertex(x3 + i * 2, y3 + k * 2, z3 + j * 2);
-                                    if (!isFinite(i3)) {
-                                        i3 = positions.length / 3;
-                                        positions.push(x3 * 0.5 + i, y3 * 0.5 + k, z3 * 0.5 + j);
-                                        ChunckMeshBuilder._SetVertex(i3, x3 + i * 2, y3 + k * 2, z3 + j * 2)
+                                for (let n1 = 0; n1 < 3; n1++) {
+                                    let pIndex = triIndexes[n1];
+                                    if (pIndex != - 1) {
+                                        summedPositions[3 * pIndex] += sumX;
+                                        summedPositions[3 * pIndex + 1] += sumY;
+                                        summedPositions[3 * pIndex + 2] += sumZ;
+                                        summedPositionsCount[pIndex] += 3;
                                     }
+                                }
 
-                                    indices.push(i1, i2, i3);
+                                if (addTri) {
+                                    indices.push(...triIndexes);
                                 }
                             }
                         }
@@ -336,16 +364,39 @@ class ChunckMeshBuilder {
 		}
 
         for (let i = 0; i < positions.length / 3; i++) {
+            let factor = summedPositionsCount[i] / 3;
+            positions[3 * i] = (summedPositions[3 * i] - factor * positions[3 * i]) / (summedPositionsCount[i] - factor);
+            positions[3 * i + 1] = (summedPositions[3 * i + 1] - factor * positions[3 * i + 1]) / (summedPositionsCount[i] - factor);
+            positions[3 * i + 2] = (summedPositions[3 * i + 2] - factor * positions[3 * i + 2]) / (summedPositionsCount[i] - factor);
+        }
+
+        for (let i = 0; i < positions.length / 3; i++) {
             positions[3 * i] = positions[3 * i] * chunck.levelFactor;
             positions[3 * i + 1] = positions[3 * i + 1] * chunck.levelFactor;
             positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor;
         }
-        */
 
-        BABYLON.VertexData.ComputeNormals(positions, indices, normals);
+        let computedNormals = [];
+        BABYLON.VertexData.ComputeNormals(positions, indices, computedNormals);
+
+        for (let i = 0; i < normals.length / 3; i++) {
+            let nx = normals[3 * i];
+            let ny = normals[3 * i + 1];
+            let nz = normals[3 * i + 2];
+
+            let lSquared = nx * nx + ny * ny + nz * nz;
+            if (lSquared > 0) {
+                let l = Math.sqrt(lSquared);
+                computedNormals[3 * i] = nx / l;
+                computedNormals[3 * i + 1] = ny / l;
+                computedNormals[3 * i + 2] = nz / l;
+            }
+        }
+
 		vertexData.positions = positions;
+		vertexData.normals = computedNormals;
 		vertexData.indices = indices;
-		vertexData.normals = normals;
+        
 
 		return vertexData;
 	}

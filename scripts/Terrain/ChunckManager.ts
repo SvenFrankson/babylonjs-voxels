@@ -36,7 +36,7 @@ class ChunckManager {
 
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
-        let distance = 200;
+        let distance = 100;
         let distances = [];
         for (let i = 0; i < this.terrain.maxLevel; i++) {
             distances.push(distance);
@@ -104,25 +104,32 @@ class ChunckManager {
                     let parentDir = this._viewpoint.subtract(parentChunck.position);
                     let parentSqrDist = parentDir.lengthSquared();
                     parentChunck.povSqrDist = parentSqrDist;
-                    parentChunck.register();
+                    if (parentChunck.parent) {
+                        parentChunck.parent.register();
+                    }
                     parentChunck.setPovCornerFromDir(parentDir);
                     parentChunck.redrawMesh();
                     parentChunck.redrawShellMesh();
                 }
             }
             else if (chunck.level > chunck.targetLevel) {
-                let children = chunck.subdivide();
-                if (children) {
-                    count++;
-                    children.forEach(childChunck => {
-                        let childDir = this._viewpoint.subtract(childChunck.position);
-                        let childSqrDist = childDir.lengthSquared();
-                        childChunck.povSqrDist = childSqrDist;
-                        childChunck.register();
-                        childChunck.setPovCornerFromDir(childDir);
-                        childChunck.redrawMesh();
-                        childChunck.redrawShellMesh();
-                    })
+                if (chunck.subdivided) {
+                    chunck.redrawShellMesh();
+                }
+                else {
+                    let children = chunck.subdivide();
+                    if (children) {
+                        count++;
+                        children.forEach(childChunck => {
+                            let childDir = this._viewpoint.subtract(childChunck.position);
+                            let childSqrDist = childDir.lengthSquared();
+                            childChunck.povSqrDist = childSqrDist;
+                            childChunck.register();
+                            childChunck.setPovCornerFromDir(childDir);
+                            childChunck.redrawMesh();
+                            childChunck.redrawShellMesh();
+                        })
+                    }
                 }
             }
             else {

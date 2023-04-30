@@ -21,6 +21,7 @@ class Terrain {
     public scene: BABYLON.Scene;
 
     public material: TerrainMaterial;
+    public shellMaterial: TerrainMaterial;
 
     constructor(prop: ITerrainProperties) {
         if (!prop.scene) {
@@ -57,6 +58,9 @@ class Terrain {
         console.log("surface " + surface);
 
         this.material = new TerrainMaterial("terrain-material", this.scene);
+        this.material.setGlobalColor(BABYLON.Color3.White());
+        this.shellMaterial = new TerrainMaterial("terrain-shell-material", this.scene);
+        this.shellMaterial.setGlobalColor(BABYLON.Color3.White());
 
         this.chunckManager = new ChunckManager({
             scene: this.scene,

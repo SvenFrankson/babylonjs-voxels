@@ -353,23 +353,26 @@ class Chunck {
 
     private _lastDrawnSides: number = 0b0;
     public redrawShellMesh(): void {
-        return;
         if (this.level > 0 && this.level < 4) {
+            if (!this.subdivided) {
+                this.disposeShellMesh();
+                return;
+            }
             let sides = 0b0;
             for (let i = 0; i < 6; i++) {
                 let adj = this.adjacents[i];
-                if (adj && adj.subdivided) {
+                if (adj && !adj.subdivided) {
                     sides |= 0b1 << i;
                 }
             }
-            if (this.adjacents.length > 0) {
-                //console.log(this.adjacents.map(chunck => { return (chunck ? 1 : 0) as number; }).reduce((a, b) => { return a + b; }) + " " + sides);
-            }
-            else {
-                //console.log("0 " + sides);
-            }
-            if (sides && this._lastDrawnSides != sides) {
-                this.doRedrawShellMesh(sides);
+            
+            if (this._lastDrawnSides != sides) {
+                if (sides === 0b0) {
+                    this.disposeShellMesh();
+                }
+                else {
+                    this.doRedrawShellMesh(sides);
+                }
                 this._lastDrawnSides = sides;
             }
         }
@@ -386,8 +389,13 @@ class Chunck {
             if (vData.positions.length > 0) {
                 this.shellMesh = new BABYLON.Mesh("foo");
                 vData.applyToMesh(this.shellMesh);
-                this.shellMesh.parent = this.mesh;
-                this.shellMesh.material = this.mesh.material;
+                this.shellMesh.position.copyFromFloats(
+                    (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
+                    (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
+                    (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+                );
+                this.shellMesh.material = this.terrain.shellMaterial;
+                this.shellMesh.freezeWorldMatrix();
             }
         }
     }
@@ -413,7 +421,10 @@ class Chunck {
     }
 
     public subdivide(): Chunck[] {
-        this.unregister();
+        if (this.parent) {
+            this.parent.disposeShellMesh();
+            this.parent.unregister();
+        }
         if (this._subdivided) {
             return;
         }
@@ -436,7 +447,7 @@ class Chunck {
                 }
             }
         }
-        this.disposeAllMeshes();
+        this.disposeMesh();
         return this.children;
     }
 
@@ -463,7 +474,7 @@ class Chunck {
         for (let i = 0; i < this.children.length; i++) {
             let child = this.children[i];
             child.unregister();
-            child.disposeAllMeshes();
+            child.disposeMesh();
             child.removeFromAdjacents();
             if (child.subdivided) {
                 child.collapseChildren();

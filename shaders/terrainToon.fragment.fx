@@ -41,5 +41,5 @@ void main() {
 
    vec3 color = vec3(1., 1., 1.);
    
-   outColor = vec4(color * lightFactor, 1.);
+   outColor = vec4(globalColor * lightFactor, 1.);
 }
