@@ -87,9 +87,9 @@ class Chunck {
         this.name = "chunck:" + this.level + ":" + this.iPos + "-" + this.jPos	+ "-" + this.kPos;
 
         this.position = new BABYLON.Vector3(
-            ((this.iPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-            ((this.kPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight,
-            ((this.jPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+            (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
+            (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
+            (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
         );
     }
 
@@ -184,10 +184,14 @@ class Chunck {
             this.data = [];
             
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
+                let x = (i + 0.5) * this.levelFactor + this.position.x;
+                let dx = x - 5;
                 if (!this.data[i + m]) {
                     this.data[i + m] = [];
                 }
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
+                    let z = (j + 0.5) * this.levelFactor + this.position.z;
+                    let dz = z - 30;
                     if (!this.data[i + m][j + m]) {
                         this.data[i + m][j + m] = [];
                     }
@@ -216,11 +220,19 @@ class Chunck {
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
-                        if (kGlobal < hGlobal) {
+                        if (kGlobal < hGlobal || (x === 0.5)) {
                             this.data[i + m][j + m][k + m] = BlockType.Dirt;
                         }
                         else {
-                            this.data[i + m][j + m][k + m] = BlockType.None;
+                            let y = (k + 0.5) * this.levelFactor + this.position.y;
+                            let dy = y - 30;
+                            let ll = dx * dx + dy * dy + dz * dz;
+                            if (ll < 15 * 15) {
+                                this.data[i + m][j + m][k + m] = BlockType.Dirt;
+                            }
+                            else {
+                                this.data[i + m][j + m][k + m] = BlockType.None;
+                            }
                         }
                     }
                 }
@@ -407,9 +419,6 @@ class Chunck {
     public subdivide(): Chunck[] {
         if (this._subdivided) {
             return;
-        }
-        if (this.parent) {
-            this.parent.disposeShellMesh();
         }
         this._subdivided = true;
 

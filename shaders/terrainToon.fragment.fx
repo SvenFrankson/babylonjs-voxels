@@ -34,8 +34,16 @@ void main() {
    lightFactor = round(lightFactor * 6.) / 6.;
 
    int h = int(round(vPositionW.y * 2.));
+   float dx = vPositionW.x - floor(vPositionW.x);
    float dy = vPositionW.y - floor(vPositionW.y);
+   float dz = vPositionW.z - floor(vPositionW.z);
    if (dy > 0.1 && dy < 0.9) {
+      lightFactor *= 0.6;
+   }
+   if (dx < 0.02 || dx > 0.98) {
+      lightFactor *= 0.6;
+   }
+   if (dz < 0.02 || dz > 0.98) {
       lightFactor *= 0.6;
    }
 

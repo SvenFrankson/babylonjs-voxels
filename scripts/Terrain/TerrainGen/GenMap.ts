@@ -58,7 +58,7 @@ class GenMap {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
                     let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
-                    p = ((p - 0.5) * 2) * 0.08 * Math.pow(2, this.level);
+                    p = ((p - 0.5) * 2) * 0.12 * Math.pow(2, this.level);
                     this.data[i][j] += p;
                 }
             }

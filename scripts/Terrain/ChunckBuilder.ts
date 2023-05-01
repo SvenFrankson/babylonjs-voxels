@@ -170,9 +170,9 @@ class ChunckMeshBuilder {
         }
 
         for (let i = 0; i < positions.length / 3; i++) {
-            positions[3 * i] = positions[3 * i] * chunck.levelFactor;
+            positions[3 * i] = positions[3 * i] * chunck.levelFactor + 0.5;
             positions[3 * i + 1] = positions[3 * i + 1] * chunck.levelFactor;
-            positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor;
+            positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor + 0.5;
         }
 
         let computedNormals = [];
@@ -370,9 +370,9 @@ class ChunckMeshBuilder {
         }
 
         for (let i = 0; i < positions.length / 3; i++) {
-            positions[3 * i] = positions[3 * i] * chunck.levelFactor;
+            positions[3 * i] = positions[3 * i] * chunck.levelFactor + 0.5;
             positions[3 * i + 1] = positions[3 * i + 1] * chunck.levelFactor;
-            positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor;
+            positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor + 0.5;
         }
 
         let computedNormals = [];
