@@ -18,8 +18,10 @@ class Chunck {
     public name: string;
     public terrain: Terrain;
     public genMaps: GenMap[];
+    public genMap2: GenMap2;
 
     public position: BABYLON.Vector3;
+    public barycenter: BABYLON.Vector3;
     public level: number = 0;
     public targetLevel: number = 0;
     public levelFactor: number = 0;
@@ -80,7 +82,7 @@ class Chunck {
         }
         else {
             this.level = this.terrain.maxLevel;
-            this.levelFactor = Math.pow(2, this.level);
+            this.levelFactor = VMath.Pow2(this.level);
         }
         this.targetLevel = this.level;
         
@@ -90,6 +92,11 @@ class Chunck {
             (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
             (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
             (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+        );
+        this.barycenter = new BABYLON.Vector3(
+            ((this.iPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
+            ((this.kPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
+            ((this.jPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
         );
     }
 
@@ -220,7 +227,7 @@ class Chunck {
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
-                        if (kGlobal < hGlobal || (x === 0.5)) {
+                        if (kGlobal < hGlobal) {
                             this.data[i + m][j + m][k + m] = BlockType.Dirt;
                         }
                         else {
@@ -285,9 +292,10 @@ class Chunck {
         }
         else {
             // Note : (this.levelFactor / 2) is wrong.
-            let i = Math.floor((iPos - Math.pow(2, this.level - level) * this.iPos) / (Math.pow(2, this.level - level) / 2));
-            let j = Math.floor((jPos - Math.pow(2, this.level - level) * this.jPos) / (Math.pow(2, this.level - level) / 2));
-            let k = Math.floor((kPos - Math.pow(2, this.level - level) * this.kPos) / (Math.pow(2, this.level - level) / 2));
+            let f = VMath.Pow2(this.level - level);
+            let i = Math.floor((iPos - f * this.iPos) / (f / 2));
+            let j = Math.floor((jPos - f * this.jPos) / (f / 2));
+            let k = Math.floor((kPos - f * this.kPos) / (f / 2));
             let child = this.children[j + 2 * i + 4 * k];
             if (child instanceof Chunck) {
                 return child.getChunck(level, iPos, jPos, kPos);
@@ -468,7 +476,6 @@ class Chunck {
 
     public collapse(): Chunck {
         if (this.canCollapse()) {
-            console.log("collapse " + this.name);
             return this.parent.collapseChildren();
         }
     }

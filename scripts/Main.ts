@@ -57,7 +57,7 @@ class Main {
         let light = new BABYLON.HemisphericLight("light", BABYLON.Vector3.One(), this.scene);
 
         this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(-3, 6, -3), this.scene);
-        this.camera.position.copyFromFloats(0, 25, 0);
+        this.camera.position.copyFromFloats(-10, 40, -30);
         this.camera.attachControl();
 
 		Config.chunckPartConfiguration.setFilename("chunck-parts", false);

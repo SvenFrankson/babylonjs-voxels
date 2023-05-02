@@ -52,13 +52,13 @@ class GenMap {
                 }
             }
             */
-           
+            let f = VMath.Pow2(this.level);
             for (let i = 0; i <= CHUNCK_LENGTH; i++) {
                 for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
                     let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
-                    p = ((p - 0.5) * 2) * 0.12 * Math.pow(2, this.level);
+                    p = ((p - 0.5) * 2) * 0.12 * f;
                     this.data[i][j] += p;
                 }
             }
@@ -74,8 +74,9 @@ class GenMap {
             if (!this.children) {
                 this.subdivide();
             }
-            let i = Math.floor((iPos - Math.pow(2, this.level - level) * this.iPos) / (Math.pow(2, this.level - level) / 2));
-            let j = Math.floor((jPos - Math.pow(2, this.level - level) * this.jPos) / (Math.pow(2, this.level - level) / 2));
+            let f = VMath.Pow2(this.level - level);
+            let i = Math.floor((iPos - f * this.iPos) / (f / 2));
+            let j = Math.floor((jPos - f * this.jPos) / (f / 2));
             i = Math.max(Math.min(i, 1), 0);
             j = Math.max(Math.min(j, 1), 0);
             let child = this.children[i][j];

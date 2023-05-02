@@ -46,7 +46,7 @@ class Terrain {
 
         this.terrainHeight = this.chunckCountHeight * CHUNCK_SIZE;
         this.halfTerrainHeight = this.terrainHeight * 0.5;
-        this.chunckCount = Math.pow(2, prop.maxLevel);
+        this.chunckCount = VMath.Pow2(prop.maxLevel);
         this.terrainSize = this.chunckCount * CHUNCK_SIZE;
         this.halfTerrainSize = this.terrainSize * 0.5;
 
@@ -55,7 +55,11 @@ class Terrain {
         console.log("this.terrainSize " + this.terrainSize);
         let kmSize = this.terrainSize / 1000;
         let surface = kmSize * kmSize;
-        console.log("surface " + surface);
+        console.log("surface " + surface + " km²");
+        let terrainLength = this.chunckCount * CHUNCK_LENGTH;
+        console.log("terrainLength " + terrainLength);
+        let genMapLength = terrainLength / GEN_MAP_LENGTH;
+        console.log("genMapLength " + genMapLength)
 
         this.material = new TerrainMaterial("terrain-material", this.scene);
         this.material.setGlobalColor(BABYLON.Color3.White());

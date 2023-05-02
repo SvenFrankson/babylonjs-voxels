@@ -29,7 +29,7 @@ class OctreeNode<T> {
         else if (isFinite(arg1)) {
             this.degree = arg1;
         }
-        this.size = Math.pow(2, this.degree);
+        this.size = VMath.Pow2(this.degree);
     }
 
     public forEach(callback: (v: T, i: number, j: number, k: number) => void) {

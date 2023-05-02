@@ -1,5 +1,10 @@
 class VMath {
 
+    public static _Pow2Values: number[] = [];
+    public static Pow2(n: number): number {
+        return VMath._Pow2Values[n];
+    }
+
     public static IsFinite(v: BABYLON.Vector3): boolean;
     public static IsFinite(o: any): boolean {
         if (o instanceof BABYLON.Vector3) {
@@ -176,4 +181,8 @@ class VMath {
 
         return new BABYLON.Vector3(u, v, w);
     }
+}
+
+for (let i = 0; i < 20; i++) {
+    VMath._Pow2Values[i] = Math.pow(2, i);
 }
