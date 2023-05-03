@@ -5,7 +5,15 @@ interface IGenMapHarmonic {
 
 class GenMap {
 
-    public data: number[][];
+    private _dataSize: number;
+    private _data: Uint16Array;
+    public getData(i: number, j: number): number {
+        return this._data[i + j * this._dataSize];
+    }
+    public setData(v: number, i: number, j: number): number {
+        return this._data[i + j * this._dataSize] = v;
+    }
+
     public children: GenMap[][];
 
     private _subdivided: boolean = false;
@@ -19,13 +27,9 @@ class GenMap {
         public jPos: number,
         public terrain: Terrain
     ) {
-        this.data = [];
-        for (let i = 0; i <= CHUNCK_LENGTH; i++) {
-            this.data[i] = [];
-            for (let j = 0; j <= CHUNCK_LENGTH; j++) {
-                this.data[i][j] = this.terrain.halfTerrainHeight;
-            }
-        }
+        this._dataSize = CHUNCK_LENGTH + 1;
+        this._data = new Uint16Array(this._dataSize * this._dataSize);
+        this._data.fill(this.terrain.halfTerrainHeight);
     }
 
     public addData(): void {
@@ -59,7 +63,7 @@ class GenMap {
                     let J = j + this.jPos * CHUNCK_LENGTH;
                     let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
                     p = ((p - 0.5) * 2) * 0.12 * f;
-                    this.data[i][j] += p;
+                    this._data[i + j * this._dataSize] += p;
                 }
             }
         }
@@ -115,10 +119,10 @@ class GenMap {
         
         for (let i = 0; i <= CHUNCK_LENGTH / 2; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH / 2; j++) {
-                maps[0][0].data[2 * i][2 * j] = this.data[i][j];
-                maps[1][0].data[2 * i][2 * j] = this.data[i + CHUNCK_LENGTH / 2][j];
-                maps[0][1].data[2 * i][2 * j] = this.data[i][j + CHUNCK_LENGTH / 2];
-                maps[1][1].data[2 * i][2 * j] = this.data[i + CHUNCK_LENGTH / 2][j + CHUNCK_LENGTH / 2];
+                maps[0][0].setData(this.getData(i, j), 2 * i, 2 * j);
+                maps[1][0].setData(this.getData(i + CHUNCK_LENGTH / 2, j), 2 * i, 2 * j);
+                maps[0][1].setData(this.getData(i, j + CHUNCK_LENGTH / 2), 2 * i, 2 * j);
+                maps[1][1].setData(this.getData(i + CHUNCK_LENGTH / 2, j + CHUNCK_LENGTH / 2), 2 * i, 2 * j);
             }
         }
         
@@ -128,27 +132,27 @@ class GenMap {
 
                 for (let i = 0; i < CHUNCK_LENGTH / 2; i++) {
                     for (let j = 0; j <= CHUNCK_LENGTH; j++) {
-                        let v1 = map.data[2 * i][j];
-                        let v2 = map.data[2 * i + 2][j];
-                        map.data[2 * i + 1][j] = v1 * 0.5 + v2 * 0.5;
+                        let v1 = map.getData(2 * i, j);
+                        let v2 = map.getData(2 * i + 2, j);
+                        map.setData(v1 * 0.5 + v2 * 0.5, 2 * i + 1, j);
                     }
                 }
 
                 for (let i = 0; i <= CHUNCK_LENGTH; i++) {
                     for (let j = 0; j < CHUNCK_LENGTH / 2; j++) {
-                        let v1 = map.data[i][2 * j];
-                        let v2 = map.data[i][2 * j + 2];
-                        map.data[i][2 * j + 1] = v1 * 0.5 + v2 * 0.5;
+                        let v1 = map.getData(i, 2 * j);
+                        let v2 = map.getData(i, 2 * j + 2);
+                        map.setData(v1 * 0.5 + v2 * 0.5, i, 2 * j + 1);
                     }
                 }
 
                 for (let i = 0; i < CHUNCK_LENGTH / 2; i++) {
                     for (let j = 0; j < CHUNCK_LENGTH / 2; j++) {
-                        let v1 = map.data[2 * i][2 * j];
-                        let v2 = map.data[2 * i][2 * j + 2];
-                        let v3 = map.data[2 * i + 2][2 * j];
-                        let v4 = map.data[2 * i + 2][2 * j + 2];
-                        map.data[2 * i + 1][2 * j + 1] = v1 * 0.25 + v2 * 0.25 + v3 * 0.25 + v4 * 0.25;
+                        let v1 = map.getData(2 * i, 2 * j);
+                        let v2 = map.getData(2 * i, 2 * j + 2);
+                        let v3 = map.getData(2 * i + 2, 2 * j);
+                        let v4 = map.getData(2 * i + 2, 2 * j + 2);
+                        map.setData(v1 * 0.25 + v2 * 0.25 + v3 * 0.25 + v4 * 0.25, 2 * i + 1, 2 * j + 1);
                     }
                 }
 

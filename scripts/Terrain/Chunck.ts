@@ -45,13 +45,13 @@ class Chunck {
     public get dataInitialized(): boolean {
         return this._dataInitialized;
     }
-    public dataLength: number;
+    private _dataSize: number;
     private _data: Uint8Array;
     public getData(i: number, j: number, k: number): number {
-        return this._data[i + j * this.dataLength + k * this.dataLength * this.dataLength];
+        return this._data[i + j * this._dataSize + k * this._dataSize * this._dataSize];
     }
     public setData(v: number, i: number, j: number, k: number): number {
-        return this._data[i + j * this.dataLength + k * this.dataLength * this.dataLength] = v;
+        return this._data[i + j * this._dataSize + k * this._dataSize * this._dataSize] = v;
     }
 
     public mesh: BABYLON.Mesh;
@@ -194,8 +194,8 @@ class Chunck {
             }
         }
         if (!this.dataInitialized) {
-            this.dataLength = 2 * m + CHUNCK_LENGTH + 1;
-            this._data = new Uint8Array(this.dataLength * this.dataLength * this.dataLength);
+            this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
+            this._data = new Uint8Array(this._dataSize * this._dataSize * this._dataSize);
             
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
                 let x = (i + 0.5) * this.levelFactor + this.position.x;
@@ -224,7 +224,7 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hGlobal = Chunck._TmpGenMaps[IMap][JMap].data[ii][jj];
+                    let hGlobal = Chunck._TmpGenMaps[IMap][JMap].getData(ii, jj);
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
