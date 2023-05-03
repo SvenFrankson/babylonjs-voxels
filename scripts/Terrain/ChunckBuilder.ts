@@ -39,7 +39,6 @@ class ChunckMeshBuilder {
         let m = chunck.m;
         let vertexLength = 2 * CHUNCK_LENGTH + 1;
 
-        let data = chunck.data;
         let lod = 2;
         if (chunck.level === 0) {
             lod = 2;
@@ -57,35 +56,35 @@ class ChunckMeshBuilder {
                 for (let k = - m; k < CHUNCK_SIZE + m; k++) {
 
                     let ref = 0b0;
-                    let d0 = data[i + m][j + m][k + m];
+                    let d0 = chunck.getData(i + m, j + m, k + m);
                     if (d0 > BlockType.Water) {
                         ref |= 0b1 << 0;
                     }
-                    let d4 = data[i + m][j + m][k + m + 1];
+                    let d4 = chunck.getData(i + m, j + m, k + m + 1);
                     if (d4 > BlockType.Water) {
                         ref |= 0b1 << 4;
                     }
-                    let d1 = data[i + m + 1][j + m][k + m];
+                    let d1 = chunck.getData(i + m + 1, j + m, k + m);
                     if (d1 > BlockType.Water) {
                         ref |= 0b1 << 1;
                     }
-                    let d2 = data[i + m + 1][j + m + 1][k + m];
+                    let d2 = chunck.getData(i + m + 1, j + m + 1, k + m);
                     if (d2 > BlockType.Water) {
                         ref |= 0b1 << 2;
                     }
-                    let d3 = data[i + m][j + m + 1][k + m];
+                    let d3 = chunck.getData(i + m, j + m + 1, k + m);
                     if (d3 > BlockType.Water) {
                         ref |= 0b1 << 3;
                     }
-                    let d5 = data[i + m + 1][j + m][k + m + 1];
+                    let d5 = chunck.getData(i + m + 1, j + m, k + m + 1);
                     if (d5 > BlockType.Water) {
                         ref |= 0b1 << 5;
                     }
-                    let d6 = data[i + m + 1][j + m + 1][k + m + 1];
+                    let d6 = chunck.getData(i + m + 1, j + m + 1, k + m + 1);
                     if (d6 > BlockType.Water) {
                         ref |= 0b1 << 6;
                     }
-                    let d7 = data[i + m][j + m + 1][k + m + 1];
+                    let d7 = chunck.getData(i + m, j + m + 1, k + m + 1);
                     if (d7 > BlockType.Water) {
                         ref |= 0b1 << 7;
                     }
@@ -207,7 +206,6 @@ class ChunckMeshBuilder {
         let m = chunck.m;
         let vertexLength = 2 * CHUNCK_LENGTH + 1;
 
-        let data = chunck.data;
         let lod = 2;
         if (chunck.level === 0) {
             lod = 2;
@@ -249,7 +247,7 @@ class ChunckMeshBuilder {
             if (ii > iMin && jj > jMin && kk > kMin && ii < iMax && jj < jMax && kk < kMax) {
                 return BlockType.None;
             }
-            return data[ii + m][jj + m][kk + m];
+            return chunck.getData(ii + m, jj + m, kk + m);
         }
 
 		for (let i = - m; i < CHUNCK_LENGTH + m; i++) {

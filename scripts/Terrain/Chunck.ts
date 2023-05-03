@@ -45,7 +45,14 @@ class Chunck {
     public get dataInitialized(): boolean {
         return this._dataInitialized;
     }
-    public data: number[][][];
+    public dataLength: number;
+    private _data: Uint8Array;
+    public getData(i: number, j: number, k: number): number {
+        return this._data[i + j * this.dataLength + k * this.dataLength * this.dataLength];
+    }
+    public setData(v: number, i: number, j: number, k: number): number {
+        return this._data[i + j * this.dataLength + k * this.dataLength * this.dataLength] = v;
+    }
 
     public mesh: BABYLON.Mesh;
     public shellMesh: BABYLON.Mesh;
@@ -178,30 +185,24 @@ class Chunck {
     }
 
     public m: number = 2;
+    public static _TmpGenMaps: GenMap[][] = [[], [], []];
     public initializeData(): void {
         let m = this.m;
-        let genMaps = [];
         for (let i = 0; i < 3; i++) {
-            genMaps[i] = [];
             for (let j = 0; j < 3; j++) {
-                genMaps[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                Chunck._TmpGenMaps[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
             }
         }
         if (!this.dataInitialized) {
-            this.data = [];
+            this.dataLength = 2 * m + CHUNCK_LENGTH + 1;
+            this._data = new Uint8Array(this.dataLength * this.dataLength * this.dataLength);
             
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
                 let x = (i + 0.5) * this.levelFactor + this.position.x;
                 let dx = x - 5;
-                if (!this.data[i + m]) {
-                    this.data[i + m] = [];
-                }
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
                     let z = (j + 0.5) * this.levelFactor + this.position.z;
                     let dz = z - 30;
-                    if (!this.data[i + m][j + m]) {
-                        this.data[i + m][j + m] = [];
-                    }
 
                     let IMap = 1;
                     let JMap = 1;
@@ -223,22 +224,22 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hGlobal = genMaps[IMap][JMap].data[ii][jj];
+                    let hGlobal = Chunck._TmpGenMaps[IMap][JMap].data[ii][jj];
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
                         if (kGlobal < hGlobal) {
-                            this.data[i + m][j + m][k + m] = BlockType.Dirt;
+                            this.setData(BlockType.Dirt, i + m, j + m, k + m);
                         }
                         else {
                             let y = (k + 0.5) * this.levelFactor + this.position.y;
                             let dy = y - 30;
                             let ll = dx * dx + dy * dy + dz * dz;
                             if (ll < 15 * 15) {
-                                this.data[i + m][j + m][k + m] = BlockType.Dirt;
+                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
                             }
                             else {
-                                this.data[i + m][j + m][k + m] = BlockType.None;
+                                this.setData(BlockType.None, i + m, j + m, k + m);
                             }
                         }
                     }
@@ -275,7 +276,7 @@ class Chunck {
         for (let i = 0; i <= CHUNCK_LENGTH; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                 for (let k = 0; k <= CHUNCK_LENGTH; k++) {
-                    let block = this.data[i + this.m][j + this.m][k + this.m];
+                    let block = this.getData(i + this.m, j + this.m, k + this.m);
                     this._isFull = this._isFull && (block > BlockType.Water);
                     this._isEmpty = this._isEmpty && (block < BlockType.Water);
                     if (!this._isFull && !this._isEmpty) {
@@ -360,7 +361,6 @@ class Chunck {
                 this.disposeShellMesh();
                 return;
             }
-            this.findAdjacents();
             let sides = 0b0;
             for (let i = 0; i < 6; i++) {
                 let adj = this.adjacents[i];
