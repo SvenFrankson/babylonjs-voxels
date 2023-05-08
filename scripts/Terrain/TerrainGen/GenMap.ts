@@ -29,7 +29,7 @@ class GenMap {
     ) {
         this._dataSize = CHUNCK_LENGTH + 1;
         this._data = new Uint16Array(this._dataSize * this._dataSize);
-        this._data.fill(this.terrain.halfTerrainHeight);
+        this._data.fill(this.terrain.halfTerrainHeight * 4);
     }
 
     public addData(): void {
@@ -62,7 +62,7 @@ class GenMap {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
                     let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
-                    p = ((p - 0.5) * 2) * 0.12 * f;
+                    p = ((p - 0.5) * 2) * 0.08 * 4 * f;
                     this._data[i + j * this._dataSize] += p;
                 }
             }

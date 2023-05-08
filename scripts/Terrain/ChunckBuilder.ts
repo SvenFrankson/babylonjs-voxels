@@ -50,6 +50,7 @@ class ChunckMeshBuilder {
         let summedPositionsCount: number[] = [];
 		let indices: number[] = [];
         let normals: number[] = [];
+        let colors: number[] = [];
 
 		for (let i = - m; i < CHUNCK_SIZE + m; i++) {
             for (let j = - m; j < CHUNCK_SIZE + m; j++) {
@@ -123,6 +124,7 @@ class ChunckMeshBuilder {
                                         if (!isFinite(pIndex)) {
                                             pIndex = positions.length / 3;
                                             positions.push(x, y, z);
+                                            colors.push(Math.random(), Math.random(), Math.random(), 1);
                                             summedPositions.push(0, 0, 0);
                                             summedPositionsCount.push(0);
                                             normals.push(0, 0, 0);
@@ -192,10 +194,10 @@ class ChunckMeshBuilder {
         }
 
 		vertexData.positions = positions;
+		vertexData.colors = colors;
 		vertexData.normals = computedNormals;
 		vertexData.indices = indices;
         
-
 		return vertexData;
 	}
 
@@ -213,6 +215,7 @@ class ChunckMeshBuilder {
 
 		let vertexData = new BABYLON.VertexData();
 		let positions: number[] = [];
+        let colors: number[] = [];
 		let summedPositions: number[] = [];
         let summedPositionsCount: number[] = [];
 		let indices: number[] = [];
@@ -322,6 +325,7 @@ class ChunckMeshBuilder {
                                         if (!isFinite(pIndex)) {
                                             pIndex = positions.length / 3;
                                             positions.push(x, y, z);
+                                            colors.push(Math.random(), Math.random(), Math.random(), 1);
                                             summedPositions.push(0, 0, 0);
                                             summedPositionsCount.push(0);
                                             normals.push(0, 0, 0);
@@ -391,9 +395,9 @@ class ChunckMeshBuilder {
         }
 
 		vertexData.positions = positions;
+		vertexData.colors = colors;
 		vertexData.normals = computedNormals;
-		vertexData.indices = indices;
-        
+		vertexData.indices = indices;        
 
 		return vertexData;
 	}

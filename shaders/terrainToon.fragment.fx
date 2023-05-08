@@ -40,12 +40,14 @@ void main() {
    if (dy > 0.1 && dy < 0.9) {
       lightFactor *= 0.6;
    }
+   /*
    if (dx < 0.02 || dx > 0.98) {
       lightFactor *= 0.6;
    }
    if (dz < 0.02 || dz > 0.98) {
       lightFactor *= 0.6;
    }
+   */
 
    vec3 color = vec3(1., 1., 1.);
    

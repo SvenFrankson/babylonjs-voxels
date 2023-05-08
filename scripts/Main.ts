@@ -12,7 +12,7 @@ class Main {
 	public canvas: HTMLCanvasElement;
 	public engine: BABYLON.Engine;
     public scene: BABYLON.Scene;
-    public camera: BABYLON.Camera;
+    public cameraManager: CameraManager;
     public vertexDataLoader: VertexDataLoader;
 
     public rand: Rand;
@@ -21,7 +21,7 @@ class Main {
     public isTouch: boolean = false;
 
     public static Test1(): Chunck {
-        let current = Main.Instance.terrain.getChunckAtPos(Main.Instance.camera.position, 0);
+        let current = Main.Instance.terrain.getChunckAtPos(Main.Instance.cameraManager.absolutePosition, 0);
         let doLog = (c: Chunck) => {
             console.log(c.name);
             if (c.parent) {
@@ -56,9 +56,9 @@ class Main {
 
         let light = new BABYLON.HemisphericLight("light", BABYLON.Vector3.One(), this.scene);
 
-        this.camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(-3, 6, -3), this.scene);
-        this.camera.position.copyFromFloats(-10, 40, -30);
-        this.camera.attachControl();
+        this.cameraManager = new CameraManager(this);
+        this.cameraManager.setMode(CameraMode.Player);
+        this.cameraManager.freeCamera.position.copyFromFloats(-10, 40, -30);
 
 		Config.chunckPartConfiguration.setFilename("chunck-parts", false);
 		Config.chunckPartConfiguration.useXZAxisRotation = true;

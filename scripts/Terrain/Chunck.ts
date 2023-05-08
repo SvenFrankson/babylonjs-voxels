@@ -224,7 +224,7 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hGlobal = Chunck._TmpGenMaps[IMap][JMap].getData(ii, jj);
+                    let hGlobal = Chunck._TmpGenMaps[IMap][JMap].getData(ii, jj) / 4;
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
