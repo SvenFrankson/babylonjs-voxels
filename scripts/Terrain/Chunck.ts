@@ -92,8 +92,8 @@ class Chunck {
             this.levelFactor = VMath.Pow2(this.level);
         }
         this.targetLevel = this.level;
-        
-        this.name = "chunck:" + this.level + ":" + this.iPos + "-" + this.jPos	+ "-" + this.kPos;
+
+        this.name = "chunck:" + this.level + ":" + this.iPos + "-" + this.jPos + "-" + this.kPos;
 
         this.position = new BABYLON.Vector3(
             (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
@@ -198,14 +198,9 @@ class Chunck {
         if (!this.dataInitialized) {
             this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
             this._data = new Uint8Array(this._dataSize * this._dataSize * this._dataSize);
-            
-            for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
-                let x = (i + 0.5) * this.levelFactor + this.position.x;
-                let dx = x - 5;
-                for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
-                    let z = (j + 0.5) * this.levelFactor + this.position.z;
-                    let dz = z - 30;
 
+            for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
+                for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
                     let IMap = 1;
                     let JMap = 1;
                     let ii = i;
@@ -234,15 +229,7 @@ class Chunck {
                             this.setData(BlockType.Dirt, i + m, j + m, k + m);
                         }
                         else {
-                            let y = (k + 0.5) * this.levelFactor + this.position.y;
-                            let dy = y - 30;
-                            let ll = dx * dx + dy * dy + dz * dz;
-                            if (ll < 15 * 15) {
-                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
-                            }
-                            else {
-                                this.setData(BlockType.None, i + m, j + m, k + m);
-                            }
+                            this.setData(BlockType.None, i + m, j + m, k + m);
                         }
                     }
                 }
@@ -267,11 +254,11 @@ class Chunck {
 
     public initializeData2(): void {
         let m = this.m;
-        
+
         if (!this.dataInitialized) {
             this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
             this._data = new Uint8Array(this._dataSize * this._dataSize * this._dataSize);
-            
+
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
@@ -309,7 +296,7 @@ class Chunck {
 
         for (let a = 0; a <= CHUNCK_LENGTH; a++) {
             for (let b = 0; b <= CHUNCK_LENGTH; b++) {
-         
+
             }
         }
 
@@ -349,14 +336,14 @@ class Chunck {
         if (!this.registered) {
             this._registered = true;
             this.terrain.chunckManager.registerChunck(this);
-        }        
+        }
     }
 
     public unregister(): void {
         if (this.registered) {
             this._registered = false;
             this.terrain.chunckManager.unregisterChunck(this);
-        }   
+        }
     }
 
     public highlight(): void {
@@ -408,7 +395,7 @@ class Chunck {
                     sides |= 0b1 << i;
                 }
             }
-            
+
             if (this._lastDrawnSides != sides) {
                 if (sides === 0b0) {
                     this.disposeShellMesh();
