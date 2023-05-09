@@ -48,33 +48,33 @@ class OutlinePostProcess {
 				vec4 d = texture2D(depthSampler, vUV);
 				float depth = d.r * (1000.0 - 0.1) + 0.1;
 				float depthFactor = sqrt(d.r);
+
+				vec4 n[9];
+				make_kernel_color( n, textureSampler, vUV );
+				vec4 sobel_edge_h = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]) - 4.;
+				vec4 sobel_edge_v = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]) - 4. * n[4];
+				vec4 sobel = sqrt((sobel_edge_h * sobel_edge_h) + (sobel_edge_v * sobel_edge_v));
+				
+				gl_FragColor = n[4];
 				
 				float nD[9];
 				make_kernel_depth( nD, depthSampler, vUV );
 				float sobel_depth_edge_h = nD[2] + (2.0*nD[5]) + nD[8] - (nD[0] + (2.0*nD[3]) + nD[6]);
 				float sobel_depth_edge_v = nD[0] + (2.0*nD[1]) + nD[2] - (nD[6] + (2.0*nD[7]) + nD[8]);
 				float sobel_depth = sqrt((sobel_depth_edge_h * sobel_depth_edge_h) + (sobel_depth_edge_v * sobel_depth_edge_v));
-
-				vec4 n[9];
-				make_kernel_color( n, textureSampler, vUV );
-				vec4 sobel_edge_h = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]);
-				vec4 sobel_edge_v = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);
-				vec4 sobel = sqrt((sobel_edge_h * sobel_edge_h) + (sobel_edge_v * sobel_edge_v));
-				
-				gl_FragColor = n[4];
-				if (max(sobel.r, max(sobel.g, sobel.b)) > 2. * depthFactor) {
-					gl_FragColor = n[4] * 0.5;
-					gl_FragColor.a = 1.0;
-				}
-				if (sobel_depth > 0.02 * depthFactor) {
-					gl_FragColor = vec4(0.);
-					gl_FragColor.a = 1.0;
+				if (sobel_depth > 0.005) {
+					if (n[4].r < 0.5) {
+						gl_FragColor = vec4(1., 1., 1., 1.);
+					}
+					else {
+						gl_FragColor = vec4(0., 0., 0., 1.);
+					}
 				}
 			}
         `;
         
 		let depthMap = scene.enableDepthRenderer(camera).getDepthMap();
-		
+
 		let postProcess = new BABYLON.PostProcess("Edge", "Edge", ["width", "height"], ["depthSampler"], 1, camera);
 		postProcess.onApply = (effect) => {
 			effect.setTexture("depthSampler", depthMap);

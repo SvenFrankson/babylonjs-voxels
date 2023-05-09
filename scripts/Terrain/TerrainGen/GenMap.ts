@@ -33,7 +33,7 @@ class GenMap {
     }
 
     public addData(): void {
-        if (this.level <= 9) {
+        if (this.level > 1 && this.level <= 9) {
             /*
             let p0 = RAND.getValue4D(this.terrain.randSeed, this.iPos, this.jPos, 0, this.level);
             let p1 = RAND.getValue4D(this.terrain.randSeed, this.iPos + 1, this.jPos, 0, this.level);
@@ -62,7 +62,7 @@ class GenMap {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
                     let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
-                    p = ((p - 0.5) * 2) * 0.08 * 4 * f;
+                    p = ((p - 0.5) * 2) * 0.20 * 4 * f;
                     this._data[i + j * this._dataSize] += p;
                 }
             }

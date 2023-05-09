@@ -27,30 +27,23 @@ in vec4 vColor;
 out vec4 outColor;
  
 void main() {
-   float sunLightFactor = max(dot(vNormalW, lightInvDirW), 0.0);
-
-   float lightFactor = sunLightFactor * 0.8 + 0.2;
-
-   lightFactor = round(lightFactor * 6.) / 6.;
-
-   vec3 color = globalColor;
-
-   int h = int(round(vPositionW.y * 2.));
-   float dx = vPositionW.x - floor(vPositionW.x);
-   float dy = vPositionW.y - floor(vPositionW.y);
-   float dz = vPositionW.z - floor(vPositionW.z);
-   if ((dy > 0.02 || dy < 0.98) && vNormalW.y < 0.9) {
-      lightFactor *= 0.7;
+   float sunLightFactor = 0.5 * (dot(vNormalW, lightInvDirW) + 1.);
+   float lightFactor = sunLightFactor;
+   if (lightFactor > 0.75) {
+      lightFactor = 1.;
+      float dy = vPositionW.y - round(vPositionW.y);
+      if (abs(dy) > 0.15) {
+         lightFactor = 0.;
+      }
    }
-   /*
-   if (dx < 0.02 || dx > 0.98) {
-      lightFactor *= 0.6;
+   else if (lightFactor > 0.5) {
+      lightFactor = 1.;
    }
-   if (dz < 0.02 || dz > 0.98) {
-      lightFactor *= 0.6;
+   else {
+      lightFactor = 0.;
    }
-   */
 
-   
+
+   vec3 color = vec3(1., 1., 1.);
    outColor = vec4(color * lightFactor, 1.);
 }

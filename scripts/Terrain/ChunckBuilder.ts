@@ -166,7 +166,7 @@ class ChunckMeshBuilder {
         for (let i = 0; i < positions.length / 3; i++) {
             let factor = summedPositionsCount[i] / 3;
             positions[3 * i] = (summedPositions[3 * i] - factor * positions[3 * i]) / (summedPositionsCount[i] - factor);
-            positions[3 * i + 1] = (summedPositions[3 * i + 1] - factor * positions[3 * i + 1]) / (summedPositionsCount[i] - factor);
+            //positions[3 * i + 1] = (summedPositions[3 * i + 1] - factor * positions[3 * i + 1]) / (summedPositionsCount[i] - factor);
             positions[3 * i + 2] = (summedPositions[3 * i + 2] - factor * positions[3 * i + 2]) / (summedPositionsCount[i] - factor);
         }
 

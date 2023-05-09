@@ -51,7 +51,8 @@ class Main {
     public createScene(): void {
 		this.scene = new BABYLON.Scene(this.engine);
 		//this.scene.clearColor.copyFromFloats(166 / 255, 231 / 255, 255 / 255, 1);
-        this.scene.clearColor = BABYLON.Color4.FromHexString("#eb4034ff");
+        //this.scene.clearColor = BABYLON.Color4.FromHexString("#eb4034ff");
+        this.scene.clearColor = BABYLON.Color4.FromHexString("#ffffffff");
         this.vertexDataLoader = new VertexDataLoader(this.scene);
 
         let light = new BABYLON.HemisphericLight("light", BABYLON.Vector3.One(), this.scene);

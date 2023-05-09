@@ -9,7 +9,7 @@ class CameraManager {
         return this.main.scene;
     }
 
-    public useOutline: boolean = true;
+    public useOutline: boolean = false;
 
     public cameraMode: CameraMode = CameraMode.Sky;
 
@@ -47,7 +47,7 @@ class CameraManager {
         );
         this.freeCamera.rotationQuaternion = BABYLON.Quaternion.Identity();
         this.freeCamera.minZ = 0.1;
-        this.freeCamera.maxZ = 3000;
+        this.freeCamera.maxZ = 1000;
 
         if (this.useOutline) {
             const rtt = new BABYLON.RenderTargetTexture('render target', { width: this.main.engine.getRenderWidth(), height: this.main.engine.getRenderHeight() }, this.main.scene);
@@ -61,7 +61,7 @@ class CameraManager {
             );
 
             this.noOutlineCamera.minZ = 0.1;
-            this.noOutlineCamera.maxZ = 3000;
+            this.noOutlineCamera.maxZ = 1000;
             this.noOutlineCamera.layerMask = 0x10000000;
             this.noOutlineCamera.parent = this.freeCamera;
     

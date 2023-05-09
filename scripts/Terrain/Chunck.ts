@@ -187,6 +187,8 @@ class Chunck {
     public m: number = 2;
     public static _TmpGenMaps: GenMap[][] = [[], [], []];
     public initializeData(): void {
+        //this.initializeData2();
+        //return;
         let m = this.m;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
@@ -241,6 +243,44 @@ class Chunck {
                             else {
                                 this.setData(BlockType.None, i + m, j + m, k + m);
                             }
+                        }
+                    }
+                }
+            }
+
+            /*
+            let modData = window.localStorage.getItem(this.getUniqueName());
+            if (modData) {
+                this.modDataOctree = OctreeNode.DeserializeFromString(modData);
+                if (this.modDataOctree) {
+                    this.modDataOctree.forEach((v, i, j, k) => {
+                        this.data[i][j][k] = v;
+                    });
+                }
+            }
+            */
+
+            this._dataInitialized = true;
+            this.updateIsEmptyIsFull();
+        }
+    }
+
+    public initializeData2(): void {
+        let m = this.m;
+        
+        if (!this.dataInitialized) {
+            this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
+            this._data = new Uint8Array(this._dataSize * this._dataSize * this._dataSize);
+            
+            for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
+                for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
+                    for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
+                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
+                        if (kGlobal < this.terrain.halfTerrainHeight) {
+                            this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                        }
+                        else {
+                            this.setData(BlockType.None, i + m, j + m, k + m);
                         }
                     }
                 }
@@ -335,7 +375,7 @@ class Chunck {
         if (!this._dataInitialized) {
             this.initializeData();
         }
-        if (this.level < 5) {
+        if (this.level < 2) {
             this.disposeAllMeshes();
             if (!this.isEmpty && !this.isFull) {
 
@@ -356,7 +396,7 @@ class Chunck {
 
     private _lastDrawnSides: number = 0b0;
     public redrawShellMesh(): void {
-        if (this.level > 0 && this.level < 5) {
+        if (this.level > 0 && this.level < 2) {
             if (!this.subdivided) {
                 this.disposeShellMesh();
                 return;
