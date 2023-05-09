@@ -52,9 +52,9 @@ class ChunckMeshBuilder {
         let normals: number[] = [];
         let colors: number[] = [];
 
-		for (let i = - m; i < CHUNCK_SIZE + m; i++) {
-            for (let j = - m; j < CHUNCK_SIZE + m; j++) {
-                for (let k = - m; k < CHUNCK_SIZE + m; k++) {
+		for (let i = - m; i < CHUNCK_LENGTH + m; i++) {
+            for (let j = - m; j < CHUNCK_LENGTH + m; j++) {
+                for (let k = - m; k < CHUNCK_LENGTH + m; k++) {
 
                     let ref = 0b0;
                     let d0 = chunck.getData(i + m, j + m, k + m);
