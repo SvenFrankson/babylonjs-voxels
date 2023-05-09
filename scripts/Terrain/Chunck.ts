@@ -15,6 +15,7 @@ enum AdjacentAxis {
 
 class Chunck {
 
+    public static MAX_DISPLAYED_LEVEL: number = 0;
     public name: string;
     public terrain: Terrain;
     public genMaps: GenMap[];
@@ -185,14 +186,16 @@ class Chunck {
     }
 
     public m: number = 2;
-    public static _TmpGenMaps: GenMap[][] = [[], [], []];
+    public static _TmpGenMaps0: GenMap[][] = [[], [], []];
+    public static _TmpGenMaps1: GenMap[][] = [[], [], []];
     public initializeData(): void {
         //this.initializeData2();
         //return;
         let m = this.m;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                Chunck._TmpGenMaps[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
             }
         }
         if (!this.dataInitialized) {
@@ -221,15 +224,30 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hGlobal = Chunck._TmpGenMaps[IMap][JMap].getData(ii, jj) / 4;
+                    let hGlobal = Chunck._TmpGenMaps0[IMap][JMap].getData(ii, jj) / 4;
+                    let hGlobalHole = Chunck._TmpGenMaps1[IMap][JMap].getData(ii, jj) / 4;
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
+                        
+                        this.setData(BlockType.None, i + m, j + m, k + m);
                         if (kGlobal < hGlobal) {
-                            this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                            if (Math.abs(kGlobal - hGlobalHole) < 2) {
+                                this.setData(BlockType.None, i + m, j + m, k + m);
+                            }
+                            else {
+                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                            }
                         }
                         else {
                             this.setData(BlockType.None, i + m, j + m, k + m);
+                            /*
+                            if (Math.abs(kGlobal - hGlobalHole) < 2) {
+                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                            }
+                            else {
+                                this.setData(BlockType.None, i + m, j + m, k + m);
+                            }*/
                         }
                     }
                 }
@@ -359,10 +377,10 @@ class Chunck {
     }
 
     public redrawMesh(): void {
-        if (!this._dataInitialized) {
-            this.initializeData();
-        }
-        if (this.level < 2) {
+        if (this.level <= Chunck.MAX_DISPLAYED_LEVEL) {
+            if (!this._dataInitialized) {
+                this.initializeData();
+            }
             this.disposeAllMeshes();
             if (!this.isEmpty && !this.isFull) {
 
@@ -383,7 +401,7 @@ class Chunck {
 
     private _lastDrawnSides: number = 0b0;
     public redrawShellMesh(): void {
-        if (this.level > 0 && this.level < 2) {
+        if (this.level > 0 && this.level <= Chunck.MAX_DISPLAYED_LEVEL) {
             if (!this.subdivided) {
                 this.disposeShellMesh();
                 return;

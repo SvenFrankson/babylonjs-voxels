@@ -22,6 +22,7 @@ class GenMap {
     }
 
     constructor(
+        public index: number,
         public level: number,
         public iPos: number,
         public jPos: number,
@@ -61,8 +62,8 @@ class GenMap {
                 for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
-                    let p = RAND.getValue4D(this.terrain.randSeed, I, J, 0, this.level);
-                    p = ((p - 0.5) * 2) * 0.20 * 4 * f;
+                    let p = RAND.getValue4D(this.terrain.randSeed, I, this.index, J, this.level);
+                    p = ((p - 0.5) * 2) * 0.1 * 4 * f;
                     this._data[i + j * this._dataSize] += p;
                 }
             }
@@ -99,12 +100,12 @@ class GenMap {
 
         let maps: GenMap[][] = [
             [
-                new GenMap(this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain),
-                new GenMap(this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain)
+                new GenMap(this.level, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain),
+                new GenMap(this.level, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain)
             ],
             [
-                new GenMap(this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain),
-                new GenMap(this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain)
+                new GenMap(this.level, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain),
+                new GenMap(this.level, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain)
             ]
         ];
 
@@ -161,5 +162,47 @@ class GenMap {
         }
 
         return maps;
+    }
+
+    public getTexture(): BABYLON.Texture {
+        let S = this._dataSize * VMath.Pow2(this.level);
+
+        let texture = new BABYLON.DynamicTexture("texture", S, undefined, false);
+        let context = texture.getContext();
+
+        this.recursiveDrawTexture(context, S, 0, 0);
+
+        texture.update(false);
+
+        return texture;
+    }
+
+    public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number): void {
+        if (this.level === 0) {
+            for (let i = 0; i < this._dataSize; i++) {
+                for (let j = 0; j < this._dataSize; j++) {
+                    let v = this.getData(i, j) / 4;
+                    let c = Math.floor(v / this.terrain.terrainHeight * 256);
+                    let cs = c.toFixed(0);
+                    if (c === 127) {
+                        context.fillStyle = "rgb(255 0 0)"; 
+                    }
+                    else {
+                        context.fillStyle = "rgb(" + cs + ", " + cs + ", " + cs + ")";
+                    }
+                    context.fillRect(I + i, J + j, 1, 1);
+                }
+            }
+        }
+        else {
+            let S2 = S * 0.5;
+            if (!this.subdivided) {
+                this.subdivide();
+            }
+            this.children[0][0].recursiveDrawTexture(context, S2, I, J);
+            this.children[1][0].recursiveDrawTexture(context, S2, I + S2, J);
+            this.children[0][1].recursiveDrawTexture(context, S2, I, J + S2);
+            this.children[1][1].recursiveDrawTexture(context, S2, I + S2, J + S2);
+        }
     }
 }
