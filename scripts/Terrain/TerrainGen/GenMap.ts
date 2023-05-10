@@ -1,6 +1,6 @@
-interface IGenMapHarmonic {
-    dist: number;
-    amplitude: number;
+interface IGenMapProp {
+    highestRandLevel: number
+    lowestRandLevel: number
 }
 
 class GenMap {
@@ -26,15 +26,16 @@ class GenMap {
         public level: number,
         public iPos: number,
         public jPos: number,
-        public terrain: Terrain
+        public terrain: Terrain,
+        public prop: IGenMapProp
     ) {
         this._dataSize = CHUNCK_LENGTH + 1;
         this._data = new Uint16Array(this._dataSize * this._dataSize);
-        this._data.fill(this.terrain.halfTerrainHeight * 4);
+        this._data.fill(32767);
     }
 
     public addData(): void {
-        if (this.level > 1 && this.level <= 9) {
+        if (this.level >= this.prop.lowestRandLevel && this.level <= this.prop.highestRandLevel) {
             /*
             let p0 = RAND.getValue4D(this.terrain.randSeed, this.iPos, this.jPos, 0, this.level);
             let p1 = RAND.getValue4D(this.terrain.randSeed, this.iPos + 1, this.jPos, 0, this.level);
@@ -62,8 +63,8 @@ class GenMap {
                 for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
-                    let p = RAND.getValue4D(this.terrain.randSeed, I, this.index, J, this.level);
-                    p = ((p - 0.5) * 2) * 0.1 * 4 * f;
+                    let p = RAND.getValue4D(this.terrain.randSeed, I, this.index, J, this.level) * 2 - 1;
+                    p = p * f * 32;
                     this._data[i + j * this._dataSize] += p;
                 }
             }
@@ -100,12 +101,12 @@ class GenMap {
 
         let maps: GenMap[][] = [
             [
-                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain),
-                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain)
+                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain, this.prop),
+                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain, this.prop)
             ],
             [
-                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain),
-                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain)
+                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain, this.prop),
+                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain, this.prop)
             ]
         ];
 
@@ -190,8 +191,8 @@ class GenMap {
             for (let j = 0; j < this._dataSize; j++) {
                 for (let i = 0; i < this._dataSize; i++) {
                     let n = i + j * this._dataSize;
-                    let v = this.getData(i, j) / 4;
-                    let c = Math.floor(v / this.terrain.terrainHeight * 256);
+                    let v = this.getData(i, j);
+                    let c = Math.floor(v / 256);
                     
                     if (c === 127) {
                         data[4 * n] = 255;

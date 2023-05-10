@@ -61,16 +61,27 @@ class Main {
         this.cameraManager.setMode(CameraMode.Player);
         this.cameraManager.freeCamera.position.copyFromFloats(-10, 40, -30);
 
-        let debugPlane = BABYLON.CreatePlane("debug-plane", { size: 1.5 });
-        debugPlane.parent = this.cameraManager.freeCamera;
-        debugPlane.position.x = - 2.5;
-        debugPlane.position.y = 1;
-        debugPlane.position.z = 4;
+        let debugPlane0 = BABYLON.CreatePlane("debug-plane-0", { size: 1.5 });
+        debugPlane0.parent = this.cameraManager.freeCamera;
+        debugPlane0.position.x = - 2.5;
+        debugPlane0.position.y = 1;
+        debugPlane0.position.z = 4.05;
 
-        let debugMaterial = new BABYLON.StandardMaterial("debug-material");
-        debugMaterial.specularColor.copyFromFloats(0, 0, 0);
-        debugMaterial.emissiveColor.copyFromFloats(1, 1, 1);
-        debugPlane.material = debugMaterial;
+        let debugMaterial0 = new BABYLON.StandardMaterial("debug-material-0");
+        debugMaterial0.specularColor.copyFromFloats(0, 0, 0);
+        debugMaterial0.emissiveColor.copyFromFloats(1, 1, 1);
+        debugPlane0.material = debugMaterial0;
+
+        let debugPlane1 = BABYLON.CreatePlane("debug-plane-1", { size: 1.5 });
+        debugPlane1.parent = this.cameraManager.freeCamera;
+        debugPlane1.position.x = - 2.5;
+        debugPlane1.position.y = -0.5;
+        debugPlane1.position.z = 4;
+
+        let debugMaterial1 = new BABYLON.StandardMaterial("debug-material-1");
+        debugMaterial1.specularColor.copyFromFloats(0, 0, 0);
+        debugMaterial1.emissiveColor.copyFromFloats(1, 1, 1);
+        debugPlane1.material = debugMaterial1;
 
 		Config.chunckPartConfiguration.setFilename("chunck-parts", false);
 		Config.chunckPartConfiguration.useXZAxisRotation = true;
@@ -87,8 +98,18 @@ class Main {
                 maxLevel: 15
             });
             this.terrain.root.genMaps = [
-                new GenMap(0, this.terrain.root.level, 0, 0, this.terrain),
-                new GenMap(1, this.terrain.root.level, 0, 0, this.terrain)
+                new GenMap(0, this.terrain.root.level, 0, 0, this.terrain, {
+                    lowestRandLevel: 2,
+                    highestRandLevel: 9
+                }),
+                new GenMap(1, this.terrain.root.level, 0, 0, this.terrain, {
+                    lowestRandLevel: 3,
+                    highestRandLevel: 6
+                }),
+                new GenMap(2, this.terrain.root.level, 0, 0, this.terrain, {
+                    lowestRandLevel: 2,
+                    highestRandLevel: 9
+                }),
             ];
             this.terrain.root.register();
             this.terrain.initialize();
@@ -131,16 +152,20 @@ class Main {
             let currentChunck: Chunck;
             let cb = () => {
                 let heading = VMath.AngleFromToAround(Main.Instance.cameraManager.freeCamera.getForwardRay().direction, BABYLON.Axis.Z, BABYLON.Axis.Y);
-                debugPlane.rotation.z = - heading;
+                debugPlane0.rotation.z = - heading;
+                debugPlane1.rotation.z = - heading;
                 let newCurrentChunck = Main.Instance.terrain.getChunckAtPos(Main.Instance.cameraManager.absolutePosition, 0);
                 if (newCurrentChunck) {
                     newCurrentChunck = newCurrentChunck.parent.parent.parent.parent;
                     if (newCurrentChunck != currentChunck) {
-                        let genMap = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
-                        if (genMap) {
-                            let texture = genMap.getTexture(-1, 1, -1, 1);
-                            if (texture) {
-                                debugMaterial.diffuseTexture = texture;
+                        let genMap0 = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
+                        let genMap1 = this.terrain.getGenMap(1, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
+                        if (genMap0) {
+                            let texture0 = genMap0.getTexture(-1, 1, -1, 1);
+                            let texture1 = genMap1.getTexture(-1, 1, -1, 1);
+                            if (texture0) {
+                                debugMaterial0.diffuseTexture = texture0;
+                                debugMaterial1.diffuseTexture = texture1;
                                 currentChunck = newCurrentChunck;
                             }
                         }
