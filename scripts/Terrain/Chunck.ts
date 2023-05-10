@@ -195,7 +195,7 @@ class Chunck {
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
-                Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                //Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
             }
         }
         if (!this.dataInitialized) {
@@ -225,19 +225,22 @@ class Chunck {
                         JMap++;
                     }
                     let hGlobal = Chunck._TmpGenMaps0[IMap][JMap].getData(ii, jj) / 4;
-                    let hGlobalHole = Chunck._TmpGenMaps1[IMap][JMap].getData(ii, jj) / 4;
+                    //let hGlobalHole = Chunck._TmpGenMaps1[IMap][JMap].getData(ii, jj) / 4;
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
                         
                         this.setData(BlockType.None, i + m, j + m, k + m);
                         if (kGlobal < hGlobal) {
+                            this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                            /*
                             if (Math.abs(kGlobal - hGlobalHole) < 5) {
                                 this.setData(BlockType.None, i + m, j + m, k + m);
                             }
                             else {
                                 this.setData(BlockType.Dirt, i + m, j + m, k + m);
                             }
+                            */
                         }
                         else {
                             this.setData(BlockType.None, i + m, j + m, k + m);

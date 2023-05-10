@@ -166,11 +166,8 @@ class GenMap {
 
     public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0): BABYLON.Texture {
         let n = i1 - i0 + 1;
-        console.log("n = " + n);
         let Sn = this._dataSize * VMath.Pow2(this.level);
         let S = Sn * n;
-        console.log("Sn = " + Sn);
-        console.log("S = " + S);
 
         let texture = new BABYLON.DynamicTexture("texture", S, undefined, false);
         let context = texture.getContext();
@@ -188,22 +185,29 @@ class GenMap {
     }
 
     public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number): void {
-        console.log("S = " + S + ". I = " + I + ". J = " + J + ".");
         if (this.level === 0) {
-            for (let i = 0; i < this._dataSize; i++) {
-                for (let j = 0; j < this._dataSize; j++) {
+            let data = new Uint8ClampedArray(this._dataSize * this._dataSize * 4);
+            for (let j = 0; j < this._dataSize; j++) {
+                for (let i = 0; i < this._dataSize; i++) {
+                    let n = i + j * this._dataSize;
                     let v = this.getData(i, j) / 4;
                     let c = Math.floor(v / this.terrain.terrainHeight * 256);
-                    let cs = c.toFixed(0);
+                    
                     if (c === 127) {
-                        context.fillStyle = "rgb(255 0 0)"; 
+                        data[4 * n] = 255;
+                        data[4 * n + 1] = 0;
+                        data[4 * n + 2] = 0;
                     }
                     else {
-                        context.fillStyle = "rgb(" + cs + ", " + cs + ", " + cs + ")";
+                        data[4 * n] = c;
+                        data[4 * n + 1] = c;
+                        data[4 * n + 2] = c;
                     }
-                    context.fillRect(I + i, J + j, 1, 1);
+                    data[4 * n + 3] = 255;
                 }
             }
+            let imageData = new ImageData(data, this._dataSize);
+            context.putImageData(imageData, I, J);
         }
         else {
             let S2 = S * 0.5;

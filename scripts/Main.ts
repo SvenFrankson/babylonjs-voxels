@@ -61,9 +61,9 @@ class Main {
         this.cameraManager.setMode(CameraMode.Player);
         this.cameraManager.freeCamera.position.copyFromFloats(-10, 40, -30);
 
-        let debugPlane = BABYLON.CreatePlane("debug-plane", { size: 1 });
+        let debugPlane = BABYLON.CreatePlane("debug-plane", { size: 1.5 });
         debugPlane.parent = this.cameraManager.freeCamera;
-        debugPlane.position.x = - 1.5;
+        debugPlane.position.x = - 2.5;
         debugPlane.position.y = 1;
         debugPlane.position.z = 4;
 
@@ -130,9 +130,11 @@ class Main {
 
             let currentChunck: Chunck;
             let cb = () => {
+                let heading = VMath.AngleFromToAround(Main.Instance.cameraManager.freeCamera.getForwardRay().direction, BABYLON.Axis.Z, BABYLON.Axis.Y);
+                debugPlane.rotation.z = - heading;
                 let newCurrentChunck = Main.Instance.terrain.getChunckAtPos(Main.Instance.cameraManager.absolutePosition, 0);
                 if (newCurrentChunck) {
-                    newCurrentChunck = newCurrentChunck.parent.parent.parent;
+                    newCurrentChunck = newCurrentChunck.parent.parent.parent.parent;
                     if (newCurrentChunck != currentChunck) {
                         let genMap = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
                         if (genMap) {
