@@ -34,6 +34,11 @@ void main() {
    lightFactor = round(lightFactor * 6.) / 6.;
 
    vec3 color = globalColor;
+   if (abs(vPositionW.y) < 0.2) {
+      color.r = 1.;
+      color.g = 0.;
+      color.b = 0.;
+   }
 
    int h = int(round(vPositionW.y * 2.));
    float dx = vPositionW.x - floor(vPositionW.x);

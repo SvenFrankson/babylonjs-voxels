@@ -63,7 +63,7 @@ class Main {
 
         let debugPlane = BABYLON.CreatePlane("debug-plane", { size: 1 });
         debugPlane.parent = this.cameraManager.freeCamera;
-        debugPlane.position.x = - 2.5;
+        debugPlane.position.x = - 1.5;
         debugPlane.position.y = 1;
         debugPlane.position.z = 4;
 
@@ -87,8 +87,8 @@ class Main {
                 maxLevel: 15
             });
             this.terrain.root.genMaps = [
-                new GenMap(Math.floor(Math.random() * 100), this.terrain.root.level, 0, 0, this.terrain),
-                new GenMap(Math.floor(Math.random() * 100), this.terrain.root.level, 0, 0, this.terrain)
+                new GenMap(0, this.terrain.root.level, 0, 0, this.terrain),
+                new GenMap(1, this.terrain.root.level, 0, 0, this.terrain)
             ];
             this.terrain.root.register();
             this.terrain.initialize();
@@ -132,11 +132,11 @@ class Main {
             let cb = () => {
                 let newCurrentChunck = Main.Instance.terrain.getChunckAtPos(Main.Instance.cameraManager.absolutePosition, 0);
                 if (newCurrentChunck) {
-                    newCurrentChunck = newCurrentChunck.parent.parent.parent.parent.parent;
+                    newCurrentChunck = newCurrentChunck.parent.parent.parent;
                     if (newCurrentChunck != currentChunck) {
                         let genMap = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
                         if (genMap) {
-                            let texture = genMap.getTexture();
+                            let texture = genMap.getTexture(-1, 1, -1, 1);
                             if (texture) {
                                 debugMaterial.diffuseTexture = texture;
                                 currentChunck = newCurrentChunck;

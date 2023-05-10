@@ -232,7 +232,7 @@ class Chunck {
                         
                         this.setData(BlockType.None, i + m, j + m, k + m);
                         if (kGlobal < hGlobal) {
-                            if (Math.abs(kGlobal - hGlobalHole) < 2) {
+                            if (Math.abs(kGlobal - hGlobalHole) < 5) {
                                 this.setData(BlockType.None, i + m, j + m, k + m);
                             }
                             else {

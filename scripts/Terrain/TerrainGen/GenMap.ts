@@ -100,12 +100,12 @@ class GenMap {
 
         let maps: GenMap[][] = [
             [
-                new GenMap(this.level, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain),
-                new GenMap(this.level, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain)
+                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain),
+                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain)
             ],
             [
-                new GenMap(this.level, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain),
-                new GenMap(this.level, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain)
+                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain),
+                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain)
             ]
         ];
 
@@ -164,13 +164,23 @@ class GenMap {
         return maps;
     }
 
-    public getTexture(): BABYLON.Texture {
-        let S = this._dataSize * VMath.Pow2(this.level);
+    public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0): BABYLON.Texture {
+        let n = i1 - i0 + 1;
+        console.log("n = " + n);
+        let Sn = this._dataSize * VMath.Pow2(this.level);
+        let S = Sn * n;
+        console.log("Sn = " + Sn);
+        console.log("S = " + S);
 
         let texture = new BABYLON.DynamicTexture("texture", S, undefined, false);
         let context = texture.getContext();
 
-        this.recursiveDrawTexture(context, S, 0, 0);
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                let map = this.terrain.getGenMap(this.index, this.level, this.iPos + i0 + i, this.jPos + j0 + j);
+                map.recursiveDrawTexture(context, Sn, i * Sn, j * Sn);
+            }
+        }
 
         texture.update(false);
 
@@ -178,6 +188,7 @@ class GenMap {
     }
 
     public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number): void {
+        console.log("S = " + S + ". I = " + I + ". J = " + J + ".");
         if (this.level === 0) {
             for (let i = 0; i < this._dataSize; i++) {
                 for (let j = 0; j < this._dataSize; j++) {
