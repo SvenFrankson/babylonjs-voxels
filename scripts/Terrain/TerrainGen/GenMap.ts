@@ -1,19 +1,22 @@
 interface IGenMapProp {
     highestRandLevel: number
     lowestRandLevel: number
+    amplitude: number
 }
 
-class GenMap {
+abstract class GenMap {
 
     private _dataSize: number;
     private _data: Uint16Array;
-    public getData(i: number, j: number): number {
+    abstract getData(i: number, j: number): number;
+    public getRawData(i: number, j: number): number {
         return this._data[i + j * this._dataSize];
     }
-    public setData(v: number, i: number, j: number): number {
+    public setRawData(v: number, i: number, j: number): number {
         return this._data[i + j * this._dataSize] = v;
     }
 
+    public newer;
     public children: GenMap[][];
 
     private _subdivided: boolean = false;
@@ -99,18 +102,16 @@ class GenMap {
         }
         this._subdivided = true;
 
-        let maps: GenMap[][] = [
+        this.children = [
             [
-                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain, this.prop),
-                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain, this.prop)
+                new this.newer(this.index, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain, this.prop),
+                new this.newer(this.index, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain, this.prop)
             ],
             [
-                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain, this.prop),
-                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain, this.prop)
+                new this.newer(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain, this.prop),
+                new this.newer(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain, this.prop)
             ]
         ];
-
-        this.children = maps;
 
         /*
         this.terrain.addGenMap(maps[0][0]);
@@ -121,40 +122,40 @@ class GenMap {
         
         for (let i = 0; i <= CHUNCK_LENGTH / 2; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH / 2; j++) {
-                maps[0][0].setData(this.getData(i, j), 2 * i, 2 * j);
-                maps[1][0].setData(this.getData(i + CHUNCK_LENGTH / 2, j), 2 * i, 2 * j);
-                maps[0][1].setData(this.getData(i, j + CHUNCK_LENGTH / 2), 2 * i, 2 * j);
-                maps[1][1].setData(this.getData(i + CHUNCK_LENGTH / 2, j + CHUNCK_LENGTH / 2), 2 * i, 2 * j);
+                this.children[0][0].setRawData(this.getRawData(i, j), 2 * i, 2 * j);
+                this.children[1][0].setRawData(this.getRawData(i + CHUNCK_LENGTH / 2, j), 2 * i, 2 * j);
+                this.children[0][1].setRawData(this.getRawData(i, j + CHUNCK_LENGTH / 2), 2 * i, 2 * j);
+                this.children[1][1].setRawData(this.getRawData(i + CHUNCK_LENGTH / 2, j + CHUNCK_LENGTH / 2), 2 * i, 2 * j);
             }
         }
         
         for (let I = 0; I < 2; I++) {
             for (let J = 0; J < 2; J++) {
-                let map = maps[I][J];
+                let map = this.children[I][J];
 
                 for (let i = 0; i < CHUNCK_LENGTH / 2; i++) {
                     for (let j = 0; j <= CHUNCK_LENGTH; j++) {
-                        let v1 = map.getData(2 * i, j);
-                        let v2 = map.getData(2 * i + 2, j);
-                        map.setData(v1 * 0.5 + v2 * 0.5, 2 * i + 1, j);
+                        let v1 = map.getRawData(2 * i, j);
+                        let v2 = map.getRawData(2 * i + 2, j);
+                        map.setRawData(v1 * 0.5 + v2 * 0.5, 2 * i + 1, j);
                     }
                 }
 
                 for (let i = 0; i <= CHUNCK_LENGTH; i++) {
                     for (let j = 0; j < CHUNCK_LENGTH / 2; j++) {
-                        let v1 = map.getData(i, 2 * j);
-                        let v2 = map.getData(i, 2 * j + 2);
-                        map.setData(v1 * 0.5 + v2 * 0.5, i, 2 * j + 1);
+                        let v1 = map.getRawData(i, 2 * j);
+                        let v2 = map.getRawData(i, 2 * j + 2);
+                        map.setRawData(v1 * 0.5 + v2 * 0.5, i, 2 * j + 1);
                     }
                 }
 
                 for (let i = 0; i < CHUNCK_LENGTH / 2; i++) {
                     for (let j = 0; j < CHUNCK_LENGTH / 2; j++) {
-                        let v1 = map.getData(2 * i, 2 * j);
-                        let v2 = map.getData(2 * i, 2 * j + 2);
-                        let v3 = map.getData(2 * i + 2, 2 * j);
-                        let v4 = map.getData(2 * i + 2, 2 * j + 2);
-                        map.setData(v1 * 0.25 + v2 * 0.25 + v3 * 0.25 + v4 * 0.25, 2 * i + 1, 2 * j + 1);
+                        let v1 = map.getRawData(2 * i, 2 * j);
+                        let v2 = map.getRawData(2 * i, 2 * j + 2);
+                        let v3 = map.getRawData(2 * i + 2, 2 * j);
+                        let v4 = map.getRawData(2 * i + 2, 2 * j + 2);
+                        map.setRawData(v1 * 0.25 + v2 * 0.25 + v3 * 0.25 + v4 * 0.25, 2 * i + 1, 2 * j + 1);
                     }
                 }
 
@@ -162,10 +163,10 @@ class GenMap {
             }
         }
 
-        return maps;
+        return this.children;
     }
 
-    public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0): BABYLON.Texture {
+    public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0, min: number = 0, max: number = 100): BABYLON.Texture {
         let n = i1 - i0 + 1;
         let Sn = this._dataSize * VMath.Pow2(this.level);
         let S = Sn * n;
@@ -176,7 +177,7 @@ class GenMap {
         for (let i = 0; i < n; i++) {
             for (let j = 0; j < n; j++) {
                 let map = this.terrain.getGenMap(this.index, this.level, this.iPos + i0 + i, this.jPos + j0 + j);
-                map.recursiveDrawTexture(context, Sn, i * Sn, j * Sn);
+                map.recursiveDrawTexture(context, Sn, i * Sn, j * Sn, min, max);
             }
         }
 
@@ -185,14 +186,15 @@ class GenMap {
         return texture;
     }
 
-    public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number): void {
+    public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number, min: number = 0, max: number = 100): void {
         if (this.level === 0) {
             let data = new Uint8ClampedArray(this._dataSize * this._dataSize * 4);
+            let l = max - min;
             for (let j = 0; j < this._dataSize; j++) {
                 for (let i = 0; i < this._dataSize; i++) {
                     let n = i + j * this._dataSize;
                     let v = this.getData(i, j);
-                    let c = Math.floor(v / 256);
+                    let c = Math.floor((v - min) / l * 256);
                     
                     if (c === 127) {
                         data[4 * n] = 255;
@@ -215,10 +217,60 @@ class GenMap {
             if (!this.subdivided) {
                 this.subdivide();
             }
-            this.children[0][0].recursiveDrawTexture(context, S2, I, J);
-            this.children[1][0].recursiveDrawTexture(context, S2, I + S2, J);
-            this.children[0][1].recursiveDrawTexture(context, S2, I, J + S2);
-            this.children[1][1].recursiveDrawTexture(context, S2, I + S2, J + S2);
+            this.children[0][0].recursiveDrawTexture(context, S2, I, J, min, max);
+            this.children[1][0].recursiveDrawTexture(context, S2, I + S2, J, min, max);
+            this.children[0][1].recursiveDrawTexture(context, S2, I, J + S2, min, max);
+            this.children[1][1].recursiveDrawTexture(context, S2, I + S2, J + S2, min, max);
         }
+    }
+}
+
+class GenMapPerlinish extends GenMap {
+    
+    private _dataMult: number;
+    constructor(
+        index: number,
+        level: number,
+        iPos: number,
+        jPos: number,
+        terrain: Terrain,
+        prop: IGenMapProp
+    ) {
+        super(index, level, iPos, jPos, terrain, prop);
+        this.newer = GenMapPerlinish;
+        this._dataMult = this.terrain.terrainHeight / 65536;
+    }
+
+    public getData(i: number, j: number): number {
+        return this.getRawData(i, j) * this._dataMult;
+    }
+}
+
+class GenMapTunnel extends GenMap {
+    
+    private _dataMult: number;
+    constructor(
+        index: number,
+        level: number,
+        iPos: number,
+        jPos: number,
+        terrain: Terrain,
+        prop: IGenMapProp
+    ) {
+        super(index, level, iPos, jPos, terrain, prop);
+        this.newer = GenMapTunnel;
+        this._dataMult = this.terrain.terrainHeight / 65536;
+    }
+
+    public getData(i: number, j: number): number {
+        let d = this.getRawData(i, j) * this._dataMult - this.terrain.halfTerrainHeight;
+        d = Math.abs(d);
+        if (d <= this.prop.amplitude) {
+            d = Math.cos(Math.PI * d / this.prop.amplitude) * this.prop.amplitude;
+        }
+        else {
+            d = 0;
+        }
+        return d;
     }
 }

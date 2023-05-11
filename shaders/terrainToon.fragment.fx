@@ -27,11 +27,11 @@ in vec4 vColor;
 out vec4 outColor;
  
 void main() {
-   float sunLightFactor = max(dot(vNormalW, lightInvDirW), 0.0);
+   float sunLightFactor = (dot(vNormalW, lightInvDirW) + 1.) * 0.5;
 
    float lightFactor = sunLightFactor * 0.8 + 0.2;
 
-   lightFactor = round(lightFactor * 6.) / 6.;
+   lightFactor = round(lightFactor * 12.) / 12.;
 
    vec3 color = globalColor;
    if (abs(vPositionW.y) < 0.2) {

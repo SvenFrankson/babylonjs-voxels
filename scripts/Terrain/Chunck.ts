@@ -226,15 +226,9 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hGlobal = Chunck._TmpGenMaps0[IMap][JMap].getData(ii, jj) / 65536 * this.terrain.terrainHeight;
-                    let holeHeight = (Chunck._TmpGenMaps1[IMap][JMap].getData(ii, jj) - 32768) / 32768 * this.terrain.halfTerrainHeight;
-                    let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getData(ii, jj) / 65536 * this.terrain.terrainHeight;
-                    if (Math.abs(holeHeight) < 4) {
-                        holeHeight = Math.cos(Math.PI * Math.abs(holeHeight) / 4) * 4;
-                    }
-                    else {
-                        holeHeight = 0;
-                    }
+                    let hGlobal = Chunck._TmpGenMaps0[IMap][JMap].getData(ii, jj);
+                    let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getData(ii, jj);
+                    let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getData(ii, jj);
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;

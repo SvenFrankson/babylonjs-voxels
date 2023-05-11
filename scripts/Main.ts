@@ -98,17 +98,20 @@ class Main {
                 maxLevel: 15
             });
             this.terrain.root.genMaps = [
-                new GenMap(0, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMapPerlinish(0, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
-                    highestRandLevel: 9
+                    highestRandLevel: 9,
+                    amplitude: 128
                 }),
-                new GenMap(1, this.terrain.root.level, 0, 0, this.terrain, {
-                    lowestRandLevel: 3,
-                    highestRandLevel: 6
+                new GenMapTunnel(1, this.terrain.root.level, 0, 0, this.terrain, {
+                    lowestRandLevel: 4,
+                    highestRandLevel: 7,
+                    amplitude: 8
                 }),
-                new GenMap(2, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMapPerlinish(2, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
-                    highestRandLevel: 9
+                    highestRandLevel: 9,
+                    amplitude: 128
                 }),
             ];
             this.terrain.root.register();
@@ -161,8 +164,8 @@ class Main {
                         let genMap0 = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
                         let genMap1 = this.terrain.getGenMap(1, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
                         if (genMap0) {
-                            let texture0 = genMap0.getTexture(-1, 1, -1, 1);
-                            let texture1 = genMap1.getTexture(-1, 1, -1, 1);
+                            let texture0 = genMap0.getTexture(-1, 1, -1, 1, 0, 256);
+                            let texture1 = genMap1.getTexture(-1, 1, -1, 1, 0, 5);
                             if (texture0) {
                                 debugMaterial0.diffuseTexture = texture0;
                                 debugMaterial1.diffuseTexture = texture1;
