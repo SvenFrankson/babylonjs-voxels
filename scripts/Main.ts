@@ -175,7 +175,9 @@ class Main {
                     }
                 }
             }
-            this.scene.onBeforeRenderObservable.add(cb);
+            //this.scene.onBeforeRenderObservable.add(cb);
+            debugPlane0.isVisible = false;
+            debugPlane1.isVisible = false;
         });
 	}
 

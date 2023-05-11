@@ -15,7 +15,7 @@ enum AdjacentAxis {
 
 class Chunck {
 
-    public static MAX_DISPLAYED_LEVEL: number = 0;
+    public static MAX_DISPLAYED_LEVEL: number = 3;
     public name: string;
     public terrain: Terrain;
     public genMaps: GenMap[];
@@ -321,12 +321,6 @@ class Chunck {
         this._isEmpty = true;
         this._isFull = true;
 
-        for (let a = 0; a <= CHUNCK_LENGTH; a++) {
-            for (let b = 0; b <= CHUNCK_LENGTH; b++) {
-
-            }
-        }
-
         for (let i = 0; i <= CHUNCK_LENGTH; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                 for (let k = 0; k <= CHUNCK_LENGTH; k++) {
@@ -390,26 +384,39 @@ class Chunck {
             if (!this._dataInitialized) {
                 this.initializeData();
             }
-            this.disposeAllMeshes();
             if (!this.isEmpty && !this.isFull) {
 
-                this.mesh = new BABYLON.Mesh("foo");
-                ChunckMeshBuilder.BuildMesh(this).applyToMesh(this.mesh);
-                this.mesh.position.copyFromFloats(
-                    (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-                    (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
-                    (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
-                );
-                //this.mesh.position.y += Math.random();
-                this.mesh.material = this.terrain.material;
-                //this.mesh.material = this.terrain.testMaterials[this.level];
-                this.mesh.freezeWorldMatrix();
+                let sides = 0b0;
+                for (let i = 0; i < 6; i++) {
+                    let adj = this.adjacents[i];
+                    if (adj && adj.level === this.level && adj.subdivided) {
+                        sides |= 0b1 << i;
+                    }
+                }
+
+                if (!this.mesh || sides != this._lastDrawnSides) {
+                    if (!this.mesh) {
+                        this.mesh = new BABYLON.Mesh("foo");
+                    }
+                    ChunckMeshBuilder.BuildMesh2(this, sides).applyToMesh(this.mesh);
+                    this.mesh.position.copyFromFloats(
+                        (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
+                        (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
+                        (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+                    );
+                    //this.mesh.position.y += Math.random();
+                    this.mesh.material = this.terrain.material;
+                    //this.mesh.material = this.terrain.testMaterials[this.level];
+                    this.mesh.freezeWorldMatrix();
+                    this._lastDrawnSides = sides;
+                }
             }
         }
     }
 
     private _lastDrawnSides: number = 0b0;
     public redrawShellMesh(): void {
+        return;
         if (this.level > 0 && this.level <= Chunck.MAX_DISPLAYED_LEVEL) {
             if (!this.subdivided) {
                 this.disposeShellMesh();
