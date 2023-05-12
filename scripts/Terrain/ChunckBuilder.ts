@@ -109,6 +109,23 @@ class ChunckMeshBuilder {
             }
         }
 
+        let l = CHUNCK_LENGTH + 2 * m;
+        let references = new Uint8Array(l * l * l);
+        references.fill(0);
+        for (let k = - m; k <= CHUNCK_LENGTH + m; k++) {
+            for (let j = - m; j <= CHUNCK_LENGTH + m; j++) {
+                for (let i = - m; i <= CHUNCK_LENGTH + m; i++) {
+                    let data = getData(i, j, k);
+                    if (data > BlockType.Water) {
+                        let ii = i + m;
+                        let jj = j + m;
+                        let kk = k + m;
+                        references[ii + jj * l + kk * l * l] |= 0b1 << 0;
+                    }
+                }
+            }
+        }
+
         for (let k = - m; k < CHUNCK_LENGTH + m; k++) {
             for (let j = - m; j < CHUNCK_LENGTH + m; j++) {
                 let d1 = getData(- m, j, k);
