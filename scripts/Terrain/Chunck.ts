@@ -47,12 +47,13 @@ class Chunck {
         return this._dataInitialized;
     }
     private _dataSize: number;
+    private _dataSizeSquare: number;
     private _data: Uint8Array;
     public getData(i: number, j: number, k: number): number {
-        return this._data[i + j * this._dataSize + k * this._dataSize * this._dataSize];
+        return this._data[i + j * this._dataSize + k * this._dataSizeSquare];
     }
     public setData(v: number, i: number, j: number, k: number): number {
-        return this._data[i + j * this._dataSize + k * this._dataSize * this._dataSize] = v;
+        return this._data[i + j * this._dataSize + k * this._dataSizeSquare] = v;
     }
 
     public mesh: BABYLON.Mesh;
@@ -202,7 +203,8 @@ class Chunck {
         }
         if (!this.dataInitialized) {
             this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
-            this._data = new Uint8Array(this._dataSize * this._dataSize * this._dataSize);
+            this._dataSizeSquare = this._dataSize * this._dataSize;
+            this._data = new Uint8Array(this._dataSizeSquare * this._dataSize);
 
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
@@ -284,7 +286,7 @@ class Chunck {
 
         if (!this.dataInitialized) {
             this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
-            this._data = new Uint8Array(this._dataSize * this._dataSize * this._dataSize);
+            this._data = new Uint8Array(this._dataSizeSquare * this._dataSize);
 
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
@@ -380,109 +382,48 @@ class Chunck {
     }
 
     public redrawMesh(): void {
-        if (this.level <= Chunck.MAX_DISPLAYED_LEVEL) {
-            if (!this._dataInitialized) {
-                this.initializeData();
-            }
-            if (!this.isEmpty && !this.isFull) {
-
-                let sides = 0b0;
-                for (let i = 0; i < 6; i++) {
-                    let adj = this.adjacents[i];
-                    if (adj && adj.level === this.level && adj.subdivided) {
-                        sides |= 0b1 << i;
-                    }
+        if (!this.subdivided) {
+            if (this.level <= Chunck.MAX_DISPLAYED_LEVEL) {
+                if (!this._dataInitialized) {
+                    this.initializeData();
                 }
-
-                if (!this.mesh || sides != this._lastDrawnSides) {
-                    if (!this.mesh) {
-                        this.mesh = new BABYLON.Mesh("foo");
+                if (!this.isEmpty && !this.isFull) {
+    
+                    let sides = 0b0;
+                    for (let i = 0; i < 6; i++) {
+                        let adj = this.adjacents[i];
+                        if (adj && adj.level === this.level && adj.subdivided && !adj.isFull) {
+                            sides |= 0b1 << i;
+                        }
                     }
-                    ChunckMeshBuilder.BuildMesh2(this, sides).applyToMesh(this.mesh);
-                    this.mesh.position.copyFromFloats(
-                        (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-                        (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
-                        (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
-                    );
-                    //this.mesh.position.y += Math.random();
-                    this.mesh.material = this.terrain.material;
-                    //this.mesh.material = this.terrain.testMaterials[this.level];
-                    this.mesh.freezeWorldMatrix();
-                    this._lastDrawnSides = sides;
+    
+                    if (!this.mesh || sides != this._lastDrawnSides) {
+                        if (!this.mesh) {
+                            this.mesh = new BABYLON.Mesh("foo");
+                        }
+                        ChunckMeshBuilder.BuildMesh2(this, sides).applyToMesh(this.mesh);
+                        this.mesh.position.copyFromFloats(
+                            (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
+                            (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
+                            (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+                        );
+                        this.mesh.material = this.terrain.material;
+                        //this.mesh.material = this.terrain.testMaterials[this.level];
+                        this.mesh.freezeWorldMatrix();
+                        this._lastDrawnSides = sides;
+                    }
                 }
             }
         }
     }
 
     private _lastDrawnSides: number = 0b0;
-    public redrawShellMesh(): void {
-        return;
-        if (this.level > 0 && this.level <= Chunck.MAX_DISPLAYED_LEVEL) {
-            if (!this.subdivided) {
-                this.disposeShellMesh();
-                return;
-            }
-            let sides = 0b0;
-            for (let i = 0; i < 6; i++) {
-                let adj = this.adjacents[i];
-                if (adj && adj.level === this.level && !adj.subdivided && !adj.isFull) {
-                    sides |= 0b1 << i;
-                }
-            }
-
-            if (this._lastDrawnSides != sides) {
-                if (sides === 0b0) {
-                    this.disposeShellMesh();
-                }
-                else {
-                    this.doRedrawShellMesh(sides);
-                }
-                this._lastDrawnSides = sides;
-            }
-        }
-    }
-
-    public doRedrawShellMesh(sides: number): void {
-        if (!this._dataInitialized) {
-            this.initializeData();
-        }
-        this.disposeShellMesh();
-        if (!this.isEmpty && !this.isFull) {
-
-            let vData = ChunckMeshBuilder.BuildMeshShell(this, sides);
-            if (vData.positions.length > 0) {
-                this.shellMesh = new BABYLON.Mesh("foo");
-                vData.applyToMesh(this.shellMesh);
-                this.shellMesh.position.copyFromFloats(
-                    (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-                    (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
-                    (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
-                );
-                this.shellMesh.material = this.terrain.material;
-                //this.shellMesh.material = this.terrain.testMaterials[5];
-                this.shellMesh.freezeWorldMatrix();
-            }
-        }
-    }
-
-    public disposeAllMeshes(): void {
-        this.disposeMesh();
-        this.disposeShellMesh();
-    }
 
     public disposeMesh(): void {
         if (this.mesh) {
             this.mesh.dispose();
         }
         this.mesh = undefined;
-    }
-
-    public disposeShellMesh(): void {
-        if (this.shellMesh) {
-            this.shellMesh.dispose();
-        }
-        this.shellMesh = undefined;
-        this._lastDrawnSides = 0b0;
     }
 
     public subdivide(): Chunck[] {
@@ -509,9 +450,7 @@ class Chunck {
                 }
             }
         }
-        if (this.parent) {
-            this.parent.disposeShellMesh();
-        }
+        this.unregister();
         this.disposeMesh();
         return this.children;
     }
@@ -544,14 +483,11 @@ class Chunck {
     public collapseChildren(): Chunck {
         for (let i = 0; i < this.children.length; i++) {
             let child = this.children[i];
-            child.disposeShellMesh();
             child.unregister();
             child.disposeMesh();
             child.removeFromAdjacents();
         }
-        if (this.parent) {
-            this.parent.register();
-        }
+        this.register();
         this.children = [];
         this._subdivided = false;
         this.findAdjacents();

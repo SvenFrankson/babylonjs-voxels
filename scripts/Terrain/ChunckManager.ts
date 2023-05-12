@@ -38,7 +38,7 @@ class ChunckManager {
 
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
-        let distance = 200;
+        let distance = 150;
         let distances = [];
         this._chunckLevelsCubeDistances = [];
         for (let i = 0; i < this.terrain.maxLevel; i++) {
@@ -123,6 +123,9 @@ class ChunckManager {
                 if (parentChunck) {
                     count++;
                     parentChunck.redrawMesh();
+                    parentChunck.adjacents.forEach(adj => {
+                        adj.redrawMesh();
+                    })
                 }
             }
             else if (chunck.level > chunck.targetLevel) {
@@ -132,17 +135,17 @@ class ChunckManager {
                     children.forEach(childChunck => {
                         childChunck.redrawMesh();
                     })
+                    chunck.adjacents.forEach(adj => {
+                        adj.redrawMesh();
+                    })
                 }
-            }
-            else {
-                chunck.redrawMesh();
             }
 
             t = performance.now();
         }
 
-        let newDuration = count / 5 * 15;
-        newDuration = Math.min(Math.max(0.1, newDuration), 15);
+        let newDuration = count / 5 * 25;
+        newDuration = Math.min(Math.max(0.1, newDuration), 25);
         this._checkDuration = this._checkDuration * 0.9 + newDuration * 0.1;
     }
 }

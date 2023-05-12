@@ -106,7 +106,7 @@ class Main {
                 new GenMapTunnel(1, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 4,
                     highestRandLevel: 7,
-                    amplitude: 8
+                    amplitude: 20
                 }),
                 new GenMapPerlinish(2, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
