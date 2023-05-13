@@ -1,12 +1,15 @@
 class ChunckMeshBuilder {
 
+    private static _BaseVerticesCount: number = 2 * CHUNCK_LENGTH + 1;
+    private static _ReferencesLength: number = CHUNCK_LENGTH + 2 * DRAW_CHUNCK_MARGIN;
     private static FlatMesh: boolean = false;
 	private static _Vertices: number[][][] = [];
+    private static _References: Uint8Array = new Uint8Array(ChunckMeshBuilder._ReferencesLength * ChunckMeshBuilder._ReferencesLength * ChunckMeshBuilder._ReferencesLength);
 
     private static _GetVertex(i: number, j: number, k: number): number {
-        i += 2;
-        j += 2;
-        k += 2;
+        i += DRAW_CHUNCK_MARGIN;
+        j += DRAW_CHUNCK_MARGIN;
+        k += DRAW_CHUNCK_MARGIN;
         if (ChunckMeshBuilder.FlatMesh) {
             return undefined;
         }
@@ -18,9 +21,9 @@ class ChunckMeshBuilder {
 	}
 
 	private static _SetVertex(v: number, i: number, j: number, k: number): void {
-        i += 2;
-        j += 2;
-        k += 2;
+        i += DRAW_CHUNCK_MARGIN;
+        j += DRAW_CHUNCK_MARGIN;
+        k += DRAW_CHUNCK_MARGIN;
         if (ChunckMeshBuilder.FlatMesh) {
             return;
         }
@@ -36,8 +39,7 @@ class ChunckMeshBuilder {
     public static BuildMesh2(chunck: Chunck, sides: number): BABYLON.VertexData {
 		ChunckMeshBuilder._Vertices = [];
 
-        let m = chunck.m;
-        let vertexLength = 2 * CHUNCK_LENGTH + 1;
+        let m = DRAW_CHUNCK_MARGIN;
 
         let lod = 2;
         if (chunck.level === 0) {
@@ -55,26 +57,26 @@ class ChunckMeshBuilder {
         let xMin = 0;
         let yMin = 0;
         let zMin = 0;
-        let xMax = vertexLength;
-        let yMax = vertexLength;
-        let zMax = vertexLength;
+        let xMax = ChunckMeshBuilder._BaseVerticesCount;
+        let yMax = ChunckMeshBuilder._BaseVerticesCount;
+        let zMax = ChunckMeshBuilder._BaseVerticesCount;
         if (sides & 0b1) {
             xMin = - 2;
         }
         if (sides & 0b10) {
-            xMax = vertexLength + 2;
+            xMax = ChunckMeshBuilder._BaseVerticesCount + 2;
         }
         if (sides & 0b100) {
             zMin = - 2;
         }
         if (sides & 0b1000) {
-            zMax = vertexLength + 2;
+            zMax = ChunckMeshBuilder._BaseVerticesCount + 2;
         }
         if (sides & 0b10000) {
             yMin = - 2;
         }
         if (sides & 0b100000) {
-            yMax = vertexLength + 2;
+            yMax = ChunckMeshBuilder._BaseVerticesCount + 2;
         }
 
         let getData: (ii: number, jj: number, kk: number) => number;
@@ -109,8 +111,8 @@ class ChunckMeshBuilder {
             }
         }
 
-        let l = CHUNCK_LENGTH + 2 * m;
-        let references = new Uint8Array(l * l * l);
+        let l = ChunckMeshBuilder._ReferencesLength;
+        let references = ChunckMeshBuilder._References;
         references.fill(0);
         for (let k = - m; k <= CHUNCK_LENGTH + m; k++) {
             for (let j = - m; j <= CHUNCK_LENGTH + m; j++) {
@@ -121,6 +123,27 @@ class ChunckMeshBuilder {
                         let jj = j + m;
                         let kk = k + m;
                         references[ii + jj * l + kk * l * l] |= 0b1 << 0;
+                        if (ii > 0) {
+                            references[(ii - 1) + jj * l + kk * l * l] |= 0b1 << 1;
+                        }
+                        if (ii > 0 && jj > 0) {
+                            references[(ii - 1) + (jj - 1) * l + kk * l * l] |= 0b1 << 2;
+                        }
+                        if (jj > 0) {
+                            references[ii + (jj - 1) * l + kk * l * l] |= 0b1 << 3;
+                        }
+                        if (kk > 0) {
+                            references[ii + jj * l + (kk - 1) * l * l] |= 0b1 << 4;
+                        }
+                        if (ii > 0 && kk > 0) {
+                            references[(ii - 1) + jj * l + (kk - 1) * l * l] |= 0b1 << 5;
+                        }
+                        if (ii > 0 && jj > 0 && kk > 0) {
+                            references[(ii - 1) + (jj - 1) * l + (kk - 1) * l * l] |= 0b1 << 6;
+                        }
+                        if (jj > 0 && kk > 0) {
+                            references[ii + (jj - 1) * l + (kk - 1) * l * l] |= 0b1 << 7;
+                        }
                     }
                 }
             }
@@ -128,45 +151,11 @@ class ChunckMeshBuilder {
 
         for (let k = - m; k < CHUNCK_LENGTH + m; k++) {
             for (let j = - m; j < CHUNCK_LENGTH + m; j++) {
-                let d1 = getData(- m, j, k);
-                let d2 = getData(- m, j + 1, k);
-                let d5 = getData(- m, j, k + 1);
-                let d6 = getData(- m, j + 1, k + 1);
                 for (let i = - m; i < CHUNCK_LENGTH + m; i++) {
-
-                    let ref = 0b0;
-                    let d0 = d1;
-                    if (d0 > BlockType.Water) {
-                        ref |= 0b1 << 0;
-                    }
-                    let d4 = d5;
-                    if (d4 > BlockType.Water) {
-                        ref |= 0b1 << 4;
-                    }
-                    let d3 = d2;
-                    if (d3 > BlockType.Water) {
-                        ref |= 0b1 << 3;
-                    }
-                    let d7 = d6;
-                    if (d7 > BlockType.Water) {
-                        ref |= 0b1 << 7;
-                    }
-                    d1 = getData(i + 1, j, k);
-                    if (d1 > BlockType.Water) {
-                        ref |= 0b1 << 1;
-                    }
-                    d2 = getData(i + 1, j + 1, k);
-                    if (d2 > BlockType.Water) {
-                        ref |= 0b1 << 2;
-                    }
-                    d5 = getData(i + 1, j, k + 1);
-                    if (d5 > BlockType.Water) {
-                        ref |= 0b1 << 5;
-                    }
-                    d6 = getData(i + 1, j + 1, k + 1);
-                    if (d6 > BlockType.Water) {
-                        ref |= 0b1 << 6;
-                    }
+                    let ii = i + m;
+                    let jj = j + m;
+                    let kk = k + m;
+                    let ref = references[ii + jj * l + kk * l * l];
 
                     if (isFinite(ref) && ref != 0 && ref != 0b11111111) {
                         let extendedpartVertexData = ChunckVertexData.Get(lod, ref);

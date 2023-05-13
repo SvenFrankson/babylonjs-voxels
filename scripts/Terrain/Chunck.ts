@@ -3,6 +3,7 @@ var CHUNCK_LENGTH: number = 16;
 var CHUNCK_LENGTH_2: number = CHUNCK_LENGTH * CHUNCK_LENGTH;
 var CHUNCK_LENGTH_3: number = CHUNCK_LENGTH_2 * CHUNCK_LENGTH;
 var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
+var DRAW_CHUNCK_MARGIN: number = 2;
 
 enum AdjacentAxis {
     IPrev = 0,
@@ -186,14 +187,13 @@ class Chunck {
         }
     }
 
-    public m: number = 2;
     public static _TmpGenMaps0: GenMap[][] = [[], [], []];
     public static _TmpGenMaps1: GenMap[][] = [[], [], []];
     public static _TmpGenMaps2: GenMap[][] = [[], [], []];
     public initializeData(): void {
         //this.initializeData2();
         //return;
-        let m = this.m;
+        let m = DRAW_CHUNCK_MARGIN;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
@@ -282,7 +282,7 @@ class Chunck {
     }
 
     public initializeData2(): void {
-        let m = this.m;
+        let m = DRAW_CHUNCK_MARGIN;
 
         if (!this.dataInitialized) {
             this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
@@ -320,13 +320,14 @@ class Chunck {
     }
 
     public updateIsEmptyIsFull(): void {
+        let m = DRAW_CHUNCK_MARGIN;
         this._isEmpty = true;
         this._isFull = true;
 
         for (let i = 0; i <= CHUNCK_LENGTH; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                 for (let k = 0; k <= CHUNCK_LENGTH; k++) {
-                    let block = this.getData(i + this.m, j + this.m, k + this.m);
+                    let block = this.getData(i + m, j + m, k + m);
                     this._isFull = this._isFull && (block > BlockType.Water);
                     this._isEmpty = this._isEmpty && (block < BlockType.Water);
                     if (!this._isFull && !this._isEmpty) {
