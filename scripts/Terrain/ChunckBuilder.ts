@@ -36,7 +36,7 @@ class ChunckMeshBuilder {
 		ChunckMeshBuilder._Vertices[i][j][k] = v;
 	}
 
-    public static BuildMesh2(chunck: Chunck, sides: number): BABYLON.VertexData {
+    public static BuildMesh(chunck: Chunck, sides: number): BABYLON.VertexData {
 		ChunckMeshBuilder._Vertices = [];
 
         let m = DRAW_CHUNCK_MARGIN;
@@ -229,6 +229,10 @@ class ChunckMeshBuilder {
                 }
 			}
 		}
+
+        if (positions.length === 0 || indices.length === 0) {
+            return;
+        }
 
         for (let i = 0; i < positions.length / 3; i++) {
             let factor = summedPositionsCount[i] / 3;

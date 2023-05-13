@@ -378,7 +378,7 @@ class Chunck {
 
     public unlit(): void {
         if (this.mesh) {
-            this.mesh.material = this.terrain.material;
+            this.mesh.material = this.terrain.getMaterial(this.level);
         }
     }
 
@@ -399,18 +399,21 @@ class Chunck {
                     }
     
                     if (!this.mesh || sides != this._lastDrawnSides) {
-                        if (!this.mesh) {
-                            this.mesh = new BABYLON.Mesh("foo");
+                        let vertexData = ChunckMeshBuilder.BuildMesh(this, sides);
+                        if (vertexData) {
+                            if (!this.mesh) {
+                                this.mesh = new BABYLON.Mesh("foo");
+                            }
+                            vertexData.applyToMesh(this.mesh);
+                            this.mesh.position.copyFromFloats(
+                                (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
+                                (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
+                                (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+                            );
+                            this.mesh.material = this.terrain.getMaterial(this.level);
+                            //this.mesh.material = this.terrain.testMaterials[this.level];
+                            this.mesh.freezeWorldMatrix();
                         }
-                        ChunckMeshBuilder.BuildMesh2(this, sides).applyToMesh(this.mesh);
-                        this.mesh.position.copyFromFloats(
-                            (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-                            (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
-                            (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
-                        );
-                        this.mesh.material = this.terrain.material;
-                        //this.mesh.material = this.terrain.testMaterials[this.level];
-                        this.mesh.freezeWorldMatrix();
                         this._lastDrawnSides = sides;
                     }
                 }

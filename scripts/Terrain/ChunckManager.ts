@@ -144,8 +144,8 @@ class ChunckManager {
             t = performance.now();
         }
 
-        let newDuration = count / 5 * 25;
-        newDuration = Math.min(Math.max(0.1, newDuration), 25);
+        let newDuration = count / 5 * 15;
+        newDuration = Math.min(Math.max(0.1, newDuration), 15);
         this._checkDuration = this._checkDuration * 0.9 + newDuration * 0.1;
     }
 }
