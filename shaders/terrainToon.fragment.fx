@@ -24,12 +24,12 @@ void main() {
    float dz = vPositionW.z - floor(vPositionW.z);
    
    if (level == 0) {
-      if (vNormalW.y > 0.9) {
+      if (vNormalW.y > 0.8 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }
    }
    else {
-      if (vNormalW.y > 0.9) {
+      if (vNormalW.y > 0.7 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }
    }
