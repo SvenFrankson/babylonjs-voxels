@@ -190,6 +190,7 @@ class Chunck {
     public static _TmpGenMaps1: GenMap[][] = [[], [], []];
     public static _TmpGenMaps2: GenMap[][] = [[], [], []];
     public static _TmpGenMaps3: GenMap[][] = [[], [], []];
+    public static _TmpGenMaps4: GenMap[][] = [[], [], []];
     public initializeData(): void {
         //this.initializeData2();
         //return;
@@ -200,6 +201,7 @@ class Chunck {
                 Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
                 Chunck._TmpGenMaps2[i][j] = this.terrain.getGenMap(2, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
                 Chunck._TmpGenMaps3[i][j] = this.terrain.getGenMap(3, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                Chunck._TmpGenMaps4[i][j] = this.terrain.getGenMap(4, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
             }
         }
         if (!this.dataInitialized) {
@@ -229,19 +231,23 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hGlobal = Chunck._TmpGenMaps0[IMap][JMap].getData(ii, jj);
+                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getData(ii, jj);
                     let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getData(ii, jj);
                     let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getData(ii, jj);
                     let hColor = Chunck._TmpGenMaps3[IMap][JMap].getData(ii, jj);
+                    let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getData(ii, jj);
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
                         
                         this.setData(BlockType.None, i + m, j + m, k + m);
-                        if (Math.abs(kGlobal - hAltitudeHole) < holeHeight) {
+                        if (Math.abs(kGlobal - hAltitude) < rockHeight) {
+                            this.setData(BlockType.Rock, i + m, j + m, k + m);
+                        }
+                        else if (Math.abs(kGlobal - hAltitudeHole) < holeHeight) {
                             this.setData(BlockType.None, i + m, j + m, k + m);
                         }
-                        else if (kGlobal < hGlobal) {
+                        else if (kGlobal < hAltitude) {
                             if (hColor > this.terrain.halfTerrainHeight) {
                                 this.setData(BlockType.Grass, i + m, j + m, k + m);
                             }
@@ -361,6 +367,13 @@ class Chunck {
             }
         }
         return undefined;
+    }
+
+    public getIJKAtPos(pos: BABYLON.Vector3): BABYLON.Vector3 {
+        let i = Math.floor((pos.x - this.position.x) / BLOCK_SIZE);
+        let j = Math.floor((pos.z + this.position.z) / BLOCK_SIZE);
+        let k = Math.floor((pos.y + this.position.y) / BLOCK_SIZE);
+        return new BABYLON.Vector3(i, j, k);
     }
 
     public register(): void {

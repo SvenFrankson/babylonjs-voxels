@@ -17,6 +17,9 @@ void main() {
    float lightFactor = sunLightFactor / 1.3;
 
    vec3 color = vColor.rgb;
+   color.r = round(color.r * 4.) / 4.;
+   color.g = round(color.g * 4.) / 4.;
+   color.b = round(color.b * 4.) / 4.;
    
    if (level == 0) {
       float dy = vPositionW.y - floor(vPositionW.y);
@@ -39,7 +42,7 @@ void main() {
       }
    }
 
-   lightFactor = round(lightFactor * 24.) / 24.;
+   lightFactor = round(lightFactor * 12.) / 12.;
 
    /*
    if (dx < 0.02 || dx > 0.98) {

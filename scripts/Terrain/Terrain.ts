@@ -58,8 +58,6 @@ class Terrain {
         console.log("surface " + surface + " km²");
         let terrainLength = this.chunckCount * CHUNCK_LENGTH;
         console.log("terrainLength " + terrainLength);
-        let genMapLength = terrainLength / GEN_MAP_LENGTH;
-        console.log("genMapLength " + genMapLength)
 
         this.materials = [
             new TerrainMaterial("terrain-material-lod0", this.scene),
@@ -107,5 +105,15 @@ class Terrain {
         let jPos = Math.floor((pos.z + this.halfTerrainSize) / CHUNCK_SIZE);
         let kPos = Math.floor((pos.y + this.halfTerrainHeight) / CHUNCK_SIZE);
         return this.getChunck(level, iPos, jPos, kPos);
+    }
+
+    public getChunckAndIJKAtPos(pos: BABYLON.Vector3, level: number): { chunck: Chunck, ijk: BABYLON.Vector3 } {
+        let chunck = this.getChunckAtPos(pos, level);
+        if (chunck) {
+            return {
+                chunck: chunck,
+                ijk: chunck.getIJKAtPos(pos)
+            }
+        }
     }
 }

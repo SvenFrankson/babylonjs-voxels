@@ -1,6 +1,7 @@
 enum CameraMode {
     Sky,
-    Player
+    Player,
+    FreeCam
 }
 
 class CameraManager {
@@ -17,6 +18,8 @@ class CameraManager {
     public freeCamera: BABYLON.FreeCamera;
     public noOutlineCamera: BABYLON.FreeCamera;
     public farCamera: BABYLON.FreeCamera;
+
+    public player: Player;
 
     public get absolutePosition(): BABYLON.Vector3 {
         if (this.cameraMode === CameraMode.Sky) {
@@ -48,6 +51,9 @@ class CameraManager {
         this.freeCamera.rotationQuaternion = BABYLON.Quaternion.Identity();
         this.freeCamera.minZ = 0.1;
         this.freeCamera.maxZ = 2000;
+        if (!this.useOutline) {
+            this.freeCamera.layerMask |= 0x10000000;
+        }
 
         if (this.useOutline) {
             const rtt = new BABYLON.RenderTargetTexture('render target', { width: this.main.engine.getRenderWidth(), height: this.main.engine.getRenderHeight() }, this.main.scene);
@@ -93,7 +99,7 @@ class CameraManager {
 
     public setMode(newCameraMode: CameraMode): void {
         if (newCameraMode != this.cameraMode) {
-            if (this.cameraMode === CameraMode.Player) {
+            if (this.cameraMode === CameraMode.FreeCam) {
                 this.freeCamera.detachControl();
             }
             if (this.cameraMode === CameraMode.Sky) {
@@ -102,7 +108,7 @@ class CameraManager {
 
             this.cameraMode = newCameraMode;
 
-            if (this.cameraMode === CameraMode.Player) {
+            if (this.cameraMode === CameraMode.FreeCam) {
                 if (this.useOutline) {
                     this.main.scene.activeCameras = [this.freeCamera, this.noOutlineCamera];
                 }
@@ -110,6 +116,18 @@ class CameraManager {
                     this.main.scene.activeCameras = [this.freeCamera];
                 }
                 this.freeCamera.attachControl(this.main.canvas);
+            }
+            if (this.cameraMode === CameraMode.Player) {
+                this.freeCamera.parent = this.player.head;
+                this.freeCamera.position.copyFromFloats(0, 0, 0.04);
+                this.freeCamera.rotationQuaternion.copyFrom(BABYLON.Quaternion.Identity());
+                this.freeCamera.computeWorldMatrix();
+                if (this.useOutline) {
+                    this.main.scene.activeCameras = [this.freeCamera, this.noOutlineCamera];
+                }
+                else {
+                    this.main.scene.activeCameras = [this.freeCamera];
+                }
             }
             if (this.cameraMode === CameraMode.Sky) {
                 if (this.useOutline) {

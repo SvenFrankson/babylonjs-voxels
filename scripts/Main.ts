@@ -12,8 +12,10 @@ class Main {
 	public canvas: HTMLCanvasElement;
 	public engine: BABYLON.Engine;
     public scene: BABYLON.Scene;
+	public inputManager: InputManager;
     public cameraManager: CameraManager;
     public vertexDataLoader: VertexDataLoader;
+    public player: Player;
 
     public rand: Rand;
     public terrain: Terrain;
@@ -49,7 +51,10 @@ class Main {
 	}
 
     public createScene(): void {
+        window.localStorage.clear();
+        
 		this.scene = new BABYLON.Scene(this.engine);
+        this.inputManager = new InputManager(this.scene, this.canvas, this);
 		//this.scene.clearColor.copyFromFloats(166 / 255, 231 / 255, 255 / 255, 1);
         //this.scene.clearColor = BABYLON.Color4.FromHexString("#eb4034ff");
         this.scene.clearColor = BABYLON.Color4.FromHexString("#ffffffff");
@@ -58,7 +63,6 @@ class Main {
         let light = new BABYLON.HemisphericLight("light", BABYLON.Vector3.One(), this.scene);
 
         this.cameraManager = new CameraManager(this);
-        this.cameraManager.setMode(CameraMode.Player);
         this.cameraManager.freeCamera.position.copyFromFloats(-10, 40, -30);
 
         let debugPlane0 = BABYLON.CreatePlane("debug-plane-0", { size: 1.5 });
@@ -91,12 +95,34 @@ class Main {
         let perfDebug = new DebugTerrainPerf(this);
         perfDebug.show();
 
-        ChunckVertexData.InitializeData().then(() => {
+        this.player = new Player(new BABYLON.Vector3(-10, 40, -30), this);
+        this.cameraManager.player = this.player;
+        this.cameraManager.setMode(CameraMode.Player);
+
+        ChunckVertexData.InitializeData().then(async () => {
             this.terrain = new Terrain({
                 scene: this.scene,
                 chunckCountHeight: 20,
                 maxLevel: 15
             });
+
+            await this.player.initialize();
+            this.inputManager.initialize(this.player);
+            this.player.inventory = new Inventory(this.player);
+            await this.player.inventory.initialize();
+            
+            let hud = new HeadUpDisplay(this.player, this);
+
+            let wristWatch = new WristWatch(this.player, this);
+            await wristWatch.instantiate();
+
+            await hud.instantiate();
+
+            this.player.playerActionManager = new PlayerActionManager(this.player, hud, this);
+            this.player.playerActionManager.initialize();
+
+            this.player.registerControl();
+
             this.terrain.root.genMaps = [
                 new GenMapPerlinish(0, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
@@ -104,9 +130,9 @@ class Main {
                     amplitude: 128
                 }),
                 new GenMapTunnel(1, this.terrain.root.level, 0, 0, this.terrain, {
-                    lowestRandLevel: 4,
-                    highestRandLevel: 7,
-                    amplitude: 20
+                    lowestRandLevel: 3,
+                    highestRandLevel: 6,
+                    amplitude: 15
                 }),
                 new GenMapPerlinish(2, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
@@ -114,10 +140,15 @@ class Main {
                     amplitude: 128
                 }),
                 new GenMapPerlinish(3, this.terrain.root.level, 0, 0, this.terrain, {
-                    lowestRandLevel: 3,
-                    highestRandLevel: 6,
+                    lowestRandLevel: 2,
+                    highestRandLevel: 5,
                     amplitude: 128
-                })
+                }),
+                new GenMapTunnel(4, this.terrain.root.level, 0, 0, this.terrain, {
+                    lowestRandLevel: 4,
+                    highestRandLevel: 7,
+                    amplitude: 4
+                }),
             ];
             this.terrain.root.register();
             this.terrain.initialize();

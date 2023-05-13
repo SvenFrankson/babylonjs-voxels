@@ -201,12 +201,15 @@ class ChunckMeshBuilder {
                                         if (!isFinite(pIndex)) {
                                             pIndex = positions.length / 3;
                                             positions.push(x, y, z);
-                                            let dataAtVertex = getData(i + cx, j + cy, k + cz);
+                                            let dataAtVertex = chunck.getData(i + cx + m, j + cz + m, k + cy + m);
                                             if (dataAtVertex === BlockType.Grass) {
                                                 colors.push(0, 1, 0, 1);
                                             }
                                             else if (dataAtVertex === BlockType.None) {
                                                 colors.push(1, 0, 0, 1);
+                                            }
+                                            else if (dataAtVertex === BlockType.Rock) {
+                                                colors.push(0.2, 0.2, 0.2, 1);
                                             }
                                             else {
                                                 colors.push(0.5, 0.5, 0, 1);
