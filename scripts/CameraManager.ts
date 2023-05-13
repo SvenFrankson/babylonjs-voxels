@@ -47,7 +47,7 @@ class CameraManager {
         );
         this.freeCamera.rotationQuaternion = BABYLON.Quaternion.Identity();
         this.freeCamera.minZ = 0.1;
-        this.freeCamera.maxZ = 1000;
+        this.freeCamera.maxZ = 2000;
 
         if (this.useOutline) {
             const rtt = new BABYLON.RenderTargetTexture('render target', { width: this.main.engine.getRenderWidth(), height: this.main.engine.getRenderHeight() }, this.main.scene);

@@ -16,21 +16,26 @@ void main() {
 
    float lightFactor = sunLightFactor / 1.3;
 
-   vec3 color = vec3(1., 1., 1.);
-
-   int h = int(round(vPositionW.y * 2.));
-   float dx = vPositionW.x - floor(vPositionW.x);
-   float dy = vPositionW.y - floor(vPositionW.y);
-   float dz = vPositionW.z - floor(vPositionW.z);
+   vec3 color = vColor.rgb;
    
    if (level == 0) {
+      float dy = vPositionW.y - floor(vPositionW.y);
       if (vNormalW.y > 0.8 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }
    }
-   else {
+   else if (level == 1) {
+      float dy = vPositionW.y - floor(vPositionW.y);
       if (vNormalW.y > 0.7 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
+      }
+   }
+   else {
+      if (vNormalW.y > 0.9) {
+         lightFactor *= 1.3;
+      }
+      else if (vNormalW.y > 0.8) {
+         lightFactor *= 1. + 0.3 * ((vNormalW.y - 0.8) * 10.);
       }
    }
 

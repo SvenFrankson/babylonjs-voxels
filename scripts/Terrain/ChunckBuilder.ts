@@ -2,9 +2,11 @@ class ChunckMeshBuilder {
 
     private static _BaseVerticesCount: number = 2 * CHUNCK_LENGTH + 1;
     private static _ReferencesLength: number = CHUNCK_LENGTH + 2 * DRAW_CHUNCK_MARGIN;
+    private static _DataLength: number = CHUNCK_LENGTH + 2 * DRAW_CHUNCK_MARGIN + 1;
     private static FlatMesh: boolean = false;
 	private static _Vertices: number[][][] = [];
     private static _References: Uint8Array = new Uint8Array(ChunckMeshBuilder._ReferencesLength * ChunckMeshBuilder._ReferencesLength * ChunckMeshBuilder._ReferencesLength);
+    private static _Colors: Uint8Array = new Uint8Array(ChunckMeshBuilder._DataLength * ChunckMeshBuilder._DataLength * ChunckMeshBuilder._DataLength);
 
     private static _GetVertex(i: number, j: number, k: number): number {
         i += DRAW_CHUNCK_MARGIN;
@@ -35,7 +37,7 @@ class ChunckMeshBuilder {
 		}
 		ChunckMeshBuilder._Vertices[i][j][k] = v;
 	}
-
+    
     public static BuildMesh(chunck: Chunck, sides: number): BABYLON.VertexData {
 		ChunckMeshBuilder._Vertices = [];
 
@@ -114,6 +116,8 @@ class ChunckMeshBuilder {
         let l = ChunckMeshBuilder._ReferencesLength;
         let references = ChunckMeshBuilder._References;
         references.fill(0);
+        let clonedData = ChunckMeshBuilder._Colors;
+        clonedData.fill(0);
         for (let k = - m; k <= CHUNCK_LENGTH + m; k++) {
             for (let j = - m; j <= CHUNCK_LENGTH + m; j++) {
                 for (let i = - m; i <= CHUNCK_LENGTH + m; i++) {
@@ -122,6 +126,7 @@ class ChunckMeshBuilder {
                         let ii = i + m;
                         let jj = j + m;
                         let kk = k + m;
+                        clonedData[ii + jj * l + kk * l * l] = data;
                         references[ii + jj * l + kk * l * l] |= 0b1 << 0;
                         if (ii > 0) {
                             references[(ii - 1) + jj * l + kk * l * l] |= 0b1 << 1;
@@ -162,6 +167,7 @@ class ChunckMeshBuilder {
                         if (extendedpartVertexData) {
                             let fastTriangles = extendedpartVertexData.fastTriangles;
                             let fastNormals = extendedpartVertexData.fastNormals;
+                            let fastColorIndexes = extendedpartVertexData.fastColorIndex;
                             for (let triIndex = 0; triIndex < fastTriangles.length; triIndex++) {
                                 let triIndexes = [];
                                 let addTri = true;
@@ -172,6 +178,10 @@ class ChunckMeshBuilder {
                                     let x = fastTriangles[triIndex][vIndex].x;
                                     let y = fastTriangles[triIndex][vIndex].y;
                                     let z = fastTriangles[triIndex][vIndex].z;
+
+                                    let cx = fastColorIndexes[triIndex][vIndex].x;
+                                    let cy = fastColorIndexes[triIndex][vIndex].y;
+                                    let cz = fastColorIndexes[triIndex][vIndex].z;
 
                                     let xIndex = x + i * 2;
                                     let yIndex = y + k * 2;
@@ -191,7 +201,16 @@ class ChunckMeshBuilder {
                                         if (!isFinite(pIndex)) {
                                             pIndex = positions.length / 3;
                                             positions.push(x, y, z);
-                                            colors.push(Math.random(), Math.random(), Math.random(), 1);
+                                            let dataAtVertex = getData(i + cx, j + cy, k + cz);
+                                            if (dataAtVertex === BlockType.Grass) {
+                                                colors.push(0, 1, 0, 1);
+                                            }
+                                            else if (dataAtVertex === BlockType.None) {
+                                                colors.push(1, 0, 0, 1);
+                                            }
+                                            else {
+                                                colors.push(0.5, 0.5, 0, 1);
+                                            }
                                             summedPositions.push(0, 0, 0);
                                             summedPositionsCount.push(0);
                                             normals.push(0, 0, 0);

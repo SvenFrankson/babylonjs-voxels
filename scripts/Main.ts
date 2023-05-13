@@ -113,6 +113,11 @@ class Main {
                     highestRandLevel: 9,
                     amplitude: 128
                 }),
+                new GenMapPerlinish(3, this.terrain.root.level, 0, 0, this.terrain, {
+                    lowestRandLevel: 3,
+                    highestRandLevel: 6,
+                    amplitude: 128
+                })
             ];
             this.terrain.root.register();
             this.terrain.initialize();

@@ -63,10 +63,12 @@ class Terrain {
 
         this.materials = [
             new TerrainMaterial("terrain-material-lod0", this.scene),
-            new TerrainMaterial("terrain-material-lod1", this.scene)
+            new TerrainMaterial("terrain-material-lod1", this.scene),
+            new TerrainMaterial("terrain-material-lod2", this.scene)
         ];
         this.materials[0].setLevel(0);
         this.materials[1].setLevel(1);
+        this.materials[2].setLevel(2);
         this.testMaterials = [];
         for (let i = 0; i < 6; i++) {
             this.testMaterials[i] = new TerrainMaterial("terrain-shell-material", this.scene);

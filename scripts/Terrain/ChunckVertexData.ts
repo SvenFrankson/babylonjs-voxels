@@ -67,7 +67,7 @@ class ChunckVertexData {
         let flippedRef = ChunckVertexData.FlipChunckPartRef(ref);
         if (!ChunckVertexData._VertexDatas[lod].has(flippedRef)) {
             let flippedData = ChunckVertexData.Flip(data);
-            ChunckVertexData._VertexDatas[lod].set(flippedRef, new ExtendedVertexData(flippedRef, flippedData));
+            ChunckVertexData._VertexDatas[lod].set(flippedRef, new ExtendedVertexData(flippedData));
             ChunckVertexData._TryAddVariations(lod, flippedRef, flippedData, false);
             return true;
         }
@@ -78,7 +78,7 @@ class ChunckVertexData {
         let mirrorXRef = ChunckVertexData.MirrorXChunckPartRef(ref);
         if (!ChunckVertexData._VertexDatas[lod].has(mirrorXRef)) {
             let mirrorXData = ChunckVertexData.MirrorX(data);
-            ChunckVertexData._VertexDatas[lod].set(mirrorXRef, new ExtendedVertexData(mirrorXRef, mirrorXData));
+            ChunckVertexData._VertexDatas[lod].set(mirrorXRef, new ExtendedVertexData(mirrorXData));
             ChunckVertexData._TryAddMirrorYChunckPart(lod, mirrorXRef, mirrorXData);
             ChunckVertexData._TryAddMirrorZChunckPart(lod, mirrorXRef, mirrorXData);
             return true;
@@ -90,7 +90,7 @@ class ChunckVertexData {
         let mirrorYRef = ChunckVertexData.MirrorYChunckPartRef(ref);
         if (!ChunckVertexData._VertexDatas[lod].has(mirrorYRef)) {
             let mirrorYData = ChunckVertexData.MirrorY(data);
-            ChunckVertexData._VertexDatas[lod].set(mirrorYRef, new ExtendedVertexData(mirrorYRef, mirrorYData));
+            ChunckVertexData._VertexDatas[lod].set(mirrorYRef, new ExtendedVertexData(mirrorYData));
             ChunckVertexData._TryAddMirrorZChunckPart(lod, mirrorYRef, mirrorYData);
             return true;
         }
@@ -101,7 +101,7 @@ class ChunckVertexData {
         let mirrorZRef = ChunckVertexData.MirrorZChunckPartRef(ref);
         if (!ChunckVertexData._VertexDatas[lod].has(mirrorZRef)) {
             let mirrorZData = ChunckVertexData.MirrorZ(data);
-            ChunckVertexData._VertexDatas[lod].set(mirrorZRef, new ExtendedVertexData(mirrorZRef, mirrorZData));
+            ChunckVertexData._VertexDatas[lod].set(mirrorZRef, new ExtendedVertexData(mirrorZData));
             return true;
         }
         return false;
@@ -260,7 +260,7 @@ class ChunckVertexData {
                 rotatedXRef = ChunckVertexData.RotateXChunckPartRef(rotatedXRef);
                 rotatedXData = ChunckVertexData.RotateX(rotatedXData);
                 if (!ChunckVertexData._VertexDatas[lod].has(rotatedXRef)) {
-                    ChunckVertexData._VertexDatas[lod].set(rotatedXRef, new ExtendedVertexData(rotatedXRef, rotatedXData));
+                    ChunckVertexData._VertexDatas[lod].set(rotatedXRef, new ExtendedVertexData(rotatedXData));
                     useful = true;
                 }
                 useful = ChunckVertexData._TryAddMirrorXChunckPart(lod, rotatedXRef, rotatedXData) || useful;
@@ -275,7 +275,7 @@ class ChunckVertexData {
             rotatedYRef = ChunckVertexData.RotateYChunckPartRef(rotatedYRef);
             rotatedYData = ChunckVertexData.RotateY(rotatedYData);
             if (!ChunckVertexData._VertexDatas[lod].has(rotatedYRef)) {
-                ChunckVertexData._VertexDatas[lod].set(rotatedYRef, new ExtendedVertexData(rotatedYRef, rotatedYData));
+                ChunckVertexData._VertexDatas[lod].set(rotatedYRef, new ExtendedVertexData(rotatedYData));
                 useful = true;
             }
             useful = ChunckVertexData._TryAddMirrorXChunckPart(lod, rotatedYRef, rotatedYData) || useful;
@@ -290,7 +290,7 @@ class ChunckVertexData {
                 rotatedZRef = ChunckVertexData.RotateZChunckPartRef(rotatedZRef);
                 rotatedZData = ChunckVertexData.RotateZ(rotatedZData);
                 if (!ChunckVertexData._VertexDatas[lod].has(rotatedZRef)) {
-                    ChunckVertexData._VertexDatas[lod].set(rotatedZRef, new ExtendedVertexData(rotatedZRef, rotatedZData));
+                    ChunckVertexData._VertexDatas[lod].set(rotatedZRef, new ExtendedVertexData(rotatedZData));
                     useful = true;
                 }
                 useful = ChunckVertexData._TryAddMirrorXChunckPart(lod, rotatedZRef, rotatedZData) || useful;
@@ -410,7 +410,7 @@ class ChunckVertexData {
         }
         mesh.dispose();
         if (!ChunckVertexData._VertexDatas[lod].has(ref)) {
-            ChunckVertexData._VertexDatas[lod].set(ref, new ExtendedVertexData(ref, data));
+            ChunckVertexData._VertexDatas[lod].set(ref, new ExtendedVertexData(data));
             useful = true;
         }
 
@@ -452,7 +452,7 @@ class ChunckVertexData {
         let baseData13B = ChunckVertexData.Get(lod, 0b00000010);
         let data13 = ChunckVertexData.Add(baseData13A.vertexData, baseData13B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref13)) {
-            ChunckVertexData._VertexDatas[lod].set(ref13, new ExtendedVertexData(ref13, data13));
+            ChunckVertexData._VertexDatas[lod].set(ref13, new ExtendedVertexData(data13));
         }
         ChunckVertexData._TryAddVariations(lod, ref13, data13, useXZAxisRotation);
         
@@ -460,7 +460,7 @@ class ChunckVertexData {
         let baseData0 = ChunckVertexData.Get(lod, 0b10000000);
         let data0 = ChunckVertexData.Flip(baseData0.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref0)) {
-            ChunckVertexData._VertexDatas[lod].set(ref0, new ExtendedVertexData(ref0, data0));
+            ChunckVertexData._VertexDatas[lod].set(ref0, new ExtendedVertexData(data0));
         }
         ChunckVertexData._TryAddVariations(lod, ref0, data0, useXZAxisRotation);
 
@@ -468,7 +468,7 @@ class ChunckVertexData {
         let baseData10 = ChunckVertexData.Get(lod, 0b11000000);
         let data10 = ChunckVertexData.Flip(baseData10.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref10)) {
-            ChunckVertexData._VertexDatas[lod].set(ref10, new ExtendedVertexData(ref10, data10));
+            ChunckVertexData._VertexDatas[lod].set(ref10, new ExtendedVertexData(data10));
         }
         ChunckVertexData._TryAddVariations(lod, ref10, data10, useXZAxisRotation);
 
@@ -476,7 +476,7 @@ class ChunckVertexData {
         let baseData11 = ChunckVertexData.Get(lod, 0b10001000);
         let data11 = ChunckVertexData.Flip(baseData11.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref11)) {
-            ChunckVertexData._VertexDatas[lod].set(ref11, new ExtendedVertexData(ref11, data11));
+            ChunckVertexData._VertexDatas[lod].set(ref11, new ExtendedVertexData(data11));
         }
         ChunckVertexData._TryAddVariations(lod, ref11, data11, useXZAxisRotation);
 
@@ -484,7 +484,7 @@ class ChunckVertexData {
         let baseData1 = ChunckVertexData.Get(lod, 0b11100000);
         let data1 = ChunckVertexData.Flip(baseData1.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref1)) {
-            ChunckVertexData._VertexDatas[lod].set(ref1, new ExtendedVertexData(ref1, data1));
+            ChunckVertexData._VertexDatas[lod].set(ref1, new ExtendedVertexData(data1));
         }
         ChunckVertexData._TryAddVariations(lod, ref1, data1, useXZAxisRotation);
 
@@ -492,7 +492,7 @@ class ChunckVertexData {
         let baseData12 = ChunckVertexData.Get(lod, 0b11001000);
         let data12 = ChunckVertexData.Flip(baseData12.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref12)) {
-            ChunckVertexData._VertexDatas[lod].set(ref12, new ExtendedVertexData(ref12, data12));
+            ChunckVertexData._VertexDatas[lod].set(ref12, new ExtendedVertexData(data12));
         }
         ChunckVertexData._TryAddVariations(lod, ref12, data12, useXZAxisRotation);
 
@@ -501,7 +501,7 @@ class ChunckVertexData {
         let baseData2B = ChunckVertexData.Get(lod, 0b11111101);
         let data2 = ChunckVertexData.Add(baseData2A.vertexData, baseData2B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref2)) {
-            ChunckVertexData._VertexDatas[lod].set(ref2, new ExtendedVertexData(ref2, data2));
+            ChunckVertexData._VertexDatas[lod].set(ref2, new ExtendedVertexData(data2));
         }
         ChunckVertexData._TryAddVariations(lod, ref2, data2, useXZAxisRotation);
 
@@ -510,7 +510,7 @@ class ChunckVertexData {
         let baseData3B = ChunckVertexData.Get(lod, 0b11111010);
         let data3 = ChunckVertexData.Add(baseData3A.vertexData, baseData3B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref3)) {
-            ChunckVertexData._VertexDatas[lod].set(ref3, new ExtendedVertexData(ref3, data3));
+            ChunckVertexData._VertexDatas[lod].set(ref3, new ExtendedVertexData(data3));
         }
         ChunckVertexData._TryAddVariations(lod, ref3, data3, useXZAxisRotation);
 
@@ -519,7 +519,7 @@ class ChunckVertexData {
         let baseData4B = ChunckVertexData.Get(lod, 0b10111111);
         let data4 = ChunckVertexData.Add(baseData4A.vertexData, baseData4B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref4)) {
-            ChunckVertexData._VertexDatas[lod].set(ref4, new ExtendedVertexData(ref4, data4));
+            ChunckVertexData._VertexDatas[lod].set(ref4, new ExtendedVertexData(data4));
         }
         ChunckVertexData._TryAddVariations(lod, ref4, data4, useXZAxisRotation);
 
@@ -528,7 +528,7 @@ class ChunckVertexData {
         let baseData5B = ChunckVertexData.Get(lod, 0b11110011);
         let data5 = ChunckVertexData.Add(baseData5A.vertexData, baseData5B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref5)) {
-            ChunckVertexData._VertexDatas[lod].set(ref5, new ExtendedVertexData(ref5, data5));
+            ChunckVertexData._VertexDatas[lod].set(ref5, new ExtendedVertexData(data5));
         }
         ChunckVertexData._TryAddVariations(lod, ref5, data5, useXZAxisRotation);
 
@@ -537,7 +537,7 @@ class ChunckVertexData {
         let baseData6B = ChunckVertexData.Get(lod, 0b11111101);
         let data6 = ChunckVertexData.Add(baseData6A.vertexData, baseData6B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref6)) {
-            ChunckVertexData._VertexDatas[lod].set(ref6, new ExtendedVertexData(ref6, data6));
+            ChunckVertexData._VertexDatas[lod].set(ref6, new ExtendedVertexData(data6));
         }
         ChunckVertexData._TryAddVariations(lod, ref6, data6, useXZAxisRotation);
 
@@ -546,7 +546,7 @@ class ChunckVertexData {
         let baseData7B = ChunckVertexData.Get(lod, 0b11111101);
         let data7 = ChunckVertexData.Add(baseData7A.vertexData, baseData7B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref7)) {
-            ChunckVertexData._VertexDatas[lod].set(ref7, new ExtendedVertexData(ref7, data7));
+            ChunckVertexData._VertexDatas[lod].set(ref7, new ExtendedVertexData(data7));
         }
         ChunckVertexData._TryAddVariations(lod, ref7, data7, useXZAxisRotation);
 
@@ -555,7 +555,7 @@ class ChunckVertexData {
         let baseData8B = ChunckVertexData.Get(lod, 0b11110101);
         let data8 = ChunckVertexData.Add(baseData8A.vertexData, baseData8B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref8)) {
-            ChunckVertexData._VertexDatas[lod].set(ref8, new ExtendedVertexData(ref8, data8));
+            ChunckVertexData._VertexDatas[lod].set(ref8, new ExtendedVertexData(data8));
         }
         ChunckVertexData._TryAddVariations(lod, ref8, data8, useXZAxisRotation);
 
@@ -564,7 +564,7 @@ class ChunckVertexData {
         let baseData9B = ChunckVertexData.Get(lod, 0b11110001);
         let data9 = ChunckVertexData.Add(baseData9A.vertexData, baseData9B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref9)) {
-            ChunckVertexData._VertexDatas[lod].set(ref9, new ExtendedVertexData(ref9, data9));
+            ChunckVertexData._VertexDatas[lod].set(ref9, new ExtendedVertexData(data9));
         }
         ChunckVertexData._TryAddVariations(lod, ref9, data9, useXZAxisRotation);
     }
@@ -582,7 +582,7 @@ class ChunckVertexData {
         let baseData1B = ChunckVertexData.Get(lod, 0b11111101);
         let data1 = ChunckVertexData.Add(baseData1A.vertexData, baseData1B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref1)) {
-            ChunckVertexData._VertexDatas[lod].set(ref1, new ExtendedVertexData(ref1, data1));
+            ChunckVertexData._VertexDatas[lod].set(ref1, new ExtendedVertexData(data1));
         }
         ChunckVertexData._TryAddVariations(lod, ref1, data1, useXZAxisRotation);
 
@@ -591,7 +591,7 @@ class ChunckVertexData {
         let baseData2B = ChunckVertexData.Get(lod, 0b00000010);
         let data2 = ChunckVertexData.Add(baseData2A.vertexData, baseData2B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref2)) {
-            ChunckVertexData._VertexDatas[lod].set(ref2, new ExtendedVertexData(ref2, data2));
+            ChunckVertexData._VertexDatas[lod].set(ref2, new ExtendedVertexData(data2));
         }
         ChunckVertexData._TryAddVariations(lod, ref2, data2, useXZAxisRotation);
         ChunckVertexData._TryAddFlippedChunckPart(lod, 0b10000010, ChunckVertexData.Get(lod, 0b10000010).vertexData);
@@ -601,7 +601,7 @@ class ChunckVertexData {
         let baseData21B = ChunckVertexData.Get(lod, 0b11111100);
         let data21 = ChunckVertexData.Add(baseData21A.vertexData, baseData21B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref21)) {
-            ChunckVertexData._VertexDatas[lod].set(ref21, new ExtendedVertexData(ref21, data21));
+            ChunckVertexData._VertexDatas[lod].set(ref21, new ExtendedVertexData(data21));
         }
         ChunckVertexData._TryAddVariations(lod, ref2, data2, useXZAxisRotation);
         ChunckVertexData._TryAddFlippedChunckPart(lod, 0b00111100, ChunckVertexData.Get(lod, 0b00111100).vertexData);
@@ -611,7 +611,7 @@ class ChunckVertexData {
         let baseData3B = ChunckVertexData.Get(lod, 0b11011101);
         let data3 = ChunckVertexData.Add(baseData3A.vertexData, baseData3B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref3)) {
-            ChunckVertexData._VertexDatas[lod].set(ref3, new ExtendedVertexData(ref3, data3));
+            ChunckVertexData._VertexDatas[lod].set(ref3, new ExtendedVertexData(data3));
         }
         ChunckVertexData._TryAddVariations(lod, ref3, data3, useXZAxisRotation);
 
@@ -620,7 +620,7 @@ class ChunckVertexData {
         let baseData4B = ChunckVertexData.Get(lod, 0b11110111);
         let data4 = ChunckVertexData.Add(baseData4A.vertexData, baseData4B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref4)) {
-            ChunckVertexData._VertexDatas[lod].set(ref4, new ExtendedVertexData(ref4, data4));
+            ChunckVertexData._VertexDatas[lod].set(ref4, new ExtendedVertexData(data4));
         }
         ChunckVertexData._TryAddVariations(lod, ref4, data4, useXZAxisRotation);
 
@@ -629,7 +629,7 @@ class ChunckVertexData {
         let baseData5B = ChunckVertexData.Get(lod, 0b11101111);
         let data5 = ChunckVertexData.Add(baseData5A.vertexData, baseData5B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref5)) {
-            ChunckVertexData._VertexDatas[lod].set(ref5, new ExtendedVertexData(ref5, data5));
+            ChunckVertexData._VertexDatas[lod].set(ref5, new ExtendedVertexData(data5));
         }
         ChunckVertexData._TryAddVariations(lod, ref5, data5, useXZAxisRotation);
 
@@ -638,7 +638,7 @@ class ChunckVertexData {
         let baseData6B = ChunckVertexData.Get(lod, 0b11101111);
         let data6 = ChunckVertexData.Add(baseData6A.vertexData, baseData6B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref6)) {
-            ChunckVertexData._VertexDatas[lod].set(ref6, new ExtendedVertexData(ref6, data6));
+            ChunckVertexData._VertexDatas[lod].set(ref6, new ExtendedVertexData(data6));
         }
         ChunckVertexData._TryAddVariations(lod, ref6, data6, useXZAxisRotation);
 
@@ -647,7 +647,7 @@ class ChunckVertexData {
         let baseData7B = ChunckVertexData.Get(lod, 0b11101111);
         let data7 = ChunckVertexData.Add(baseData7A.vertexData, baseData7B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref7)) {
-            ChunckVertexData._VertexDatas[lod].set(ref7, new ExtendedVertexData(ref7, data7));
+            ChunckVertexData._VertexDatas[lod].set(ref7, new ExtendedVertexData(data7));
         }
         ChunckVertexData._TryAddVariations(lod, ref7, data7, useXZAxisRotation);
 
@@ -656,7 +656,7 @@ class ChunckVertexData {
         let baseData8B = ChunckVertexData.Get(lod, 0b01111111);
         let data8 = ChunckVertexData.Add(baseData8A.vertexData, baseData8B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref8)) {
-            ChunckVertexData._VertexDatas[lod].set(ref8, new ExtendedVertexData(ref8, data8));
+            ChunckVertexData._VertexDatas[lod].set(ref8, new ExtendedVertexData(data8));
         }
         ChunckVertexData._TryAddVariations(lod, ref8, data8, useXZAxisRotation);
 
@@ -665,7 +665,7 @@ class ChunckVertexData {
         let baseData9B = ChunckVertexData.Get(lod, 0b11110101);
         let data9 = ChunckVertexData.Add(baseData9A.vertexData, baseData9B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref9)) {
-            ChunckVertexData._VertexDatas[lod].set(ref9, new ExtendedVertexData(ref9, data9));
+            ChunckVertexData._VertexDatas[lod].set(ref9, new ExtendedVertexData(data9));
         }
         ChunckVertexData._TryAddVariations(lod, ref9, data9, useXZAxisRotation);
 
@@ -674,7 +674,7 @@ class ChunckVertexData {
         let baseData10B = ChunckVertexData.Get(lod, 0b11110101);
         let data10 = ChunckVertexData.Add(baseData10A.vertexData, baseData10B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref10)) {
-            ChunckVertexData._VertexDatas[lod].set(ref10, new ExtendedVertexData(ref10, data10));
+            ChunckVertexData._VertexDatas[lod].set(ref10, new ExtendedVertexData(data10));
         }
         ChunckVertexData._TryAddVariations(lod, ref10, data10, useXZAxisRotation);
 
@@ -683,7 +683,7 @@ class ChunckVertexData {
         let baseData11B = ChunckVertexData.Get(lod, 0b11110111);
         let data11 = ChunckVertexData.Add(baseData11A.vertexData, baseData11B.vertexData);
         if (!ChunckVertexData._VertexDatas[lod].has(ref11)) {
-            ChunckVertexData._VertexDatas[lod].set(ref11, new ExtendedVertexData(ref11, data11));
+            ChunckVertexData._VertexDatas[lod].set(ref11, new ExtendedVertexData(data11));
         }
         ChunckVertexData._TryAddVariations(lod, ref11, data11, useXZAxisRotation);
     }

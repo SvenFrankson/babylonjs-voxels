@@ -20,7 +20,6 @@ class Chunck {
     public name: string;
     public terrain: Terrain;
     public genMaps: GenMap[];
-    public genMap2: GenMap2;
 
     public position: BABYLON.Vector3;
     public barycenter: BABYLON.Vector3;
@@ -190,6 +189,7 @@ class Chunck {
     public static _TmpGenMaps0: GenMap[][] = [[], [], []];
     public static _TmpGenMaps1: GenMap[][] = [[], [], []];
     public static _TmpGenMaps2: GenMap[][] = [[], [], []];
+    public static _TmpGenMaps3: GenMap[][] = [[], [], []];
     public initializeData(): void {
         //this.initializeData2();
         //return;
@@ -199,6 +199,7 @@ class Chunck {
                 Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
                 Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
                 Chunck._TmpGenMaps2[i][j] = this.terrain.getGenMap(2, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                Chunck._TmpGenMaps3[i][j] = this.terrain.getGenMap(3, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
             }
         }
         if (!this.dataInitialized) {
@@ -231,6 +232,7 @@ class Chunck {
                     let hGlobal = Chunck._TmpGenMaps0[IMap][JMap].getData(ii, jj);
                     let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getData(ii, jj);
                     let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getData(ii, jj);
+                    let hColor = Chunck._TmpGenMaps3[IMap][JMap].getData(ii, jj);
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
@@ -240,7 +242,12 @@ class Chunck {
                             this.setData(BlockType.None, i + m, j + m, k + m);
                         }
                         else if (kGlobal < hGlobal) {
-                            this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                            if (hColor > this.terrain.halfTerrainHeight) {
+                                this.setData(BlockType.Grass, i + m, j + m, k + m);
+                            }
+                            else {
+                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                            }
                             /*
                             if (Math.abs(kGlobal - hGlobalHole) < 5) {
                                 this.setData(BlockType.None, i + m, j + m, k + m);
