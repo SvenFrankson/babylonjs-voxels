@@ -20,7 +20,7 @@ class Terrain {
     public chunckManager: ChunckManager;
     public scene: BABYLON.Scene;
 
-    public material: TerrainMaterial;
+    private materials: TerrainMaterial[];
     public testMaterials: TerrainMaterial[];
 
     constructor(prop: ITerrainProperties) {
@@ -61,18 +61,16 @@ class Terrain {
         let genMapLength = terrainLength / GEN_MAP_LENGTH;
         console.log("genMapLength " + genMapLength)
 
-        this.material = new TerrainMaterial("terrain-material", this.scene);
-        this.material.setGlobalColor(BABYLON.Color3.White());
+        this.materials = [
+            new TerrainMaterial("terrain-material-lod0", this.scene),
+            new TerrainMaterial("terrain-material-lod1", this.scene)
+        ];
+        this.materials[0].setLevel(0);
+        this.materials[1].setLevel(1);
         this.testMaterials = [];
         for (let i = 0; i < 6; i++) {
             this.testMaterials[i] = new TerrainMaterial("terrain-shell-material", this.scene);
         }
-        this.testMaterials[0].setGlobalColor(BABYLON.Color3.FromHexString("#3ec742"));
-        this.testMaterials[1].setGlobalColor(BABYLON.Color3.FromHexString("#3dc2c7"));
-        this.testMaterials[2].setGlobalColor(BABYLON.Color3.FromHexString("#423dc7"));
-        this.testMaterials[3].setGlobalColor(BABYLON.Color3.FromHexString("#c73dc2"));
-        this.testMaterials[4].setGlobalColor(BABYLON.Color3.FromHexString("#c7423d"));
-        this.testMaterials[5].setGlobalColor(BABYLON.Color3.FromHexString("#c2c73d"));
 
         this.chunckManager = new ChunckManager({
             scene: this.scene,
@@ -88,6 +86,10 @@ class Terrain {
 
     public dispose(): void {
         this.chunckManager.dispose();
+    }
+
+    public getMaterial(lod: number): TerrainMaterial {
+        return this.materials[Math.min(lod, this.materials.length - 1)];
     }
 
     public getChunck(level: number, iPos: number, jPos: number, kPos: number): Chunck {

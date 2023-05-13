@@ -4,17 +4,16 @@ precision highp float;
 in vec3 position;
 in vec3 normal;
 in vec2 uv;
-in vec2 uv2;
 in vec4 color;
 
 uniform mat4 worldViewProjection;
 uniform mat4 world;
 uniform vec3 lightInvDirW;
+uniform int level;
 
 out vec3 vPositionW;
 out vec3 vNormalW;
 out vec2 vUv;
-out vec2 vUv2;
 out vec4 vColor;
 
 void main()
