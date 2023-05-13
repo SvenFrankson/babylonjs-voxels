@@ -39,7 +39,7 @@ class ChunckManager {
         this._viewpoint = BABYLON.Vector3.Zero();
         this.chuncks = new UniqueList<Chunck>();
         let distance = 150;
-        let distances = [];
+        let distances = [0];
         this._chunckLevelsCubeDistances = [];
         for (let i = 0; i < this.terrain.maxLevel; i++) {
             distances.push(distance);
@@ -47,6 +47,7 @@ class ChunckManager {
             distance = distance * 2;
         }
         this._chunckLevelsSquareDistances = distances.map(v => { return v * v; });
+        this._chunckLevelsSquareDistances.push(Infinity);
     }
 
     public initialize(): void {
@@ -58,10 +59,6 @@ class ChunckManager {
     }
 
     public registerChunck(chunck: Chunck): boolean {
-        while (this.unregisterChunck(chunck)) {
-
-        }
-
         this.chuncks.push(chunck);
         
         return true;
@@ -71,13 +68,16 @@ class ChunckManager {
         return this.chuncks.remove(chunck) != undefined;
     }
 
-    private _getChunckLevel(sqrDistance: number): number {
-        for (let i = 0; i < this._chunckLevelsSquareDistances.length - 1; i++) {
-            if (sqrDistance < this._chunckLevelsSquareDistances[i]) {
-                return i;
-            }
+    private _getChunckLevel(currentLevel: number, sqrDistance: number): number {
+        let distSub = this._chunckLevelsSquareDistances[currentLevel];
+        if (sqrDistance < distSub) {
+            return currentLevel - 1;
         }
-        return this._chunckLevelsSquareDistances.length - 1;
+        let distCollapse = this._chunckLevelsSquareDistances[currentLevel + 2];
+        if (sqrDistance > distCollapse) {
+            return currentLevel + 1;
+        }
+        return currentLevel;
     }
 
     private _getChunckLevelCube(sqrDistance: number): number {
@@ -117,7 +117,7 @@ class ChunckManager {
             let srqDistance = dir.lengthSquared();
 
             //chunck.targetLevel = this._getChunckLevelCube(dist);
-            chunck.targetLevel = this._getChunckLevel(srqDistance);
+            chunck.targetLevel = this._getChunckLevel(chunck.level, srqDistance);
             if (chunck.level < chunck.targetLevel) {
                 let parentChunck = chunck.collapse();
                 if (parentChunck) {

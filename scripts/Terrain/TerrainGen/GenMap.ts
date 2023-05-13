@@ -266,7 +266,8 @@ class GenMapTunnel extends GenMap {
         let d = this.getRawData(i, j) * this._dataMult - this.terrain.halfTerrainHeight;
         d = Math.abs(d);
         if (d <= this.prop.amplitude) {
-            d = Math.cos(Math.PI * d / this.prop.amplitude) * this.prop.amplitude;
+            d = Math.cos(Math.PI * d / this.prop.amplitude);
+            d = Math.sqrt(d) * this.prop.amplitude;
         }
         else {
             d = 0;
