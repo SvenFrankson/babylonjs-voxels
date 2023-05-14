@@ -22,6 +22,10 @@ class Main {
 
     public isTouch: boolean = false;
 
+    public static redMaterial: BABYLON.StandardMaterial;
+    public static greenMaterial: BABYLON.StandardMaterial;
+    public static blueMaterial: BABYLON.StandardMaterial;
+
     public static Test1(): Chunck {
         let current = Main.Instance.terrain.getChunckAtPos(Main.Instance.cameraManager.absolutePosition, 0);
         let doLog = (c: Chunck) => {
@@ -51,9 +55,20 @@ class Main {
 	}
 
     public createScene(): void {
-        window.localStorage.clear();
-        
+        //window.localStorage.clear();
+
 		this.scene = new BABYLON.Scene(this.engine);
+
+        Main.redMaterial = new BABYLON.StandardMaterial("debug");
+        Main.redMaterial.specularColor.copyFromFloats(0, 0, 0);
+        Main.redMaterial.diffuseColor.copyFromFloats(1, 0, 0);
+        Main.greenMaterial = new BABYLON.StandardMaterial("debug");
+        Main.greenMaterial.specularColor.copyFromFloats(0, 0, 0);
+        Main.greenMaterial.diffuseColor.copyFromFloats(0, 1, 0);
+        Main.blueMaterial = new BABYLON.StandardMaterial("debug");
+        Main.blueMaterial.specularColor.copyFromFloats(0, 0, 0);
+        Main.blueMaterial.diffuseColor.copyFromFloats(0, 0, 1);
+
         this.inputManager = new InputManager(this.scene, this.canvas, this);
 		//this.scene.clearColor.copyFromFloats(166 / 255, 231 / 255, 255 / 255, 1);
         //this.scene.clearColor = BABYLON.Color4.FromHexString("#eb4034ff");
@@ -95,7 +110,7 @@ class Main {
         let perfDebug = new DebugTerrainPerf(this);
         perfDebug.show();
 
-        this.player = new Player(new BABYLON.Vector3(-10, 40, -30), this);
+        this.player = new Player(new BABYLON.Vector3(-5, 30, -5), this);
         this.cameraManager.player = this.player;
         this.cameraManager.setMode(CameraMode.Player);
 
@@ -110,6 +125,9 @@ class Main {
             this.inputManager.initialize(this.player);
             this.player.inventory = new Inventory(this.player);
             await this.player.inventory.initialize();
+            this.player.inventory.addItem(await InventoryItem.Block(this.player, BlockType.Grass));
+            this.player.inventory.addItem(await InventoryItem.Block(this.player, BlockType.Dirt));
+            this.player.inventory.addItem(await InventoryItem.Block(this.player, BlockType.Rock));
             
             let hud = new HeadUpDisplay(this.player, this);
 
@@ -124,7 +142,7 @@ class Main {
             this.player.registerControl();
 
             this.terrain.root.genMaps = [
-                new GenMapPerlinish(0, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMapPerlinish(5, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
                     highestRandLevel: 9,
                     amplitude: 128
@@ -167,26 +185,17 @@ class Main {
             //debugBlock.position.copyFromFloats(0.5, 0.5, 0.5);
             //debugBlock.position.y += 4;
 
-            let redMaterial = new BABYLON.StandardMaterial("debug");
-            redMaterial.specularColor.copyFromFloats(0, 0, 0);
-            redMaterial.diffuseColor.copyFromFloats(1, 0, 0);
             let xAxis = BABYLON.MeshBuilder.CreateBox("xAxis", { width: 100, height: 0.2, depth: 0.2 });
             xAxis.position.x = 51;
-            xAxis.material = redMaterial;
+            xAxis.material = Main.redMaterial;
 
-            let greenMaterial = new BABYLON.StandardMaterial("debug");
-            greenMaterial.specularColor.copyFromFloats(0, 0, 0);
-            greenMaterial.diffuseColor.copyFromFloats(0, 1, 0);
             let yAxis = BABYLON.MeshBuilder.CreateBox("yAxis", { width: 0.2, height: 100, depth: 0.2 });
             yAxis.position.y = 51;
-            yAxis.material = greenMaterial;
+            yAxis.material = Main.greenMaterial;
 
-            let blueMaterial = new BABYLON.StandardMaterial("debug");
-            blueMaterial.specularColor.copyFromFloats(0, 0, 0);
-            blueMaterial.diffuseColor.copyFromFloats(0, 0, 1);
             let zAxis = BABYLON.MeshBuilder.CreateBox("zAxis", { width: 0.2, height: 0.2, depth: 100 });
             zAxis.position.z = 51;
-            zAxis.material = blueMaterial;
+            zAxis.material = Main.blueMaterial;
 
             let currentChunck: Chunck;
             let cb = () => {

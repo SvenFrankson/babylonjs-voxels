@@ -210,7 +210,9 @@ class Chunck {
             this._data = new Uint8Array(this._dataSizeSquare * this._dataSize);
 
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
+                let iGlobal = this.iPos * CHUNCK_SIZE + i;
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
+                    let jGlobal = this.jPos * CHUNCK_SIZE + j;
                     let IMap = 1;
                     let JMap = 1;
                     let ii = i;
@@ -238,10 +240,19 @@ class Chunck {
                     let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getData(ii, jj);
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
-                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
+                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + k * this.levelFactor;
                         
                         this.setData(BlockType.None, i + m, j + m, k + m);
-                        if (Math.abs(kGlobal - hAltitude) < rockHeight) {
+                        if (this.level === 0 && iGlobal === this.terrain.halfTerrainSize && jGlobal === this.terrain.halfTerrainSize) {
+                            this.setData(BlockType.Rock, i + m, j + m, k + m);
+                        }
+                        else if (this.level === 0 && iGlobal === this.terrain.halfTerrainSize && kGlobal === this.terrain.halfTerrainHeight) {
+                            this.setData(BlockType.Rock, i + m, j + m, k + m);
+                        }
+                        else if (this.level === 0 && jGlobal === this.terrain.halfTerrainSize && kGlobal === this.terrain.halfTerrainHeight) {
+                            this.setData(BlockType.Rock, i + m, j + m, k + m);
+                        }
+                        else if (Math.abs(kGlobal - hAltitude) < rockHeight) {
                             this.setData(BlockType.Rock, i + m, j + m, k + m);
                         }
                         else if (Math.abs(kGlobal - hAltitudeHole) < holeHeight) {
@@ -369,11 +380,11 @@ class Chunck {
         return undefined;
     }
 
-    public getIJKAtPos(pos: BABYLON.Vector3): BABYLON.Vector3 {
+    public getIJKAtPos(pos: BABYLON.Vector3): { i: number, j: number, k: number } {
         let i = Math.floor((pos.x - this.position.x) / BLOCK_SIZE);
-        let j = Math.floor((pos.z + this.position.z) / BLOCK_SIZE);
-        let k = Math.floor((pos.y + this.position.y) / BLOCK_SIZE);
-        return new BABYLON.Vector3(i, j, k);
+        let j = Math.floor((pos.z - this.position.z) / BLOCK_SIZE);
+        let k = Math.floor((pos.y - this.position.y) / BLOCK_SIZE);
+        return { i: i, j: j, k: k };
     }
 
     public register(): void {
@@ -390,15 +401,39 @@ class Chunck {
         }
     }
 
+    private _originX: BABYLON.Mesh;
+    private _originY: BABYLON.Mesh;
+    private _originZ: BABYLON.Mesh;
     public highlight(): void {
         if (this.mesh) {
-            this.mesh.material = undefined;
+            this.mesh.material = this.terrain.highlightMaterial;
         }
+        
+        this._originX = BABYLON.MeshBuilder.CreateBox("originX", { width: 100, height: 0.2, depth: 0.2 });
+        this._originX.material = Main.redMaterial;
+        this._originX.position.copyFrom(this.position);
+
+        this._originY = BABYLON.MeshBuilder.CreateBox("originY", { width: 0.2, height: 100, depth: 0.2 });
+        this._originY.material = Main.greenMaterial;
+        this._originY.position.copyFrom(this.position);
+
+        this._originZ = BABYLON.MeshBuilder.CreateBox("originZ", { width: 0.2, height: 0.2, depth: 100 });
+        this._originZ.material = Main.blueMaterial;
+        this._originZ.position.copyFrom(this.position);
     }
 
     public unlit(): void {
         if (this.mesh) {
             this.mesh.material = this.terrain.getMaterial(this.level);
+        }
+        if (this._originX) {
+            this._originX.dispose();
+        }
+        if (this._originY) {
+            this._originY.dispose();
+        }
+        if (this._originZ) {
+            this._originZ.dispose();
         }
     }
 
@@ -425,11 +460,7 @@ class Chunck {
                                 this.mesh = new BABYLON.Mesh("foo");
                             }
                             vertexData.applyToMesh(this.mesh);
-                            this.mesh.position.copyFromFloats(
-                                (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-                                (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
-                                (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
-                            );
+                            this.mesh.position.copyFrom(this.position);
                             this.mesh.material = this.terrain.getMaterial(this.level);
                             //this.mesh.material = this.terrain.testMaterials[this.level];
                             this.mesh.freezeWorldMatrix();

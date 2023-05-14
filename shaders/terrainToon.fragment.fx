@@ -20,15 +20,24 @@ void main() {
    color.r = round(color.r * 4.) / 4.;
    color.g = round(color.g * 4.) / 4.;
    color.b = round(color.b * 4.) / 4.;
+
+   float dx = vPositionW.x - floor(vPositionW.x);
+   float dy = vPositionW.y - floor(vPositionW.y);
+   float dz = vPositionW.z - floor(vPositionW.z);
+
+   if (dx < 0.03 || dx > 0.97) {
+      color = vec3(0., 0., 0.);
+   }
+   if (dz < 0.03 || dz > 0.97) {
+      color = vec3(0., 0., 0.);
+   }
    
    if (level == 0) {
-      float dy = vPositionW.y - floor(vPositionW.y);
       if (vNormalW.y > 0.8 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }
    }
    else if (level == 1) {
-      float dy = vPositionW.y - floor(vPositionW.y);
       if (vNormalW.y > 0.7 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }

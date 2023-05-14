@@ -9,7 +9,7 @@ class Player extends BABYLON.Mesh {
     public static DEBUG_INSTANCE: Player;
 
     private mass: number = 1;
-    private speed: number = 20;
+    private speed: number = 30;
     public velocity: BABYLON.Vector3 = BABYLON.Vector3.Zero();
     public isWalking: boolean = false;
 
@@ -360,8 +360,6 @@ class Player extends BABYLON.Mesh {
             return;
         }
 
-        console.log(this.position.toString());
-
         let deltaTime: number = this.main.engine.getDeltaTime() / 1000;
         if (Config.saveConfiguration.useLocalStorage) {
             this._savePositionTimer += deltaTime;
@@ -473,6 +471,7 @@ class Player extends BABYLON.Mesh {
                 this._chuncks = [];
                 this._meshes = [];
             }
+            //console.log(this._meshes);
         }
 
         let inputFactor = Easing.smooth010Sec(this.getEngine().getFps());
@@ -490,7 +489,7 @@ class Player extends BABYLON.Mesh {
         this._leftDirection.copyFrom(this._rightDirection);
         this._leftDirection.scaleInPlace(-1);
 
-        this.getDirectionToRef(BABYLON.Axis.Z, this._forwardDirection);
+        this.head.getDirectionToRef(BABYLON.Axis.Z, this._forwardDirection);
         this._backwardDirection.copyFrom(this._forwardDirection);
         this._backwardDirection.scaleInPlace(-1);
 
@@ -685,8 +684,8 @@ class Player extends BABYLON.Mesh {
         // Add friction
         let downVelocity = new BABYLON.Vector3(0, this.velocity.y, 0);
         this.velocity.subtractInPlace(downVelocity);
-        downVelocity.scaleInPlace(Math.pow(0.5 * fVert, deltaTime));
-        this.velocity.scaleInPlace(Math.pow(0.005 * fLat, deltaTime));
+        downVelocity.scaleInPlace(Math.pow(0.01, deltaTime));
+        this.velocity.scaleInPlace(Math.pow(0.01, deltaTime));
         this.velocity.addInPlace(downVelocity);
 
         // Safety check.

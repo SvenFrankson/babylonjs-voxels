@@ -7,11 +7,9 @@ class PlayerActionTemplate {
     public static async CreateBlockAction(player: Player, blockType: BlockType): Promise<PlayerAction> {
         let action = new PlayerAction(BlockTypeNames[blockType], player);
         let previewMesh: BABYLON.Mesh;
-        let previewBox: BABYLON.Mesh;
         action.iconUrl = "/datas/images/block-icon-" + BlockTypeNames[blockType] + "-miniature.png";
 
         let previewMeshData: BABYLON.VertexData = (await player.main.vertexDataLoader.get("chunck-part"))[0];
-        let previewBoxData: BABYLON.VertexData = (await player.main.vertexDataLoader.get("chunck-part"))[1];
         let lastSize: number;
         let lastI: number;
         let lastJ: number;
@@ -23,26 +21,25 @@ class PlayerActionTemplate {
             if (!player.inputManager.inventoryOpened) {
                 let hit = player.inputManager.getPickInfo(player.meshes);
                 if (hit && hit.pickedPoint) {
-                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.2 : 0.2);
+                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.75 : 0.75);
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
                     if (localIJK) {
                         // Redraw block preview
                         if (!previewMesh && blockType != BlockType.None) {
-                            previewMesh = new BABYLON.Mesh("preview-mesh");
-                            previewMesh.material = terrain.getMaterial(0);
+                            previewMesh = BABYLON.MeshBuilder.CreateBox("preview-mesh", { size: 1 }, player.scene);
+                            let originY = BABYLON.MeshBuilder.CreateBox("originY", { width: 0.2, height: 100, depth: 0.2 });
+                            originY.material = Main.greenMaterial;
+                            originY.parent = previewMesh;
+                            //previewMesh.material = terrain.getMaterial(0);
+                            //previewMeshData.applyToMesh(previewMesh);
                         }
-                        if (!previewBox) {
-                            previewBox = new BABYLON.Mesh("preview-box");
-                            if (blockType === BlockType.None) {
-                                //previewBox.material = SharedMaterials.RedEmissiveMaterial();
-                            }
-                            else {
-                                //previewBox.material = SharedMaterials.WhiteEmissiveMaterial();
-                            }
-                            previewBox.layerMask = 0x1;
-                        }
-                        previewBox.position.copyFrom(localIJK.chunck.position);
-                        previewBox.position.addInPlace(localIJK.ijk);
+                        
+                        previewMesh.position.copyFrom(localIJK.chunck.position);
+                        previewMesh.position.addInPlace(new BABYLON.Vector3(
+                            localIJK.ijk.i + 0.5,
+                            localIJK.ijk.k,
+                            localIJK.ijk.j + 0.5
+                        ));
 
                         return;
                     }
@@ -53,20 +50,17 @@ class PlayerActionTemplate {
                 previewMesh.dispose();
                 previewMesh = undefined;
             }
-            if (previewBox) {
-                previewBox.dispose();
-                previewBox = undefined;
-            }
         }
 
         action.onClick = () => {
             if (!player.inputManager.inventoryOpened) {
                 let hit = player.inputManager.getPickInfo(player.meshes);
                 if (hit && hit.pickedPoint) {
-                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.2 : 0.2);
+                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.75 : 0.75);
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
+                    console.log(localIJK);
                     if (localIJK) {
-                        localIJK.chunck.setData(blockType, localIJK.ijk.x, localIJK.ijk.y, localIJK.ijk.z);
+                        localIJK.chunck.setData(blockType, localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
                         localIJK.chunck.disposeMesh();
                         localIJK.chunck.redrawMesh();
                     }
@@ -78,10 +72,6 @@ class PlayerActionTemplate {
             if (previewMesh) {
                 previewMesh.dispose();
                 previewMesh = undefined;
-            }
-            if (previewBox) {
-                previewBox.dispose();
-                previewBox = undefined;
             }
             lastSize = undefined;
             lastI = undefined;

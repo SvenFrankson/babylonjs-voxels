@@ -21,6 +21,7 @@ class Terrain {
     public scene: BABYLON.Scene;
 
     private materials: TerrainMaterial[];
+    public highlightMaterial: BABYLON.StandardMaterial;
     public testMaterials: TerrainMaterial[];
 
     constructor(prop: ITerrainProperties) {
@@ -67,6 +68,9 @@ class Terrain {
         this.materials[0].setLevel(0);
         this.materials[1].setLevel(1);
         this.materials[2].setLevel(2);
+        this.highlightMaterial = new BABYLON.StandardMaterial("hightlight-material");
+        this.highlightMaterial.diffuseColor.copyFromFloats(1, 0, 0);
+        this.highlightMaterial.specularColor.copyFromFloats(0, 0, 0);
         this.testMaterials = [];
         for (let i = 0; i < 6; i++) {
             this.testMaterials[i] = new TerrainMaterial("terrain-shell-material", this.scene);
@@ -107,7 +111,7 @@ class Terrain {
         return this.getChunck(level, iPos, jPos, kPos);
     }
 
-    public getChunckAndIJKAtPos(pos: BABYLON.Vector3, level: number): { chunck: Chunck, ijk: BABYLON.Vector3 } {
+    public getChunckAndIJKAtPos(pos: BABYLON.Vector3, level: number): { chunck: Chunck, ijk: { i: number, j: number, k: number } } {
         let chunck = this.getChunckAtPos(pos, level);
         if (chunck) {
             return {
