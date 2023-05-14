@@ -292,20 +292,51 @@ class Chunck {
         return this._data[(i + DRAW_CHUNCK_MARGIN) + (j + DRAW_CHUNCK_MARGIN) * this._dataSize + (k + DRAW_CHUNCK_MARGIN) * this._dataSizeSquare];
     }
     public setData(v: number, i: number, j: number, k: number): Chunck[] {
-        let affectedChuncks = [];
-        for (let I = - 1; I <= 1; I++) {
-            for (let J = - 1; J <= 1; J++) {
-                for (let K = - 1; K <= 1; K++) {
+        let m = DRAW_CHUNCK_MARGIN;
+        let affectedChuncks: Chunck[] = [];
+        let iPos0 = 0;
+        let iPos1 = 0;
+        let jPos0 = 0;
+        let jPos1 = 0;
+        let kPos0 = 0;
+        let kPos1 = 0;
+        if (i < m) {
+            iPos0 = - 1;
+        }
+        if (j < m) {
+            jPos0 = - 1;
+        }
+        if (k < m) {
+            kPos0 = - 1;
+        }
+        if (i > CHUNCK_LENGTH - m) {
+            iPos1 = 1;
+        }
+        if (j > CHUNCK_LENGTH - m) {
+            jPos1 = 1;
+        }
+        if (k > CHUNCK_LENGTH - m) {
+            kPos1 = 1;
+        }
+        for (let I = iPos0; I <= iPos1; I++) {
+            for (let J = jPos0; J <= jPos1; J++) {
+                for (let K = kPos0; K <= kPos1; K++) {
                     let chunck = this.terrain.getChunck(this.level, this.iPos + I, this.jPos + J, this.kPos + K);
                     if (chunck) {
-                        if (chunck.setRawDataSafe(v, (i - I * CHUNCK_LENGTH + DRAW_CHUNCK_MARGIN), (j - J * CHUNCK_LENGTH + DRAW_CHUNCK_MARGIN), (k - K * CHUNCK_LENGTH + DRAW_CHUNCK_MARGIN))) {
-                            console.log("set at " + (i - I * CHUNCK_LENGTH) + " " + (j - J * CHUNCK_LENGTH) + " " + (k - K * CHUNCK_LENGTH) + " on " + (chunck.iPos) + " " + (chunck.jPos) + " " + (chunck.kPos))
+                        if (chunck.setRawDataSafe(v, (i - I * CHUNCK_LENGTH + m), (j - J * CHUNCK_LENGTH + m), (k - K * CHUNCK_LENGTH + m))) {
                             affectedChuncks.push(chunck);
                         }
                     }
                 }
             }
         }
+
+        affectedChuncks.forEach(c => {
+            if (v && c.isEmpty) {
+                c.updateIsEmptyIsFull();
+            }
+        })
+        
         return affectedChuncks;
     }
 

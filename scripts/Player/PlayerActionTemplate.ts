@@ -21,17 +21,15 @@ class PlayerActionTemplate {
             if (!player.inputManager.inventoryOpened) {
                 let hit = player.inputManager.getPickInfo(player.meshes);
                 if (hit && hit.pickedPoint) {
-                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.75 : 0.75);
+                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.65 : 0.65);
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
                     if (localIJK) {
                         // Redraw block preview
                         if (!previewMesh && blockType != BlockType.None) {
-                            previewMesh = BABYLON.MeshBuilder.CreateBox("preview-mesh", { size: 1 }, player.scene);
-                            let originY = BABYLON.MeshBuilder.CreateBox("originY", { width: 0.2, height: 100, depth: 0.2 });
-                            originY.material = Main.greenMaterial;
-                            originY.parent = previewMesh;
-                            //previewMesh.material = terrain.getMaterial(0);
-                            //previewMeshData.applyToMesh(previewMesh);
+                            previewMesh = new BABYLON.Mesh("preview-mesh", player.scene);
+                            previewMesh.material = terrain.getMaterial(0);
+                            previewMeshData.applyToMesh(previewMesh);
+                            previewMesh.scaling.copyFromFloats(3, 3, 3);
                         }
                         
                         previewMesh.position.copyFrom(localIJK.chunck.position);
@@ -56,12 +54,22 @@ class PlayerActionTemplate {
             if (!player.inputManager.inventoryOpened) {
                 let hit = player.inputManager.getPickInfo(player.meshes);
                 if (hit && hit.pickedPoint) {
-                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.75 : 0.75);
+                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.65 : 0.65);
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
                     console.log(localIJK);
                     if (localIJK) {
-                        let affectedChuncks = localIJK.chunck.setData(blockType, localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
-                        affectedChuncks.forEach(affectedChunck => {
+                        let totalAffectedChuncks = new UniqueList<Chunck>();
+                        for (let I = - 1; I <= 1; I++) {
+                            for (let J = - 1; J <= 1; J++) {
+                                for (let K = - 1; K <= 1; K++) {
+                                    let affectedChuncks = localIJK.chunck.setData(blockType, localIJK.ijk.i + I, localIJK.ijk.j + J, localIJK.ijk.k + K);
+                                    affectedChuncks.forEach(c => {
+                                        totalAffectedChuncks.push(c);
+                                    });
+                                }
+                            }
+                        }
+                        totalAffectedChuncks.forEach(affectedChunck => {
                             affectedChunck.disposeMesh();
                             affectedChunck.redrawMesh();
                         });

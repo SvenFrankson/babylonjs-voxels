@@ -9,7 +9,7 @@ Exporter version: 6.4.5, Blender version: 2.90.1
 		Vert Color Precision:  3
 		Mat Weight Precision:  2
 		Keep Z-up r-handed  :  no
-		Texture directory   :  C:\Users\svent\Documents\Sven Frankson\planet-builder-web\datas\meshes\
+		Texture directory   :  C:\Users\svent\Documents\sven-frankson\babylonjs-voxels\datas\meshes\
 	Python World class constructor completed
 	WARNING: No active camera has been assigned, or is not in a currently selected Blender layer
 	processing begun of mesh:  2-ground-collider
@@ -55,4 +55,4 @@ Exporter version: 6.4.5, Blender version: 2.90.1
 	writing mesh:  1-block-box
 ========= Writing of JSON file completed =========
 ========= end of processing =========
-elapsed time:  0 min, 0.0219 secs
+elapsed time:  0 min, 0.1117 secs

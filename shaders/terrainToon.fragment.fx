@@ -21,6 +21,7 @@ void main() {
    color.g = round(color.g * 4.) / 4.;
    color.b = round(color.b * 4.) / 4.;
 
+   /*
    float dx = vPositionW.x - floor(vPositionW.x);
    float dz = vPositionW.z - floor(vPositionW.z);
 
@@ -40,6 +41,7 @@ void main() {
    if (dz16 < 0.03 / 16. || dz16 > (1. - 0.03 / 16.)) {
       color = vec3(1., 0., 0.);
    }
+   */
    
    if (level == 0) {
       float dy = vPositionW.y - floor(vPositionW.y);
