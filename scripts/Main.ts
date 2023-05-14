@@ -158,8 +158,8 @@ class Main {
                     amplitude: 128
                 }),
                 new GenMapPerlinish(3, this.terrain.root.level, 0, 0, this.terrain, {
-                    lowestRandLevel: 2,
-                    highestRandLevel: 5,
+                    lowestRandLevel: 1,
+                    highestRandLevel: 4,
                     amplitude: 128
                 }),
                 new GenMapTunnel(4, this.terrain.root.level, 0, 0, this.terrain, {

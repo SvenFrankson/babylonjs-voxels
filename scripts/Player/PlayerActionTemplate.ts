@@ -10,6 +10,15 @@ class PlayerActionTemplate {
         action.iconUrl = "/datas/images/block-icon-" + BlockTypeNames[blockType] + "-miniature.png";
 
         let previewMeshData: BABYLON.VertexData = (await player.main.vertexDataLoader.get("chunck-part"))[0];
+        let color = BlockTypeColors[blockType];
+        let colors: number[] = [];
+        for (let i = 0; i < previewMeshData.positions.length / 3; i++) {
+            colors.push(color.r, color.g, color.b, 1);
+        }
+        console.log(blockType + " " + color.toString());
+        previewMeshData = VertexDataLoader.clone(previewMeshData);
+        previewMeshData.colors = colors;
+
         let lastSize: number;
         let lastI: number;
         let lastJ: number;
@@ -25,7 +34,7 @@ class PlayerActionTemplate {
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
                     if (localIJK) {
                         // Redraw block preview
-                        if (!previewMesh && blockType != BlockType.None) {
+                        if (!previewMesh) {
                             previewMesh = new BABYLON.Mesh("preview-mesh", player.scene);
                             previewMesh.material = terrain.getMaterial(0);
                             previewMeshData.applyToMesh(previewMesh);
