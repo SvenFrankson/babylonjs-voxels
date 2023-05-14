@@ -116,6 +116,21 @@ class Chunck {
         );
     }
 
+    public getChuncksAround(dist: number): Chunck[] {
+        let chuncksAround: Chunck[] = [];
+        for (let I = - dist; I <= dist; I++) {
+            for (let J = - dist; J <= dist; J++) {
+                for (let K = - dist; K <= dist; K++) {
+                    let chunck = this.terrain.getChunck(this.level, this.iPos + I, this.jPos + J, this.kPos + K);
+                    if (chunck) {
+                        chuncksAround.push(chunck);
+                    }
+                }
+            }
+        }
+        return chuncksAround;
+    }
+
     public findAdjacents(): void {
         let iPrevChunck = this.terrain.getChunck(this.level, this.iPos - 1, this.jPos, this.kPos);
         if (iPrevChunck) {

@@ -458,13 +458,7 @@ class Player extends BABYLON.Mesh {
             this._currentChunck = chunck;
 
             if (this._currentChunck) {
-                //this._currentChunck.highlight();
-                if (this._currentChunck.adjacents) {
-                    this._chuncks = [...this._currentChunck.adjacents, this._currentChunck];
-                }
-                else {
-                    this._chuncks = [this._currentChunck];
-                }
+                this._chuncks = this._currentChunck.getChuncksAround(2);
             }
             else {
                 this._chuncks = [];
