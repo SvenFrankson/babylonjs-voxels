@@ -49,11 +49,18 @@ class Chunck {
     private _dataSize: number;
     private _dataSizeSquare: number;
     private _data: Uint8Array;
-    public getData(i: number, j: number, k: number): number {
+    public getRawData(i: number, j: number, k: number): number {
         return this._data[i + j * this._dataSize + k * this._dataSizeSquare];
     }
-    public setData(v: number, i: number, j: number, k: number): number {
-        return this._data[i + j * this._dataSize + k * this._dataSizeSquare] = v;
+    public setRawData(v: number, i: number, j: number, k: number): void {
+        this._data[i + j * this._dataSize + k * this._dataSizeSquare] = v;
+    }
+    public setRawDataSafe(v: number, i: number, j: number, k: number): boolean {
+        if (i < 0 || j < 0 || k < 0 || i >= this._dataSize || j >= this._dataSize || k >= this._dataSize) {
+            return false;
+        }
+        this._data[i + j * this._dataSize + k * this._dataSizeSquare] = v;
+        return true;
     }
 
     public mesh: BABYLON.Mesh;
@@ -242,47 +249,23 @@ class Chunck {
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + k * this.levelFactor;
                         
-                        this.setData(BlockType.None, i + m, j + m, k + m);
-                        if (this.level === 0 && iGlobal === this.terrain.halfTerrainSize && jGlobal === this.terrain.halfTerrainSize) {
-                            this.setData(BlockType.Rock, i + m, j + m, k + m);
-                        }
-                        else if (this.level === 0 && iGlobal === this.terrain.halfTerrainSize && kGlobal === this.terrain.halfTerrainHeight) {
-                            this.setData(BlockType.Rock, i + m, j + m, k + m);
-                        }
-                        else if (this.level === 0 && jGlobal === this.terrain.halfTerrainSize && kGlobal === this.terrain.halfTerrainHeight) {
-                            this.setData(BlockType.Rock, i + m, j + m, k + m);
-                        }
-                        else if (Math.abs(kGlobal - hAltitude) < rockHeight) {
-                            this.setData(BlockType.Rock, i + m, j + m, k + m);
+                        this.setRawData(BlockType.None, i + m, j + m, k + m);
+                        if (Math.abs(kGlobal - hAltitude) < rockHeight) {
+                            this.setRawData(BlockType.Rock, i + m, j + m, k + m);
                         }
                         else if (Math.abs(kGlobal - hAltitudeHole) < holeHeight) {
-                            this.setData(BlockType.None, i + m, j + m, k + m);
+                            this.setRawData(BlockType.None, i + m, j + m, k + m);
                         }
                         else if (kGlobal < hAltitude) {
                             if (hColor > this.terrain.halfTerrainHeight) {
-                                this.setData(BlockType.Grass, i + m, j + m, k + m);
+                                this.setRawData(BlockType.Grass, i + m, j + m, k + m);
                             }
                             else {
-                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
+                                this.setRawData(BlockType.Dirt, i + m, j + m, k + m);
                             }
-                            /*
-                            if (Math.abs(kGlobal - hGlobalHole) < 5) {
-                                this.setData(BlockType.None, i + m, j + m, k + m);
-                            }
-                            else {
-                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
-                            }
-                            */
                         }
                         else {
-                            this.setData(BlockType.None, i + m, j + m, k + m);
-                            /*
-                            if (Math.abs(kGlobal - hGlobalHole) < 2) {
-                                this.setData(BlockType.Dirt, i + m, j + m, k + m);
-                            }
-                            else {
-                                this.setData(BlockType.None, i + m, j + m, k + m);
-                            }*/
+                            this.setRawData(BlockType.None, i + m, j + m, k + m);
                         }
                     }
                 }
@@ -305,42 +288,25 @@ class Chunck {
         }
     }
 
-    public initializeData2(): void {
-        let m = DRAW_CHUNCK_MARGIN;
-
-        if (!this.dataInitialized) {
-            this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
-            this._data = new Uint8Array(this._dataSizeSquare * this._dataSize);
-
-            for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
-                for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
-                    for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
-                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + (k + 0.5) * this.levelFactor;
-                        if (kGlobal < this.terrain.halfTerrainHeight) {
-                            this.setData(BlockType.Dirt, i + m, j + m, k + m);
-                        }
-                        else {
-                            this.setData(BlockType.None, i + m, j + m, k + m);
+    public getData(i: number, j: number, k: number): number {
+        return this._data[(i + DRAW_CHUNCK_MARGIN) + (j + DRAW_CHUNCK_MARGIN) * this._dataSize + (k + DRAW_CHUNCK_MARGIN) * this._dataSizeSquare];
+    }
+    public setData(v: number, i: number, j: number, k: number): Chunck[] {
+        let affectedChuncks = [];
+        for (let I = - 1; I <= 1; I++) {
+            for (let J = - 1; J <= 1; J++) {
+                for (let K = - 1; K <= 1; K++) {
+                    let chunck = this.terrain.getChunck(this.level, this.iPos + I, this.jPos + J, this.kPos + K);
+                    if (chunck) {
+                        if (chunck.setRawDataSafe(v, (i - I * CHUNCK_LENGTH + DRAW_CHUNCK_MARGIN), (j - J * CHUNCK_LENGTH + DRAW_CHUNCK_MARGIN), (k - K * CHUNCK_LENGTH + DRAW_CHUNCK_MARGIN))) {
+                            console.log("set at " + (i - I * CHUNCK_LENGTH) + " " + (j - J * CHUNCK_LENGTH) + " " + (k - K * CHUNCK_LENGTH) + " on " + (chunck.iPos) + " " + (chunck.jPos) + " " + (chunck.kPos))
+                            affectedChuncks.push(chunck);
                         }
                     }
                 }
             }
-
-            /*
-            let modData = window.localStorage.getItem(this.getUniqueName());
-            if (modData) {
-                this.modDataOctree = OctreeNode.DeserializeFromString(modData);
-                if (this.modDataOctree) {
-                    this.modDataOctree.forEach((v, i, j, k) => {
-                        this.data[i][j][k] = v;
-                    });
-                }
-            }
-            */
-
-            this._dataInitialized = true;
-            this.updateIsEmptyIsFull();
         }
+        return affectedChuncks;
     }
 
     public updateIsEmptyIsFull(): void {
@@ -351,7 +317,7 @@ class Chunck {
         for (let i = 0; i <= CHUNCK_LENGTH; i++) {
             for (let j = 0; j <= CHUNCK_LENGTH; j++) {
                 for (let k = 0; k <= CHUNCK_LENGTH; k++) {
-                    let block = this.getData(i + m, j + m, k + m);
+                    let block = this.getRawData(i + m, j + m, k + m);
                     this._isFull = this._isFull && (block > BlockType.Water);
                     this._isEmpty = this._isEmpty && (block < BlockType.Water);
                     if (!this._isFull && !this._isEmpty) {

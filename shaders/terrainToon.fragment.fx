@@ -22,7 +22,6 @@ void main() {
    color.b = round(color.b * 4.) / 4.;
 
    float dx = vPositionW.x - floor(vPositionW.x);
-   float dy = vPositionW.y - floor(vPositionW.y);
    float dz = vPositionW.z - floor(vPositionW.z);
 
    if (dx < 0.03 || dx > 0.97) {
@@ -31,13 +30,25 @@ void main() {
    if (dz < 0.03 || dz > 0.97) {
       color = vec3(0., 0., 0.);
    }
+
+   float dx16 = (vPositionW.x / 16. - floor(vPositionW.x / 16.));
+   float dz16 = (vPositionW.z / 16. - floor(vPositionW.z / 16.));
+
+   if (dx16 < 0.03 / 16. || dx16 > (1. - 0.03 / 16.)) {
+      color = vec3(1., 0., 0.);
+   }
+   if (dz16 < 0.03 / 16. || dz16 > (1. - 0.03 / 16.)) {
+      color = vec3(1., 0., 0.);
+   }
    
    if (level == 0) {
+      float dy = vPositionW.y - floor(vPositionW.y);
       if (vNormalW.y > 0.8 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }
    }
    else if (level == 1) {
+      float dy = vPositionW.y - floor(vPositionW.y);
       if (vNormalW.y > 0.7 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }

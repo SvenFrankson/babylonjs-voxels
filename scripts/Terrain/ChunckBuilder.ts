@@ -104,12 +104,12 @@ class ChunckMeshBuilder {
                     return BlockType.None;
                 }
                 
-                return chunck.getData(ii + m, jj + m, kk + m);
+                return chunck.getRawData(ii + m, jj + m, kk + m);
             }
         }
         else {
             getData = (ii: number, jj: number, kk: number) => {            
-                return chunck.getData(ii + m, jj + m, kk + m);
+                return chunck.getRawData(ii + m, jj + m, kk + m);
             }
         }
 
@@ -201,7 +201,7 @@ class ChunckMeshBuilder {
                                         if (!isFinite(pIndex)) {
                                             pIndex = positions.length / 3;
                                             positions.push(x, y, z);
-                                            let dataAtVertex = chunck.getData(i + cx + m, j + cz + m, k + cy + m);
+                                            let dataAtVertex = chunck.getRawData(i + cx + m, j + cz + m, k + cy + m);
                                             if (dataAtVertex === BlockType.Grass) {
                                                 colors.push(0, 1, 0, 1);
                                             }

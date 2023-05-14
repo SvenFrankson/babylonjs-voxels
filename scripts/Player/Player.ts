@@ -465,14 +465,14 @@ class Player extends BABYLON.Mesh {
                 else {
                     this._chuncks = [this._currentChunck];
                 }
-                this._meshes = this._chuncks.map(c => { return c ? c.mesh : undefined; });
             }
             else {
                 this._chuncks = [];
-                this._meshes = [];
             }
             //console.log(this._meshes);
         }
+
+        this._meshes = this._chuncks.map(c => { return c ? c.mesh : undefined; });
 
         let inputFactor = Easing.smooth010Sec(this.getEngine().getFps());
         this.inputHeadRight *= inputFactor;

@@ -60,9 +60,11 @@ class PlayerActionTemplate {
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
                     console.log(localIJK);
                     if (localIJK) {
-                        localIJK.chunck.setData(blockType, localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
-                        localIJK.chunck.disposeMesh();
-                        localIJK.chunck.redrawMesh();
+                        let affectedChuncks = localIJK.chunck.setData(blockType, localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
+                        affectedChuncks.forEach(affectedChunck => {
+                            affectedChunck.disposeMesh();
+                            affectedChunck.redrawMesh();
+                        });
                     }
                 }
             }
