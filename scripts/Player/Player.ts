@@ -8,7 +8,7 @@ class Player extends BABYLON.Mesh {
 
     public static DEBUG_INSTANCE: Player;
 
-    private maxSpeed: number = 5;
+    private maxSpeed: number = 10;
     private speedX: number = 0;
     private speedZ: number = 0;
     public velocity: BABYLON.Vector3 = BABYLON.Vector3.Zero();
@@ -483,7 +483,7 @@ class Player extends BABYLON.Mesh {
         this._leftDirection.copyFrom(this._rightDirection);
         this._leftDirection.scaleInPlace(-1);
 
-        this.head.getDirectionToRef(BABYLON.Axis.Z, this._forwardDirection);
+        this.getDirectionToRef(BABYLON.Axis.Z, this._forwardDirection);
         this._backwardDirection.copyFrom(this._forwardDirection);
         this._backwardDirection.scaleInPlace(-1);
 
@@ -508,11 +508,11 @@ class Player extends BABYLON.Mesh {
 
             let checkGroundCollision: boolean = false;
             if (this.groundCollisionVData) {
-                let localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.add(BABYLON.Axis.Y.scale(0.4)), 0);
+                let localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.add(BABYLON.Axis.Y.scale(0.75)), 0);
                 if (localIJK) {
                     let data = localIJK.chunck.getData(localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
                     if (data <= BlockType.Water) {
-                        localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.subtract(BABYLON.Axis.Y.scale(0.4)), 0);
+                        localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.subtract(BABYLON.Axis.Y.scale(0.25)), 0);
                         if (localIJK) {
                             data = localIJK.chunck.getData(localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
                         }
@@ -555,11 +555,12 @@ class Player extends BABYLON.Mesh {
                         }
                         this._debugCollisionGroundMesh.position.copyFrom(hit.pickedPoint);
                     }
-                    let d: number = BABYLON.Vector3.Dot(this.position.subtract(hit.pickedPoint), BABYLON.Axis.Y);
+                    let d: number = BABYLON.Vector3.Dot(hit.pickedPoint.subtract(this.position), BABYLON.Axis.Y);
+                    /*
                     if (d <= 0.2) {
                         let v = 0;
                         if (d < 0) {
-                            v = Math.abs(20 * d);
+                            v = Math.abs(15 * d);
                         }
                         this._groundFactor
                             .copyFrom(this._gravityFactor)
@@ -567,12 +568,20 @@ class Player extends BABYLON.Mesh {
                         fVert = 0.005;
                         this._isGrounded = true;
                     }
+                    */
+                    if (d >= 0) {
+                        let dy = d * 0.3;
+                        dy = Math.min(dy, 5 * deltaTime);
+                        this.position.addInPlace(BABYLON.Axis.Y.scale(dy))
+                        this._gravityFactor.copyFromFloats(0, 0, 0);
+                        this.velocity.scaleInPlace(0.5);
+                        this._isGrounded = true;
+                    }
                 }
             }
         }
 
         // Add input force.
-        let fLat = 1;
         this._controlFactor.copyFromFloats(0, 0, 0);
 
         this.speedX = this.speedX * 0.9 + this.inputRight * this.maxSpeed * 0.1;
@@ -590,7 +599,6 @@ class Player extends BABYLON.Mesh {
                 this._lastDistToTarget = dist;
                 this._controlFactor.normalize();
                 this._controlFactor.scaleInPlace((dist * 20) * deltaTime);
-                fLat = 0.2;
             }
         }
         else {
@@ -682,7 +690,6 @@ class Player extends BABYLON.Mesh {
                         let d: number = hit[0].pickedPoint.subtract(pos).length();
                         if (d > 0.01) {
                             this._surfaceFactor.addInPlace(axis.scale((((-10 / 1) * 0.3) / d) * deltaTime));
-                            fLat = 0.1;
                         } else {
                             // In case where it stuck to the surface, force push.
                             this.position.addInPlace(hit[0].getNormal(true).scale(0.01));
@@ -696,8 +703,7 @@ class Player extends BABYLON.Mesh {
         // Add friction
         let downVelocity = new BABYLON.Vector3(0, this.velocity.y, 0);
         this.velocity.subtractInPlace(downVelocity);
-        downVelocity.scaleInPlace(Math.pow(0.5 * fVert, deltaTime));
-        this.velocity.scaleInPlace(Math.pow(0.005 * fLat, deltaTime));
+        downVelocity.scaleInPlace(Math.pow(0.99 * fVert, deltaTime));
         this.velocity.addInPlace(downVelocity);
 
         // Safety check.
