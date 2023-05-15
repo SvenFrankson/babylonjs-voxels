@@ -8,8 +8,9 @@ class Player extends BABYLON.Mesh {
 
     public static DEBUG_INSTANCE: Player;
 
-    private mass: number = 1;
-    private speed: number = 30;
+    private maxSpeed: number = 5;
+    private speedX: number = 0;
+    private speedZ: number = 0;
     public velocity: BABYLON.Vector3 = BABYLON.Vector3.Zero();
     public isWalking: boolean = false;
 
@@ -71,13 +72,12 @@ class Player extends BABYLON.Mesh {
         this.head.position = new BABYLON.Vector3(0, 1.77, 0);
         this.head.rotation.x = Math.PI / 8;
         this.manager = new PlayerManager(this);
-        /*
+        
         BABYLON.CreateSphereVertexData({ diameter: 0.2 }).applyToMesh(this);
         let material = new BABYLON.StandardMaterial("material", this.getScene());
         material.alpha = 0.5;
         this.material = material;
         this.layerMask = 0x10000000;
-        */
 
         let mat = new ToonMaterial("move-indicator-material", this.scene);
         this.moveIndicatorDisc = new BABYLON.Mesh("player-move-indicator-disc", this.main.scene);
@@ -508,9 +508,15 @@ class Player extends BABYLON.Mesh {
 
             let checkGroundCollision: boolean = false;
             if (this.groundCollisionVData) {
-                let localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.subtract(BABYLON.Axis.Y.scale(0.1)), 0);
+                let localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.add(BABYLON.Axis.Y.scale(0.4)), 0);
                 if (localIJK) {
                     let data = localIJK.chunck.getData(localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
+                    if (data <= BlockType.Water) {
+                        localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.subtract(BABYLON.Axis.Y.scale(0.4)), 0);
+                        if (localIJK) {
+                            data = localIJK.chunck.getData(localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
+                        }
+                    }
                     if (data > BlockType.Water) {
                         if (!this.groundCollisionMesh) {
                             this.groundCollisionMesh = BABYLON.MeshBuilder.CreateBox("debug-current-block", { width: 3 * BLOCK_SIZE, height: BLOCK_SIZE, depth: 3 * BLOCK_SIZE });
@@ -518,7 +524,7 @@ class Player extends BABYLON.Mesh {
                                 let material = new BABYLON.StandardMaterial("material");
                                 material.alpha = 0.25;
                                 this.groundCollisionMesh.material = material;
-                                this.groundCollisionMesh.scaling.copyFromFloats(1.1, 1.1, 1.1);
+                                //this.groundCollisionMesh.scaling.copyFromFloats(1.1, 1.1, 1.1);
                             }
                             else {
                                 this.groundCollisionMesh.isVisible = false;
@@ -558,7 +564,7 @@ class Player extends BABYLON.Mesh {
                         this._groundFactor
                             .copyFrom(this._gravityFactor)
                             .scaleInPlace(- 1 - v);
-                        fVert = 0.001;
+                        fVert = 0.005;
                         this._isGrounded = true;
                     }
                 }
@@ -568,6 +574,10 @@ class Player extends BABYLON.Mesh {
         // Add input force.
         let fLat = 1;
         this._controlFactor.copyFromFloats(0, 0, 0);
+
+        this.speedX = this.speedX * 0.9 + this.inputRight * this.maxSpeed * 0.1;
+        this.speedZ = this.speedZ * 0.9 + this.inputForward * this.maxSpeed * 0.1;
+
         if (this.targetDestination) {
             this._controlFactor.copyFrom(this.targetDestination);
             this._controlFactor.subtractInPlace(this.position);
@@ -579,28 +589,36 @@ class Player extends BABYLON.Mesh {
             else {
                 this._lastDistToTarget = dist;
                 this._controlFactor.normalize();
-                this._controlFactor.scaleInPlace((dist * 20 / this.mass) * deltaTime);
+                this._controlFactor.scaleInPlace((dist * 20) * deltaTime);
                 fLat = 0.2;
             }
         }
         else {
             this.velocity.addInPlace(this._gravityFactor);
             this.velocity.addInPlace(this._groundFactor);
-            this._controlFactor.addInPlace(this._rightDirection.scale(this.inputRight));
-            this._controlFactor.addInPlace(this._forwardDirection.scale(this.inputForward));
-            if (this._controlFactor.lengthSquared() > 0.1) {
-                this._controlFactor.normalize();
+
+            this._controlFactor.addInPlace(this._rightDirection.scale(this.speedX));
+            this._controlFactor.addInPlace(this._forwardDirection.scale(this.speedZ));
+            if (this._controlFactor.lengthSquared() > this.maxSpeed * this.maxSpeed) {
+                this._controlFactor.normalize().scaleInPlace(this.maxSpeed);
             }
+            if (this._controlFactor.lengthSquared() > 0.01) {
+                this._controlFactor.scaleInPlace(deltaTime);
+                if (this.godMode) {
+                    this._controlFactor.scaleInPlace(10);
+                }
+            }
+            else {
+                this._controlFactor.copyFromFloats(0, 0, 0);
+            }
+            /*
             let speed = this.speed;
             if (this.isWalking) {
                 speed *= 0.5;
             }
-            this._controlFactor.scaleInPlace((speed / this.mass) * deltaTime);
-            if (this.godMode) {
-                this._controlFactor.scaleInPlace(5);
-            }
+            */
         }
-        this.velocity.addInPlace(this._controlFactor);
+        this.position.addInPlace(this._controlFactor);
 
         // Check wall collisions.
         this._surfaceFactor.copyFromFloats(0, 0, 0);
@@ -663,7 +681,7 @@ class Player extends BABYLON.Mesh {
                         */
                         let d: number = hit[0].pickedPoint.subtract(pos).length();
                         if (d > 0.01) {
-                            this._surfaceFactor.addInPlace(axis.scale((((-10 / this.mass) * 0.3) / d) * deltaTime));
+                            this._surfaceFactor.addInPlace(axis.scale((((-10 / 1) * 0.3) / d) * deltaTime));
                             fLat = 0.1;
                         } else {
                             // In case where it stuck to the surface, force push.
