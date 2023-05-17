@@ -12,9 +12,11 @@ class Terrain {
     public chunckCountHeight: number = 20;
     public chunckCount: number;
     public terrainHeight: number;
+    public terrainHeight_m: number;
     public halfTerrainHeight: number;
-    public terrainSize: number;
-    public halfTerrainSize: number;
+    public halfTerrainHeight_m: number;
+    public terrainSize_m: number;
+    public halfTerrainSize_m: number;
 
     public root: Chunck;
     public chunckManager: ChunckManager;
@@ -45,16 +47,18 @@ class Terrain {
         }
 
 
-        this.terrainHeight = this.chunckCountHeight * CHUNCK_SIZE;
+        this.terrainHeight = this.chunckCountHeight * CHUNCK_LENGTH;
         this.halfTerrainHeight = this.terrainHeight * 0.5;
+        this.terrainHeight_m = this.terrainHeight * BLOCK_SIZE_M;
+        this.halfTerrainHeight_m = this.halfTerrainHeight * BLOCK_SIZE_M;
         this.chunckCount = VMath.Pow2(prop.maxLevel);
-        this.terrainSize = this.chunckCount * CHUNCK_SIZE;
-        this.halfTerrainSize = this.terrainSize * 0.5;
+        this.terrainSize_m = this.chunckCount * CHUNCK_SIZE_M;
+        this.halfTerrainSize_m = this.terrainSize_m * 0.5;
 
         console.log("this.terrainHeight " + this.terrainHeight);
         console.log("this.chunckCount " + this.chunckCount);
-        console.log("this.terrainSize " + this.terrainSize);
-        let kmSize = this.terrainSize / 1000;
+        console.log("this.terrainSize " + this.terrainSize_m);
+        let kmSize = this.terrainSize_m / 1000;
         let surface = kmSize * kmSize;
         console.log("surface " + surface + " km²");
         let terrainLength = this.chunckCount * CHUNCK_LENGTH;
@@ -105,9 +109,9 @@ class Terrain {
     }
 
     public getChunckAtPos(pos: BABYLON.Vector3, level: number): Chunck {
-        let iPos = Math.floor((pos.x + this.halfTerrainSize) / CHUNCK_SIZE);
-        let jPos = Math.floor((pos.z + this.halfTerrainSize) / CHUNCK_SIZE);
-        let kPos = Math.floor((pos.y + this.halfTerrainHeight) / CHUNCK_SIZE);
+        let iPos = Math.floor((pos.x + this.halfTerrainSize_m) / CHUNCK_SIZE_M);
+        let jPos = Math.floor((pos.z + this.halfTerrainSize_m) / CHUNCK_SIZE_M);
+        let kPos = Math.floor((pos.y + this.halfTerrainHeight_m) / CHUNCK_SIZE_M);
         return this.getChunck(level, iPos, jPos, kPos);
     }
 

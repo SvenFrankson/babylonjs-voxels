@@ -1,8 +1,8 @@
-var BLOCK_SIZE: number = 1;
+var BLOCK_SIZE_M: number = 0.5;
 var CHUNCK_LENGTH: number = 32;
 var CHUNCK_LENGTH_2: number = CHUNCK_LENGTH * CHUNCK_LENGTH;
 var CHUNCK_LENGTH_3: number = CHUNCK_LENGTH_2 * CHUNCK_LENGTH;
-var CHUNCK_SIZE: number = BLOCK_SIZE * CHUNCK_LENGTH;
+var CHUNCK_SIZE_M: number = BLOCK_SIZE_M * CHUNCK_LENGTH;
 var DRAW_CHUNCK_MARGIN: number = 2;
 
 enum AdjacentAxis {
@@ -105,14 +105,14 @@ class Chunck {
         this.name = "chunck:" + this.level + ":" + this.iPos + "-" + this.jPos + "-" + this.kPos;
 
         this.position = new BABYLON.Vector3(
-            (this.iPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-            (this.kPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
-            (this.jPos * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+            (this.iPos * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m,
+            (this.kPos * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainHeight_m + 0.5 * this.levelFactor * BLOCK_SIZE_M,
+            (this.jPos * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m
         );
         this.barycenter = new BABYLON.Vector3(
-            ((this.iPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize,
-            ((this.kPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainHeight + 0.5 * this.levelFactor,
-            ((this.jPos + 0.5) * CHUNCK_SIZE) * this.levelFactor - this.terrain.halfTerrainSize
+            ((this.iPos + 0.5) * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m,
+            ((this.kPos + 0.5) * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainHeight_m + 0.5 * this.levelFactor * BLOCK_SIZE_M,
+            ((this.jPos + 0.5) * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m
         );
     }
 
@@ -232,9 +232,9 @@ class Chunck {
             this._data = new Uint8Array(this._dataSizeSquare * this._dataSize);
 
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
-                let iGlobal = this.iPos * CHUNCK_SIZE + i;
+                let iGlobal = this.iPos * CHUNCK_LENGTH + i;
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
-                    let jGlobal = this.jPos * CHUNCK_SIZE + j;
+                    let jGlobal = this.jPos * CHUNCK_LENGTH + j;
                     let IMap = 1;
                     let JMap = 1;
                     let ii = i;
@@ -262,7 +262,7 @@ class Chunck {
                     let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getData(ii, jj);
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
-                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_SIZE + k * this.levelFactor;
+                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_LENGTH + k * this.levelFactor;
                         
                         this.setRawData(BlockType.None, i + m, j + m, k + m);
                         if (Math.abs(kGlobal - hAltitude) < rockHeight) {
@@ -393,9 +393,9 @@ class Chunck {
     }
 
     public getIJKAtPos(pos: BABYLON.Vector3): { i: number, j: number, k: number } {
-        let i = Math.floor((pos.x - this.position.x) / BLOCK_SIZE);
-        let j = Math.floor((pos.z - this.position.z) / BLOCK_SIZE);
-        let k = Math.floor((pos.y - this.position.y) / BLOCK_SIZE);
+        let i = Math.floor((pos.x - this.position.x) / BLOCK_SIZE_M);
+        let j = Math.floor((pos.z - this.position.z) / BLOCK_SIZE_M);
+        let k = Math.floor((pos.y - this.position.y) / BLOCK_SIZE_M);
         return { i: i, j: j, k: k };
     }
 

@@ -40,14 +40,14 @@ class PlayerActionTemplate {
                             previewMesh = new BABYLON.Mesh("preview-mesh", player.scene);
                             previewMesh.material = terrain.getMaterial(0);
                             previewMeshData.applyToMesh(previewMesh);
-                            previewMesh.scaling.copyFromFloats(size, size, size);
+                            previewMesh.scaling.copyFromFloats(size, size, size).scaleInPlace(BLOCK_SIZE_M);
                         }
                         
                         previewMesh.position.copyFrom(localIJK.chunck.position);
                         previewMesh.position.addInPlace(new BABYLON.Vector3(
-                            localIJK.ijk.i + 0.5,
-                            localIJK.ijk.k,
-                            localIJK.ijk.j + 0.5
+                            (localIJK.ijk.i + 0.5) * BLOCK_SIZE_M,
+                            (localIJK.ijk.k) * BLOCK_SIZE_M,
+                            (localIJK.ijk.j + 0.5) * BLOCK_SIZE_M
                         ));
 
                         return;

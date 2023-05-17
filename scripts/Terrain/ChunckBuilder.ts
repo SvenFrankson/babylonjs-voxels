@@ -254,9 +254,9 @@ class ChunckMeshBuilder {
         }
 
         for (let i = 0; i < positions.length / 3; i++) {
-            positions[3 * i] = positions[3 * i] * chunck.levelFactor + 0.5;
-            positions[3 * i + 1] = positions[3 * i + 1] * chunck.levelFactor;
-            positions[3 * i + 2] = positions[3 * i + 2] * chunck.levelFactor + 0.5;
+            positions[3 * i] = (positions[3 * i] * chunck.levelFactor + 0.5) * BLOCK_SIZE_M;
+            positions[3 * i + 1] = (positions[3 * i + 1] * chunck.levelFactor) * BLOCK_SIZE_M;
+            positions[3 * i + 2] = (positions[3 * i + 2] * chunck.levelFactor + 0.5) * BLOCK_SIZE_M;
         }
 
         let computedNormals = [];
@@ -296,9 +296,9 @@ class ChunckMeshBuilder {
         for (let i = 0; i <= vertexCount; i++) {
             for (let j = 0; j <= vertexCount; j++) {
                 let l = positions.length / 3;
-                let x = i * levelCoef * BLOCK_SIZE;
+                let x = i * levelCoef * BLOCK_SIZE_M;
                 let y = 0;
-                let z = j * levelCoef * BLOCK_SIZE;
+                let z = j * levelCoef * BLOCK_SIZE_M;
                 
                 positions.push(x, y, z);
 

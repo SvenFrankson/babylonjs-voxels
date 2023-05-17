@@ -3,6 +3,7 @@ precision highp float;
  
 uniform vec3 lightInvDirW;
 uniform int level;
+uniform float blockSize_m;
 
 in vec3 vPositionW;
 in vec3 vNormalW;
@@ -44,13 +45,13 @@ void main() {
    */
    
    if (level == 0) {
-      float dy = vPositionW.y - floor(vPositionW.y);
+      float dy = vPositionW.y / blockSize_m - floor(vPositionW.y / blockSize_m);
       if (vNormalW.y > 0.8 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }
    }
    else if (level == 1) {
-      float dy = vPositionW.y - floor(vPositionW.y);
+      float dy = vPositionW.y / blockSize_m - floor(vPositionW.y / blockSize_m);
       if (vNormalW.y > 0.7 && (dy < 0.1 || dy > 0.9)) {
          lightFactor *= 1.3;
       }
