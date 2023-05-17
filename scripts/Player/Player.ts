@@ -353,6 +353,7 @@ class Player extends BABYLON.Mesh {
         });
     }
 
+    public lockInPlace: boolean = false;
     private _currentChunck: Chunck;
     private _savePositionTimer: number = 0;
     private _update = () => {
@@ -363,6 +364,10 @@ class Player extends BABYLON.Mesh {
         let deltaTime: number = this.main.engine.getDeltaTime() / 1000;
         if (Config.saveConfiguration.useLocalStorage) {
             this._savePositionTimer += deltaTime;
+        }
+
+        if (this.lockInPlace) {
+            return;
         }
 
         if (isFinite(this._moveTimer)) {

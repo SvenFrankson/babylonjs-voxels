@@ -15,9 +15,11 @@ class PlayerActionTemplate {
         for (let i = 0; i < previewMeshData.positions.length / 3; i++) {
             colors.push(color.r, color.g, color.b, 1);
         }
-        console.log(blockType + " " + color.toString());
         previewMeshData = VertexDataLoader.clone(previewMeshData);
         previewMeshData.colors = colors;
+
+        let size = 1;
+        let radius = Math.floor(size / 2);
 
         let lastSize: number;
         let lastI: number;
@@ -38,7 +40,7 @@ class PlayerActionTemplate {
                             previewMesh = new BABYLON.Mesh("preview-mesh", player.scene);
                             previewMesh.material = terrain.getMaterial(0);
                             previewMeshData.applyToMesh(previewMesh);
-                            previewMesh.scaling.copyFromFloats(3, 3, 3);
+                            previewMesh.scaling.copyFromFloats(size, size, size);
                         }
                         
                         previewMesh.position.copyFrom(localIJK.chunck.position);
@@ -65,12 +67,11 @@ class PlayerActionTemplate {
                 if (hit && hit.pickedPoint) {
                     let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.65 : 0.65);
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
-                    console.log(localIJK);
                     if (localIJK) {
                         let totalAffectedChuncks = new UniqueList<Chunck>();
-                        for (let I = - 1; I <= 1; I++) {
-                            for (let J = - 1; J <= 1; J++) {
-                                for (let K = - 1; K <= 1; K++) {
+                        for (let I = - radius; I <= radius; I++) {
+                            for (let J = - radius; J <= radius; J++) {
+                                for (let K = - radius; K <= radius; K++) {
                                     let affectedChuncks = localIJK.chunck.setData(blockType, localIJK.ijk.i + I, localIJK.ijk.j + J, localIJK.ijk.k + K);
                                     affectedChuncks.forEach(c => {
                                         totalAffectedChuncks.push(c);

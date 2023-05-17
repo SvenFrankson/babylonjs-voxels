@@ -121,7 +121,11 @@ class Main {
                 maxLevel: 15
             });
 
-            await this.player.initialize();
+            this.player.initialize();
+            this.player.lockInPlace = true;
+            setTimeout(() => {
+                this.player.lockInPlace = false;
+            }, 3000);
             this.inputManager.initialize(this.player);
             this.player.inventory = new Inventory(this.player);
             await this.player.inventory.initialize();
