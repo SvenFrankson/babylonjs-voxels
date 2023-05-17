@@ -51,8 +51,8 @@ class ExtendedVertexData {
             }
 
             let color1 = v1.subtract(n.scale(0.5));
-            let color2 = v1.subtract(n.scale(0.5));
-            let color3 = v1.subtract(n.scale(0.5));
+            let color2 = v2.subtract(n.scale(0.5));
+            let color3 = v3.subtract(n.scale(0.5));
             this.fastColorIndex.push([
                 new BABYLON.Vector3(Math.round(color1.x), Math.round(color1.y), Math.round(color1.z)),
                 new BABYLON.Vector3(Math.round(color2.x), Math.round(color2.y), Math.round(color2.z)),
