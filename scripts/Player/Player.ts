@@ -514,18 +514,18 @@ class Player extends BABYLON.Mesh {
 
             let checkGroundCollision: boolean = false;
             if (this.groundCollisionVData) {
-                let localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.add(BABYLON.Axis.Y.scale(0.75 * BLOCK_SIZE_M)), 0);
+                let localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.add(BABYLON.Axis.Y.scale(0.75 * BLOCK_HEIGHT_M)), 0);
                 if (localIJK) {
                     let data = localIJK.chunck.getData(localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
                     if (data <= BlockType.Water) {
-                        localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.subtract(BABYLON.Axis.Y.scale(0.25 * BLOCK_SIZE_M)), 0);
+                        localIJK = this.main.terrain.getChunckAndIJKAtPos(this.position.subtract(BABYLON.Axis.Y.scale(0.25 * BLOCK_HEIGHT_M)), 0);
                         if (localIJK) {
                             data = localIJK.chunck.getData(localIJK.ijk.i, localIJK.ijk.j, localIJK.ijk.k);
                         }
                     }
                     if (data > BlockType.Water) {
                         if (!this.groundCollisionMesh) {
-                            this.groundCollisionMesh = BABYLON.MeshBuilder.CreateBox("debug-current-block", { width: 3 * BLOCK_SIZE_M, height: BLOCK_SIZE_M, depth: 3 * BLOCK_SIZE_M });
+                            this.groundCollisionMesh = BABYLON.MeshBuilder.CreateBox("debug-current-block", { width: 3 * BLOCK_SIZE_M, height: BLOCK_HEIGHT_M, depth: 3 * BLOCK_SIZE_M });
                             if (DebugDefine.SHOW_PLAYER_COLLISION_MESHES) {
                                 let material = new BABYLON.StandardMaterial("material");
                                 material.alpha = 0.25;
@@ -540,7 +540,7 @@ class Player extends BABYLON.Mesh {
                         this.groundCollisionMesh.position.copyFrom(localIJK.chunck.position);
                         this.groundCollisionMesh.position.addInPlace(new BABYLON.Vector3(
                             (localIJK.ijk.i + 0.5) * BLOCK_SIZE_M,
-                            (localIJK.ijk.k) * BLOCK_SIZE_M,
+                            (localIJK.ijk.k) * BLOCK_HEIGHT_M,
                             (localIJK.ijk.j + 0.5) * BLOCK_SIZE_M
                         ));
                         checkGroundCollision = true;

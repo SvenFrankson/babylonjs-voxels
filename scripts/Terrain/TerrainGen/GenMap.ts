@@ -190,7 +190,6 @@ abstract class GenMap {
         if (this.level === 0) {
             let data = new Uint8ClampedArray(this._dataSize * this._dataSize * 4);
             let l = max - min;
-            console.log(l);
             for (let j = 0; j < this._dataSize; j++) {
                 for (let i = 0; i < this._dataSize; i++) {
                     let n = i + j * this._dataSize;

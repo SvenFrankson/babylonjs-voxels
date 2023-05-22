@@ -32,7 +32,7 @@ class PlayerActionTemplate {
             if (!player.inputManager.inventoryOpened) {
                 let hit = player.inputManager.getPickInfo(player.meshes);
                 if (hit && hit.pickedPoint) {
-                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.65 : 0.65);
+                    let n =  hit.getNormal(true).scaleInPlace(blockType === BlockType.None ? - 0.3 : 0.3);
                     let localIJK = terrain.getChunckAndIJKAtPos(hit.pickedPoint.add(n), 0);
                     if (localIJK) {
                         // Redraw block preview
@@ -40,13 +40,13 @@ class PlayerActionTemplate {
                             previewMesh = new BABYLON.Mesh("preview-mesh", player.scene);
                             previewMesh.material = terrain.getMaterial(0);
                             previewMeshData.applyToMesh(previewMesh);
-                            previewMesh.scaling.copyFromFloats(size, size, size).scaleInPlace(BLOCK_SIZE_M);
+                            previewMesh.scaling.copyFromFloats(size * BLOCK_SIZE_M, size * BLOCK_HEIGHT_M, size * BLOCK_SIZE_M);
                         }
                         
                         previewMesh.position.copyFrom(localIJK.chunck.position);
                         previewMesh.position.addInPlace(new BABYLON.Vector3(
                             (localIJK.ijk.i + 0.5) * BLOCK_SIZE_M,
-                            (localIJK.ijk.k) * BLOCK_SIZE_M,
+                            (localIJK.ijk.k) * BLOCK_HEIGHT_M,
                             (localIJK.ijk.j + 0.5) * BLOCK_SIZE_M
                         ));
 

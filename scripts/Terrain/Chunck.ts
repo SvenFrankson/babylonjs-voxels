@@ -1,8 +1,10 @@
-var BLOCK_SIZE_M: number = 0.5;
+var BLOCK_SIZE_M: number = 1;
+var BLOCK_HEIGHT_M: number = 0.5;
 var CHUNCK_LENGTH: number = 32;
 var CHUNCK_LENGTH_2: number = CHUNCK_LENGTH * CHUNCK_LENGTH;
 var CHUNCK_LENGTH_3: number = CHUNCK_LENGTH_2 * CHUNCK_LENGTH;
 var CHUNCK_SIZE_M: number = BLOCK_SIZE_M * CHUNCK_LENGTH;
+var CHUNCK_HEIGHT_M: number = BLOCK_HEIGHT_M * CHUNCK_LENGTH;
 var DRAW_CHUNCK_MARGIN: number = 2;
 
 enum AdjacentAxis {
@@ -106,12 +108,12 @@ class Chunck {
 
         this.position = new BABYLON.Vector3(
             (this.iPos * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m,
-            (this.kPos * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainHeight_m + 0.5 * this.levelFactor * BLOCK_SIZE_M,
+            (this.kPos * CHUNCK_HEIGHT_M) * this.levelFactor - this.terrain.halfTerrainHeight_m + 0.5 * this.levelFactor * BLOCK_HEIGHT_M,
             (this.jPos * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m
         );
         this.barycenter = new BABYLON.Vector3(
             ((this.iPos + 0.5) * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m,
-            ((this.kPos + 0.5) * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainHeight_m + 0.5 * this.levelFactor * BLOCK_SIZE_M,
+            ((this.kPos + 0.5) * CHUNCK_HEIGHT_M) * this.levelFactor - this.terrain.halfTerrainHeight_m + 0.5 * this.levelFactor * BLOCK_HEIGHT_M,
             ((this.jPos + 0.5) * CHUNCK_SIZE_M) * this.levelFactor - this.terrain.halfTerrainSize_m
         );
     }
@@ -395,7 +397,7 @@ class Chunck {
     public getIJKAtPos(pos: BABYLON.Vector3): { i: number, j: number, k: number } {
         let i = Math.floor((pos.x - this.position.x) / BLOCK_SIZE_M);
         let j = Math.floor((pos.z - this.position.z) / BLOCK_SIZE_M);
-        let k = Math.floor((pos.y - this.position.y) / BLOCK_SIZE_M);
+        let k = Math.floor((pos.y - this.position.y) / BLOCK_HEIGHT_M);
         return { i: i, j: j, k: k };
     }
 

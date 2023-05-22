@@ -255,7 +255,7 @@ class ChunckMeshBuilder {
 
         for (let i = 0; i < positions.length / 3; i++) {
             positions[3 * i] = (positions[3 * i] * chunck.levelFactor + 0.5) * BLOCK_SIZE_M;
-            positions[3 * i + 1] = (positions[3 * i + 1] * chunck.levelFactor) * BLOCK_SIZE_M;
+            positions[3 * i + 1] = (positions[3 * i + 1] * chunck.levelFactor) * BLOCK_HEIGHT_M;
             positions[3 * i + 2] = (positions[3 * i + 2] * chunck.levelFactor + 0.5) * BLOCK_SIZE_M;
         }
 

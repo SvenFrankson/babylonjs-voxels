@@ -49,8 +49,8 @@ class Terrain {
 
         this.terrainHeight = this.chunckCountHeight * CHUNCK_LENGTH;
         this.halfTerrainHeight = this.terrainHeight * 0.5;
-        this.terrainHeight_m = this.terrainHeight * BLOCK_SIZE_M;
-        this.halfTerrainHeight_m = this.halfTerrainHeight * BLOCK_SIZE_M;
+        this.terrainHeight_m = this.terrainHeight * BLOCK_HEIGHT_M;
+        this.halfTerrainHeight_m = this.halfTerrainHeight * BLOCK_HEIGHT_M;
         this.chunckCount = VMath.Pow2(prop.maxLevel);
         this.terrainSize_m = this.chunckCount * CHUNCK_SIZE_M;
         this.halfTerrainSize_m = this.terrainSize_m * 0.5;
@@ -111,7 +111,7 @@ class Terrain {
     public getChunckAtPos(pos: BABYLON.Vector3, level: number): Chunck {
         let iPos = Math.floor((pos.x + this.halfTerrainSize_m) / CHUNCK_SIZE_M);
         let jPos = Math.floor((pos.z + this.halfTerrainSize_m) / CHUNCK_SIZE_M);
-        let kPos = Math.floor((pos.y + this.halfTerrainHeight_m) / CHUNCK_SIZE_M);
+        let kPos = Math.floor((pos.y + this.halfTerrainHeight_m) / CHUNCK_HEIGHT_M);
         return this.getChunck(level, iPos, jPos, kPos);
     }
 

@@ -24,7 +24,7 @@ class TerrainMaterial extends BABYLON.ShaderMaterial {
         this.setLightInvDir(BABYLON.Vector3.One().normalize());
         this.setLevel(0);
 
-        this.setFloat("blockSize_m", BLOCK_SIZE_M);
+        this.setFloat("blockSize_m", BLOCK_HEIGHT_M);
     }
 
     public getLightInvDir(): BABYLON.Vector3 {
