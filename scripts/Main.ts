@@ -148,7 +148,7 @@ class Main {
             this.terrain.root.genMaps = [
                 new GenMap(0, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
-                    highestRandLevel: 9
+                    highestRandLevel: 10
                 }),
                 new GenMap(1, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 3,

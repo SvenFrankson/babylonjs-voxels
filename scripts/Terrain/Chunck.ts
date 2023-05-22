@@ -234,9 +234,9 @@ class Chunck {
             this._data = new Uint8Array(this._dataSizeSquare * this._dataSize);
 
             for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
-                let iGlobal = this.iPos * CHUNCK_LENGTH + i;
+                let iGlobal = this.iPos * this.levelFactor * CHUNCK_LENGTH + i * this.levelFactor;
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
-                    let jGlobal = this.jPos * CHUNCK_LENGTH + j;
+                    let jGlobal = this.jPos * this.levelFactor * CHUNCK_LENGTH + j * this.levelFactor;
                     let IMap = 1;
                     let JMap = 1;
                     let ii = i;
@@ -257,7 +257,7 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight * 0.5, ii, jj) + this.terrain.halfTerrainHeight;
+                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getDataTunnel(15, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
                     let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
@@ -274,7 +274,10 @@ class Chunck {
                             this.setRawData(BlockType.None, i + m, j + m, k + m);
                         }
                         else if (kGlobal < hAltitude) {
-                            if (hColor > this.terrain.halfTerrainHeight) {
+                            if (iGlobal === Chunck._TmpGenMaps0[1][1].randIGlobal && jGlobal === Chunck._TmpGenMaps0[1][1].randJGlobal) {
+                                this.setRawData(BlockType.Sand, i + m, j + m, k + m);
+                            }
+                            else if (hColor > this.terrain.halfTerrainHeight) {
                                 this.setRawData(BlockType.Grass, i + m, j + m, k + m);
                             }
                             else {

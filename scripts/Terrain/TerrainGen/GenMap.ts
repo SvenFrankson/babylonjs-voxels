@@ -27,6 +27,9 @@ class GenMap {
         return this._peakDistance;
     }
 
+    public randIGlobal: number;
+    public randJGlobal: number;
+
     constructor(
         public index: number,
         public level: number,
@@ -40,6 +43,16 @@ class GenMap {
         this._data.fill(0);
         this._amplitudeFactor = VMath.Pow2(14 - this.prop.highestRandLevel);
         this._peakDistance = VMath.Pow2(this.prop.highestRandLevel - 1);
+        
+        let f = VMath.Pow2(this.level);
+        let iGlobal = (this.iPos + 0.5) * f * CHUNCK_LENGTH;
+        let pI = RAND.getValue4D(this.terrain.randSeed, iGlobal, this.index, 0, this.level) * 2 - 1;
+        pI *= f * CHUNCK_LENGTH / 4;
+        this.randIGlobal = iGlobal + Math.floor(pI);
+        let jGlobal = (this.jPos + 0.5) * f * CHUNCK_LENGTH;
+        let pJ = RAND.getValue4D(this.terrain.randSeed, 0, this.index, jGlobal, this.level) * 2 - 1;
+        pJ *= f * CHUNCK_LENGTH / 4;
+        this.randJGlobal = jGlobal + Math.floor(pJ);
     }
 
     public addData(): void {
@@ -191,7 +204,6 @@ class GenMap {
     public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0, min: number = - 32768, max: number = 32768): BABYLON.Texture {
         let n = i1 - i0 + 1;
         let Sn = this._dataSize * VMath.Pow2(this.level);
-        console.log("Sn = " + Sn);
         let S = Sn * n;
 
         let texture = new BABYLON.DynamicTexture("texture", S, undefined, false);
