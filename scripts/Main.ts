@@ -146,7 +146,7 @@ class Main {
             this.player.registerControl();
 
             this.terrain.root.genMaps = [
-                new GenMapPerlinish(5, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMapPerlinish(0, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
                     highestRandLevel: 9,
                     amplitude: 128
@@ -211,10 +211,11 @@ class Main {
                     newCurrentChunck = newCurrentChunck.parent.parent.parent.parent;
                     if (newCurrentChunck != currentChunck) {
                         let genMap0 = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
+                        console.log(genMap0);
                         let genMap1 = this.terrain.getGenMap(1, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
                         if (genMap0) {
-                            let texture0 = genMap0.getTexture(-1, 1, -1, 1, 0, 256);
-                            let texture1 = genMap1.getTexture(-1, 1, -1, 1, 0, 5);
+                            let texture0 = genMap0.getTexture(-1, 1, -1, 1);
+                            let texture1 = genMap1.getTexture(-1, 1, -1, 1);
                             if (texture0) {
                                 debugMaterial0.diffuseTexture = texture0;
                                 debugMaterial1.diffuseTexture = texture1;
@@ -224,9 +225,9 @@ class Main {
                     }
                 }
             }
-            //this.scene.onBeforeRenderObservable.add(cb);
-            debugPlane0.isVisible = false;
-            debugPlane1.isVisible = false;
+            this.scene.onBeforeRenderObservable.add(cb);
+            //debugPlane0.isVisible = false;
+            //debugPlane1.isVisible = false;
         });
 	}
 

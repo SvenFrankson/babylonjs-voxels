@@ -166,7 +166,7 @@ abstract class GenMap {
         return this.children;
     }
 
-    public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0, min: number = 0, max: number = 100): BABYLON.Texture {
+    public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0, min: number = 0, max: number = 65536): BABYLON.Texture {
         let n = i1 - i0 + 1;
         let Sn = this._dataSize * VMath.Pow2(this.level);
         let S = Sn * n;
@@ -186,14 +186,15 @@ abstract class GenMap {
         return texture;
     }
 
-    public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number, min: number = 0, max: number = 100): void {
+    public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number, min: number, max: number): void {
         if (this.level === 0) {
             let data = new Uint8ClampedArray(this._dataSize * this._dataSize * 4);
             let l = max - min;
+            console.log(l);
             for (let j = 0; j < this._dataSize; j++) {
                 for (let i = 0; i < this._dataSize; i++) {
                     let n = i + j * this._dataSize;
-                    let v = this.getData(i, j);
+                    let v = this.getRawData(i, j);
                     let c = Math.floor((v - min) / l * 256);
                     
                     if (c === 127) {
