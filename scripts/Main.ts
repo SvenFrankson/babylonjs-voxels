@@ -146,30 +146,25 @@ class Main {
             this.player.registerControl();
 
             this.terrain.root.genMaps = [
-                new GenMapPerlinish(0, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMap(0, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
-                    highestRandLevel: 9,
-                    amplitude: 128
+                    highestRandLevel: 9
                 }),
-                new GenMapTunnel(1, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMap(1, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 3,
-                    highestRandLevel: 6,
-                    amplitude: 15
+                    highestRandLevel: 6
                 }),
-                new GenMapPerlinish(2, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMap(2, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
-                    highestRandLevel: 9,
-                    amplitude: 128
+                    highestRandLevel: 9
                 }),
-                new GenMapPerlinish(3, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMap(3, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 1,
-                    highestRandLevel: 4,
-                    amplitude: 128
+                    highestRandLevel: 4
                 }),
-                new GenMapTunnel(4, this.terrain.root.level, 0, 0, this.terrain, {
+                new GenMap(4, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 4,
-                    highestRandLevel: 7,
-                    amplitude: 4
+                    highestRandLevel: 7
                 }),
             ];
             this.terrain.root.register();

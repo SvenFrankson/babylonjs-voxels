@@ -1,14 +1,12 @@
 interface IGenMapProp {
     highestRandLevel: number
     lowestRandLevel: number
-    amplitude: number
 }
 
-abstract class GenMap {
+class GenMap {
 
     private _dataSize: number;
     private _data: Uint16Array;
-    abstract getData(i: number, j: number): number;
     public getRawData(i: number, j: number): number {
         return this._data[i + j * this._dataSize];
     }
@@ -16,7 +14,7 @@ abstract class GenMap {
         return this._data[i + j * this._dataSize] = v;
     }
 
-    public newer;
+    private _amplitudeFactor: number = 1;
     public children: GenMap[][];
 
     private _subdivided: boolean = false;
@@ -35,6 +33,7 @@ abstract class GenMap {
         this._dataSize = CHUNCK_LENGTH + 1;
         this._data = new Uint16Array(this._dataSize * this._dataSize);
         this._data.fill(32767);
+        this._amplitudeFactor = VMath.Pow2(14 - this.prop.highestRandLevel);
     }
 
     public addData(): void {
@@ -67,7 +66,7 @@ abstract class GenMap {
                     let I = i + this.iPos * CHUNCK_LENGTH;
                     let J = j + this.jPos * CHUNCK_LENGTH;
                     let p = RAND.getValue4D(this.terrain.randSeed, I, this.index, J, this.level) * 2 - 1;
-                    p = p * f * 16;
+                    p = p * f * this._amplitudeFactor;
                     this._data[i + j * this._dataSize] += p;
                 }
             }
@@ -104,12 +103,12 @@ abstract class GenMap {
 
         this.children = [
             [
-                new this.newer(this.index, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain, this.prop),
-                new this.newer(this.index, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain, this.prop)
+                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2, this.terrain, this.prop),
+                new GenMap(this.index, this.level - 1, this.iPos * 2, this.jPos * 2 + 1, this.terrain, this.prop)
             ],
             [
-                new this.newer(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain, this.prop),
-                new this.newer(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain, this.prop)
+                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2, this.terrain, this.prop),
+                new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain, this.prop)
             ]
         ];
 
@@ -166,6 +165,23 @@ abstract class GenMap {
         return this.children;
     }
 
+    public getDataHeightMap(hMax: number, i: number, j: number): number {
+        return this.getRawData(i, j) / 65536 * hMax;
+    }
+
+    public getDataTunnel(hMax: number, amplitude: number, i: number, j: number): number {
+        let d = (this.getRawData(i, j) - 32768) / 32768 * hMax;
+        d = Math.abs(d);
+        if (d <= amplitude) {
+            d = Math.cos(Math.PI * d / amplitude);
+            d = Math.sqrt(d) * amplitude;
+        }
+        else {
+            d = 0;
+        }
+        return d;
+    }
+
     public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0, min: number = 0, max: number = 65536): BABYLON.Texture {
         let n = i1 - i0 + 1;
         let Sn = this._dataSize * VMath.Pow2(this.level);
@@ -196,7 +212,7 @@ abstract class GenMap {
                     let v = this.getRawData(i, j);
                     let c = Math.floor((v - min) / l * 256);
                     
-                    if (c === 127) {
+                    if (c >= 126 && c <= 128) {
                         data[4 * n] = 255;
                         data[4 * n + 1] = 0;
                         data[4 * n + 2] = 0;
@@ -222,56 +238,5 @@ abstract class GenMap {
             this.children[0][1].recursiveDrawTexture(context, S2, I, J + S2, min, max);
             this.children[1][1].recursiveDrawTexture(context, S2, I + S2, J + S2, min, max);
         }
-    }
-}
-
-class GenMapPerlinish extends GenMap {
-    
-    private _dataMult: number;
-    constructor(
-        index: number,
-        level: number,
-        iPos: number,
-        jPos: number,
-        terrain: Terrain,
-        prop: IGenMapProp
-    ) {
-        super(index, level, iPos, jPos, terrain, prop);
-        this.newer = GenMapPerlinish;
-        this._dataMult = this.terrain.terrainHeight / 65536;
-    }
-
-    public getData(i: number, j: number): number {
-        return this.getRawData(i, j) * this._dataMult;
-    }
-}
-
-class GenMapTunnel extends GenMap {
-    
-    private _dataMult: number;
-    constructor(
-        index: number,
-        level: number,
-        iPos: number,
-        jPos: number,
-        terrain: Terrain,
-        prop: IGenMapProp
-    ) {
-        super(index, level, iPos, jPos, terrain, prop);
-        this.newer = GenMapTunnel;
-        this._dataMult = this.terrain.terrainHeight / 65536;
-    }
-
-    public getData(i: number, j: number): number {
-        let d = this.getRawData(i, j) * this._dataMult - this.terrain.halfTerrainHeight;
-        d = Math.abs(d);
-        if (d <= this.prop.amplitude) {
-            d = Math.cos(Math.PI * d / this.prop.amplitude);
-            d = Math.sqrt(d) * this.prop.amplitude;
-        }
-        else {
-            d = 0;
-        }
-        return d;
     }
 }
