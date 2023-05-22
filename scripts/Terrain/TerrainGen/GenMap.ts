@@ -6,7 +6,7 @@ interface IGenMapProp {
 class GenMap {
 
     private _dataSize: number;
-    private _data: Uint16Array;
+    private _data: Int16Array;
     public getRawData(i: number, j: number): number {
         return this._data[i + j * this._dataSize];
     }
@@ -22,6 +22,11 @@ class GenMap {
         return this._subdivided;
     }
 
+    private _peakDistance: number;
+    public get peakDistance(): number {
+        return this._peakDistance;
+    }
+
     constructor(
         public index: number,
         public level: number,
@@ -31,9 +36,10 @@ class GenMap {
         public prop: IGenMapProp
     ) {
         this._dataSize = CHUNCK_LENGTH + 1;
-        this._data = new Uint16Array(this._dataSize * this._dataSize);
-        this._data.fill(32767);
+        this._data = new Int16Array(this._dataSize * this._dataSize);
+        this._data.fill(0);
         this._amplitudeFactor = VMath.Pow2(14 - this.prop.highestRandLevel);
+        this._peakDistance = VMath.Pow2(this.prop.highestRandLevel - 1);
     }
 
     public addData(): void {
@@ -166,11 +172,11 @@ class GenMap {
     }
 
     public getDataHeightMap(hMax: number, i: number, j: number): number {
-        return this.getRawData(i, j) / 65536 * hMax;
+        return this.getRawData(i, j) / 32768 * hMax;
     }
 
-    public getDataTunnel(hMax: number, amplitude: number, i: number, j: number): number {
-        let d = (this.getRawData(i, j) - 32768) / 32768 * hMax;
+    public getDataTunnel(amplitude: number, hRatio: number, i: number, j: number): number {
+        let d = (this.getRawData(i, j)) / 32768 * this.peakDistance * hRatio;
         d = Math.abs(d);
         if (d <= amplitude) {
             d = Math.cos(Math.PI * d / amplitude);
@@ -182,9 +188,10 @@ class GenMap {
         return d;
     }
 
-    public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0, min: number = 0, max: number = 65536): BABYLON.Texture {
+    public getTexture(i0: number = 0, i1: number = 0, j0: number = 0, j1: number = 0, min: number = - 32768, max: number = 32768): BABYLON.Texture {
         let n = i1 - i0 + 1;
         let Sn = this._dataSize * VMath.Pow2(this.level);
+        console.log("Sn = " + Sn);
         let S = Sn * n;
 
         let texture = new BABYLON.DynamicTexture("texture", S, undefined, false);

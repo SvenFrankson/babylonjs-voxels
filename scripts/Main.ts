@@ -206,7 +206,7 @@ class Main {
                     newCurrentChunck = newCurrentChunck.parent.parent.parent.parent;
                     if (newCurrentChunck != currentChunck) {
                         let genMap0 = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
-                        console.log(genMap0);
+                        //console.log(genMap0);
                         let genMap1 = this.terrain.getGenMap(1, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
                         if (genMap0) {
                             let texture0 = genMap0.getTexture(-1, 1, -1, 1);

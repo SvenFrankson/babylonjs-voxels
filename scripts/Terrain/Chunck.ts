@@ -257,11 +257,11 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.terrainHeight, ii, jj);
-                    let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getDataTunnel(this.terrain.halfTerrainHeight * 0.5, 15, ii, jj);
-                    let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getDataHeightMap(this.terrain.terrainHeight, ii, jj);
-                    let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.terrainHeight, ii, jj);
-                    let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getDataTunnel(this.terrain.halfTerrainHeight, 4, ii, jj);
+                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight * 0.5, ii, jj) + this.terrain.halfTerrainHeight;
+                    let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getDataTunnel(15, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
+                    let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
+                    let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
+                    let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getDataTunnel(4, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_LENGTH + k * this.levelFactor;
