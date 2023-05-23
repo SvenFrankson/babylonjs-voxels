@@ -16,6 +16,7 @@ class GenMap {
 
     private _amplitudeFactor: number = 1;
     public children: GenMap[][];
+    public parent: GenMap;
 
     private _subdivided: boolean = false;
     public get subdivided(): boolean {
@@ -29,6 +30,7 @@ class GenMap {
 
     public randIGlobal: number;
     public randJGlobal: number;
+    public randNumber: number;
 
     constructor(
         public index: number,
@@ -46,13 +48,15 @@ class GenMap {
         
         let f = VMath.Pow2(this.level);
         let iGlobal = (this.iPos + 0.5) * f * CHUNCK_LENGTH;
-        let pI = RAND.getValue4D(this.terrain.randSeed, iGlobal, this.index, 0, this.level) * 2 - 1;
-        pI *= f * CHUNCK_LENGTH / 4;
-        this.randIGlobal = iGlobal + Math.floor(pI);
+        let pI = (RAND.getValue3D(this.terrain.randSeed, this.iPos, this.jPos, this.index + this.level) * 2 - 1) *  f * CHUNCK_LENGTH / 3;
+        //let pI = (Math.random() * 2 - 1) *  f * CHUNCK_LENGTH / 3;
+        this.randIGlobal = Math.floor(iGlobal + pI);
         let jGlobal = (this.jPos + 0.5) * f * CHUNCK_LENGTH;
-        let pJ = RAND.getValue4D(this.terrain.randSeed, 0, this.index, jGlobal, this.level) * 2 - 1;
-        pJ *= f * CHUNCK_LENGTH / 4;
-        this.randJGlobal = jGlobal + Math.floor(pJ);
+        //let pJ = (Math.random() * 2 - 1) * f * CHUNCK_LENGTH / 3;
+        let pJ = (RAND.getValue3D(this.terrain.randSeed, this.jPos, this.index + this.iPos, this.level) * 2 - 1) * f * CHUNCK_LENGTH / 3;
+        this.randJGlobal = Math.floor(jGlobal + pJ);
+
+        this.randNumber = RAND.getValue4D(this.terrain.randSeed, this.index, this.iPos, this.level, this.jPos);
     }
 
     public addData(): void {
@@ -130,6 +134,10 @@ class GenMap {
                 new GenMap(this.index, this.level - 1, this.iPos * 2 + 1, this.jPos * 2 + 1, this.terrain, this.prop)
             ]
         ];
+        this.children[0][0].parent = this;
+        this.children[1][0].parent = this;
+        this.children[0][1].parent = this;
+        this.children[1][1].parent = this;
 
         /*
         this.terrain.addGenMap(maps[0][0]);

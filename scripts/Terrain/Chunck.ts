@@ -215,19 +215,37 @@ class Chunck {
     public static _TmpGenMaps2: GenMap[][] = [[], [], []];
     public static _TmpGenMaps3: GenMap[][] = [[], [], []];
     public static _TmpGenMaps4: GenMap[][] = [[], [], []];
+    public static _TmpBioPoles0: BABYLON.Vector3[][] = [
+        [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()],
+        [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()],
+        [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()]
+    ];
     public initializeData(): void {
         //this.initializeData2();
         //return;
         let m = DRAW_CHUNCK_MARGIN;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);                
                 Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
                 Chunck._TmpGenMaps2[i][j] = this.terrain.getGenMap(2, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
                 Chunck._TmpGenMaps3[i][j] = this.terrain.getGenMap(3, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
                 Chunck._TmpGenMaps4[i][j] = this.terrain.getGenMap(4, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
             }
         }
+        
+        if (this.level < this.terrain.maxLevel - 5) {
+            let genMap = Chunck._TmpGenMaps0[1][1].parent.parent.parent.parent.parent;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    let adjMap = this.terrain.getGenMap(genMap.index, genMap.level, genMap.iPos - 1 + i, genMap.jPos - 1 + j);
+                    Chunck._TmpBioPoles0[i][j].x = adjMap.randIGlobal;
+                    Chunck._TmpBioPoles0[i][j].z = adjMap.randJGlobal;
+                    Chunck._TmpBioPoles0[i][j].y = adjMap.randNumber;
+                }
+            }
+        }
+
         if (!this.dataInitialized) {
             this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
             this._dataSizeSquare = this._dataSize * this._dataSize;
@@ -237,6 +255,7 @@ class Chunck {
                 let iGlobal = this.iPos * this.levelFactor * CHUNCK_LENGTH + i * this.levelFactor;
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
                     let jGlobal = this.jPos * this.levelFactor * CHUNCK_LENGTH + j * this.levelFactor;
+
                     let IMap = 1;
                     let JMap = 1;
                     let ii = i;
@@ -263,6 +282,21 @@ class Chunck {
                     let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getDataTunnel(4, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
 
+                    // Find closest BioPole
+                    let bestDist = Infinity;
+                    let bestPole = 0;
+                    for (let a = 0; a <= 2; a++) {
+                        for (let b = 0; b <= 2; b++) {
+                            let di = iGlobal - Chunck._TmpBioPoles0[a][b].x;
+                            let dj = iGlobal - Chunck._TmpBioPoles0[a][b].z;
+                            let dist = di * di + dj * dj;
+                            if (dist < bestDist) {
+                                bestDist = dist;
+                                bestPole = Math.round(Chunck._TmpBioPoles0[a][b].y);
+                            }
+                        }
+                    }
+
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_LENGTH + k * this.levelFactor;
                         
@@ -273,15 +307,20 @@ class Chunck {
                         else if (Math.abs(kGlobal - hAltitudeHole) < holeHeight) {
                             this.setRawData(BlockType.None, i + m, j + m, k + m);
                         }
+                        else if (kGlobal < hAltitude + 10 && iGlobal === Chunck._TmpGenMaps0[1][1].randIGlobal && jGlobal === Chunck._TmpGenMaps0[1][1].randJGlobal) {
+                            this.setRawData(BlockType.Sand, i + m, j + m, k + m);
+                        }
                         else if (kGlobal < hAltitude) {
-                            if (iGlobal === Chunck._TmpGenMaps0[1][1].randIGlobal && jGlobal === Chunck._TmpGenMaps0[1][1].randJGlobal) {
-                                this.setRawData(BlockType.Sand, i + m, j + m, k + m);
-                            }
-                            else if (hColor > this.terrain.halfTerrainHeight) {
-                                this.setRawData(BlockType.Grass, i + m, j + m, k + m);
+                            if (bestPole < 0.5) {
+                                if (hColor > this.terrain.halfTerrainHeight) {
+                                    this.setRawData(BlockType.Grass, i + m, j + m, k + m);
+                                }
+                                else {
+                                    this.setRawData(BlockType.Dirt, i + m, j + m, k + m);
+                                }
                             }
                             else {
-                                this.setRawData(BlockType.Dirt, i + m, j + m, k + m);
+                                this.setRawData(BlockType.Sand, i + m, j + m, k + m);
                             }
                         }
                         else {

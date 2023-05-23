@@ -54,6 +54,37 @@ class Rand {
         return v;
     }
     
+    public getValue3D(seed: RandSeed, i: number, j: number, k: number): number {
+        let n1 = seed.values[0] * (i + 1);
+        n1 = n1 % this.L;
+
+        let n2 = seed.values[1] * (n1 * j + 1);
+        n2 = n2 % this.L;
+
+        let n3 = seed.values[2] * (n2 * k + 1);
+        n3 = n3 % this.L;
+        
+        let n4 = seed.values[3] * (n3 * (i * j) + 1);
+        n4 = n4 % this.L;
+
+        let n5 = seed.values[4] * (n4 * i + 1);
+        n5 = n5 % this.L;
+
+        let n6 = seed.values[5] * (n5 * j + 1);
+        n6 = n6 % this.L;
+
+        let n7 = seed.values[6] * (n6 * k + 1);
+        n7 = n7 % this.L;
+        
+        let n8 = seed.values[0] * (n7 * (j * k) + 1);
+        n8 = n8 % this.L;
+        
+        let index = Math.floor(Math.abs(n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8)) % this.L;
+        let v = this.values[index];
+        //console.log(v);
+        return v;
+    }
+    
     public getValue4D(seed: RandSeed, i: number, j: number, k: number, d: number): number {
         let n1 = seed.values[0] * (i + 1);
         n1 = n1 % this.L;
