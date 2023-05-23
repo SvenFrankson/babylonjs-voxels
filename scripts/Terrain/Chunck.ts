@@ -234,15 +234,13 @@ class Chunck {
             }
         }
         
-        if (this.level < this.terrain.maxLevel - 5) {
-            let genMap = Chunck._TmpGenMaps0[1][1].parent.parent.parent.parent.parent;
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    let adjMap = this.terrain.getGenMap(genMap.index, genMap.level, genMap.iPos - 1 + i, genMap.jPos - 1 + j);
-                    Chunck._TmpBioPoles0[i][j].x = adjMap.randIGlobal;
-                    Chunck._TmpBioPoles0[i][j].z = adjMap.randJGlobal;
-                    Chunck._TmpBioPoles0[i][j].y = adjMap.randNumber;
-                }
+        let parent = this.getParent(3);
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                let adjMap = this.terrain.getGenMap(0, parent.level, parent.iPos - 1 + i, parent.jPos - 1 + j);
+                Chunck._TmpBioPoles0[i][j].x = adjMap.randIGlobal;
+                Chunck._TmpBioPoles0[i][j].z = adjMap.randJGlobal;
+                Chunck._TmpBioPoles0[i][j].y = adjMap.randNumber;
             }
         }
 
@@ -288,7 +286,7 @@ class Chunck {
                     for (let a = 0; a <= 2; a++) {
                         for (let b = 0; b <= 2; b++) {
                             let di = iGlobal - Chunck._TmpBioPoles0[a][b].x;
-                            let dj = iGlobal - Chunck._TmpBioPoles0[a][b].z;
+                            let dj = jGlobal - Chunck._TmpBioPoles0[a][b].z;
                             let dist = di * di + dj * dj;
                             if (dist < bestDist) {
                                 bestDist = dist;
@@ -434,6 +432,13 @@ class Chunck {
             }
         }
         return undefined;
+    }
+
+    public getParent(level: number): Chunck {
+        if (this.level >= level) {
+            return this;
+        }
+        return this.parent.getParent(level);
     }
 
     public getIJKAtPos(pos: BABYLON.Vector3): { i: number, j: number, k: number } {
