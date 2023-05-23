@@ -234,7 +234,7 @@ class Chunck {
             }
         }
         
-        let parent = this.getParent(3);
+        let parent = this.getParent(4);
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
                 let adjMap = this.terrain.getGenMap(0, parent.level, parent.iPos - 1 + i, parent.jPos - 1 + j);
@@ -253,6 +253,21 @@ class Chunck {
                 let iGlobal = this.iPos * this.levelFactor * CHUNCK_LENGTH + i * this.levelFactor;
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
                     let jGlobal = this.jPos * this.levelFactor * CHUNCK_LENGTH + j * this.levelFactor;
+
+                    // Find closest BioPole
+                    let bestDist = Infinity;
+                    let bestPole = 0;
+                    for (let a = 0; a <= 2; a++) {
+                        for (let b = 0; b <= 2; b++) {
+                            let di = iGlobal - Chunck._TmpBioPoles0[a][b].x;
+                            let dj = jGlobal - Chunck._TmpBioPoles0[a][b].z;
+                            let dist = di * di + dj * dj;
+                            if (dist < bestDist) {
+                                bestDist = dist;
+                                bestPole = Math.floor(Chunck._TmpBioPoles0[a][b].y * 3);
+                            }
+                        }
+                    }
 
                     let IMap = 1;
                     let JMap = 1;
@@ -274,26 +289,20 @@ class Chunck {
                         jj -= CHUNCK_LENGTH;
                         JMap++;
                     }
-                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
+
+                    let altFactor = 0.5;
+                    if (bestPole === 1) {
+                        altFactor = 0.2;
+                    }
+                    else if (bestPole === 2) {
+                        altFactor = 0.1;
+                    }
+
+                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight * altFactor, ii, jj) + this.terrain.halfTerrainHeight;
                     let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getDataTunnel(15, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
                     let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getDataTunnel(4, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
-
-                    // Find closest BioPole
-                    let bestDist = Infinity;
-                    let bestPole = 0;
-                    for (let a = 0; a <= 2; a++) {
-                        for (let b = 0; b <= 2; b++) {
-                            let di = iGlobal - Chunck._TmpBioPoles0[a][b].x;
-                            let dj = jGlobal - Chunck._TmpBioPoles0[a][b].z;
-                            let dist = di * di + dj * dj;
-                            if (dist < bestDist) {
-                                bestDist = dist;
-                                bestPole = Math.round(Chunck._TmpBioPoles0[a][b].y);
-                            }
-                        }
-                    }
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_LENGTH + k * this.levelFactor;
@@ -305,17 +314,17 @@ class Chunck {
                         else if (Math.abs(kGlobal - hAltitudeHole) < holeHeight) {
                             this.setRawData(BlockType.None, i + m, j + m, k + m);
                         }
-                        else if (kGlobal < hAltitude + 10 && iGlobal === Chunck._TmpGenMaps0[1][1].randIGlobal && jGlobal === Chunck._TmpGenMaps0[1][1].randJGlobal) {
-                            this.setRawData(BlockType.Sand, i + m, j + m, k + m);
-                        }
                         else if (kGlobal < hAltitude) {
-                            if (bestPole < 0.5) {
+                            if (bestPole === 0) {
                                 if (hColor > this.terrain.halfTerrainHeight) {
                                     this.setRawData(BlockType.Grass, i + m, j + m, k + m);
                                 }
                                 else {
                                     this.setRawData(BlockType.Dirt, i + m, j + m, k + m);
                                 }
+                            }
+                            else if (bestPole === 1) {
+                                this.setRawData(BlockType.Snow, i + m, j + m, k + m);
                             }
                             else {
                                 this.setRawData(BlockType.Sand, i + m, j + m, k + m);

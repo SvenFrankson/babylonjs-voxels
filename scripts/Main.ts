@@ -148,7 +148,7 @@ class Main {
             this.terrain.root.genMaps = [
                 new GenMap(0, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
-                    highestRandLevel: 10
+                    highestRandLevel: 9
                 }),
                 new GenMap(1, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 3,
@@ -220,9 +220,9 @@ class Main {
                     }
                 }
             }
-            this.scene.onBeforeRenderObservable.add(cb);
-            //debugPlane0.isVisible = false;
-            //debugPlane1.isVisible = false;
+            //this.scene.onBeforeRenderObservable.add(cb);
+            debugPlane0.isVisible = false;
+            debugPlane1.isVisible = false;
         });
 	}
 
