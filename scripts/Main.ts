@@ -55,7 +55,7 @@ class Main {
 	}
 
     public createScene(): void {
-        //window.localStorage.clear();
+        window.localStorage.clear();
 
 		this.scene = new BABYLON.Scene(this.engine);
 
@@ -82,8 +82,8 @@ class Main {
 
         let debugPlane0 = BABYLON.CreatePlane("debug-plane-0", { size: 1.5 });
         debugPlane0.parent = this.cameraManager.freeCamera;
-        debugPlane0.position.x = - 2.5;
-        debugPlane0.position.y = 1;
+        debugPlane0.position.x = - 2;
+        debugPlane0.position.y = 0.8;
         debugPlane0.position.z = 4.05;
 
         let debugMaterial0 = new BABYLON.StandardMaterial("debug-material-0");
@@ -93,8 +93,8 @@ class Main {
 
         let debugPlane1 = BABYLON.CreatePlane("debug-plane-1", { size: 1.5 });
         debugPlane1.parent = this.cameraManager.freeCamera;
-        debugPlane1.position.x = - 2.5;
-        debugPlane1.position.y = -0.5;
+        debugPlane1.position.x = - 2;
+        debugPlane1.position.y = - 0.8;
         debugPlane1.position.z = 4;
 
         let debugMaterial1 = new BABYLON.StandardMaterial("debug-material-1");
@@ -167,6 +167,10 @@ class Main {
                     highestRandLevel: 7
                 }),
             ];
+
+            let testBiomeMap = new ComposedGenMap(5, this.terrain.root.level, 0, 0, this.terrain, [ this.terrain.root.genMaps[0] as GenMap, this.terrain.root.genMaps[2] as GenMap ]);
+            this.terrain.root.genMaps.push(testBiomeMap);
+            
             this.terrain.root.register();
             this.terrain.initialize();
 
@@ -203,25 +207,24 @@ class Main {
                 debugPlane1.rotation.z = - heading;
                 let newCurrentChunck = Main.Instance.terrain.getChunckAtPos(Main.Instance.cameraManager.absolutePosition, 0);
                 if (newCurrentChunck) {
-                    newCurrentChunck = newCurrentChunck.parent.parent.parent.parent;
+                    newCurrentChunck = newCurrentChunck.parent.parent.parent.parent.parent;
                     if (newCurrentChunck != currentChunck) {
-                        let genMap0 = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
-                        //console.log(genMap0);
-                        let genMap1 = this.terrain.getGenMap(1, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos)
+                        let genMap0 = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos);
+                        //let genMap1 = this.terrain.getGenMap(2, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos);
                         if (genMap0) {
                             let texture0 = genMap0.getTexture(-1, 1, -1, 1);
-                            let texture1 = genMap1.getTexture(-1, 1, -1, 1);
+                            //let texture1 = genMap1.getTexture(-1, 1, -1, 1);
                             if (texture0) {
                                 debugMaterial0.diffuseTexture = texture0;
-                                debugMaterial1.diffuseTexture = texture1;
+                                //debugMaterial1.diffuseTexture = texture1;
                                 currentChunck = newCurrentChunck;
                             }
                         }
                     }
                 }
             }
-            //this.scene.onBeforeRenderObservable.add(cb);
-            debugPlane0.isVisible = false;
+            this.scene.onBeforeRenderObservable.add(cb);
+            //debugPlane0.isVisible = false;
             debugPlane1.isVisible = false;
         });
 	}

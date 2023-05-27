@@ -104,7 +104,7 @@ class Terrain {
         return this.root.getChunck(level, iPos, jPos, kPos);
     }
 
-    public getGenMap(index: number, level: number, iPos: number, jPos: number): GenMap {
+    public getGenMap(index: number, level: number, iPos: number, jPos: number): AbstractGenMap {
         return this.root.genMaps[index].getGenMap(level, iPos, jPos);
     }
 

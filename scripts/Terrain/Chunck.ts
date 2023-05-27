@@ -21,7 +21,7 @@ class Chunck {
     public static MAX_DISPLAYED_LEVEL: number = 3;
     public name: string;
     public terrain: Terrain;
-    public genMaps: GenMap[];
+    public genMaps: AbstractGenMap[];
 
     public position: BABYLON.Vector3;
     public barycenter: BABYLON.Vector3;
@@ -226,18 +226,18 @@ class Chunck {
         let m = DRAW_CHUNCK_MARGIN;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j);                
-                Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
-                Chunck._TmpGenMaps2[i][j] = this.terrain.getGenMap(2, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
-                Chunck._TmpGenMaps3[i][j] = this.terrain.getGenMap(3, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
-                Chunck._TmpGenMaps4[i][j] = this.terrain.getGenMap(4, this.level, this.iPos - 1 + i, this.jPos - 1 + j);
+                Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;                
+                Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
+                Chunck._TmpGenMaps2[i][j] = this.terrain.getGenMap(2, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
+                Chunck._TmpGenMaps3[i][j] = this.terrain.getGenMap(3, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
+                Chunck._TmpGenMaps4[i][j] = this.terrain.getGenMap(4, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
             }
         }
         
         let parent = this.getParent(4);
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                let adjMap = this.terrain.getGenMap(0, parent.level, parent.iPos - 1 + i, parent.jPos - 1 + j);
+                let adjMap = this.terrain.getGenMap(0, parent.level, parent.iPos - 1 + i, parent.jPos - 1 + j) as GenMap;
                 Chunck._TmpBioPoles0[i][j].x = adjMap.randIGlobal;
                 Chunck._TmpBioPoles0[i][j].z = adjMap.randJGlobal;
                 Chunck._TmpBioPoles0[i][j].y = adjMap.randNumber;
