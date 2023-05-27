@@ -215,6 +215,7 @@ class Chunck {
     public static _TmpGenMaps2: GenMap[][] = [[], [], []];
     public static _TmpGenMaps3: GenMap[][] = [[], [], []];
     public static _TmpGenMaps4: GenMap[][] = [[], [], []];
+    public static _TmpGenMaps5: GenMap[][] = [[], [], []];
 
     public initializeData(): void {
         //this.initializeData2();
@@ -233,6 +234,7 @@ class Chunck {
                 Chunck._TmpGenMaps2[i][j] = this.terrain.getGenMap(2, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
                 Chunck._TmpGenMaps3[i][j] = this.terrain.getGenMap(3, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
                 Chunck._TmpGenMaps4[i][j] = this.terrain.getGenMap(4, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
+                Chunck._TmpGenMaps5[i][j] = this.terrain.getGenMap(5, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
             }
         }
         
@@ -272,7 +274,7 @@ class Chunck {
                     let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getDataTunnel(4, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
 
-                    BiomeUtils.ValueToBiomesToRef(Chunck._TmpGenMaps2[IMap][JMap].getRawData(ii, jj), biomesRef);
+                    BiomeUtils.ValueToBiomesToRef(Chunck._TmpGenMaps5[IMap][JMap].getRawData(ii, jj), biomesRef);
 
                     let altFactor = BiomeAltFactor[biomesRef.biomeA] * biomesRef.f + BiomeAltFactor[biomesRef.biomeB] * (1 - biomesRef.f);
                     let bestBiome = biomesRef.biomeA;

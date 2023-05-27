@@ -21,7 +21,9 @@ var BIOME_COUNT = BiomeColors.length;
 var PonderatedBiomes = [
     Biome.Cold,
     Biome.Cold,
+    Biome.Cold,
     Biome.Forest,
+    Biome.Desert,
     Biome.Desert,
     Biome.Desert
 ];

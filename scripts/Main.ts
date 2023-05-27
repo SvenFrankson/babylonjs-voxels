@@ -148,7 +148,7 @@ class Main {
             this.terrain.root.genMaps = [
                 new GenMap(0, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 2,
-                    highestRandLevel: 9
+                    highestRandLevel: 8
                 }),
                 new GenMap(1, this.terrain.root.level, 0, 0, this.terrain, {
                     lowestRandLevel: 3,
@@ -166,10 +166,11 @@ class Main {
                     lowestRandLevel: 4,
                     highestRandLevel: 7
                 }),
+                new GenMap(5, this.terrain.root.level, 0, 0, this.terrain, {
+                    lowestRandLevel: 7,
+                    highestRandLevel: 10
+                }),
             ];
-
-            let testBiomeMap = new ComposedGenMap(5, this.terrain.root.level, 0, 0, this.terrain, [ this.terrain.root.genMaps[0] as GenMap, this.terrain.root.genMaps[2] as GenMap ]);
-            this.terrain.root.genMaps.push(testBiomeMap);
             
             this.terrain.root.register();
             this.terrain.initialize();
@@ -209,7 +210,7 @@ class Main {
                 if (newCurrentChunck) {
                     newCurrentChunck = newCurrentChunck.parent.parent.parent.parent.parent;
                     if (newCurrentChunck != currentChunck) {
-                        let genMap0 = this.terrain.getGenMap(0, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos);
+                        let genMap0 = this.terrain.getGenMap(5, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos);
                         //let genMap1 = this.terrain.getGenMap(2, newCurrentChunck.level, newCurrentChunck.iPos, newCurrentChunck.jPos);
                         if (genMap0) {
                             let texture0 = genMap0.getTexture(-1, 1, -1, 1);
