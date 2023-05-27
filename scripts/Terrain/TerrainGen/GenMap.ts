@@ -71,6 +71,11 @@ abstract class AbstractGenMap {
     }
 
     public recursiveDrawTexture(context: BABYLON.ICanvasRenderingContext, S: number, I: number, J: number, min: number, max: number): void {
+        let biomesRef: IBiomesValue = {
+            biomeA: 0,
+            biomeB: 0,
+            f: 0
+        };
         if (this.level === 0) {
             let data = new Uint8ClampedArray(this._dataSize * this._dataSize * 4);
             let l = max - min;
@@ -93,9 +98,13 @@ abstract class AbstractGenMap {
                     }
                     */
                     let c = BiomeUtils.ValueToBiome(v);
-                    data[4 * n] = Math.floor(BiomeColors[c].r * 255);
-                    data[4 * n + 1] = Math.floor(BiomeColors[c].g * 255);
-                    data[4 * n + 2] = Math.floor(BiomeColors[c].b * 255);
+                    BiomeUtils.ValueToBiomesToRef(v, biomesRef);
+                    let r = Math.floor(BiomeColors[biomesRef.biomeA].r * 255 * biomesRef.f + BiomeColors[biomesRef.biomeB].r * 255 * (1 - biomesRef.f));
+                    let g = Math.floor(BiomeColors[biomesRef.biomeA].g * 255 * biomesRef.f + BiomeColors[biomesRef.biomeB].g * 255 * (1 - biomesRef.f));
+                    let b = Math.floor(BiomeColors[biomesRef.biomeA].b * 255 * biomesRef.f + BiomeColors[biomesRef.biomeB].b * 255 * (1 - biomesRef.f));
+                    data[4 * n] = r;
+                    data[4 * n + 1] = g;
+                    data[4 * n + 2] = b;
                     data[4 * n + 3] = 255;
                 }
             }

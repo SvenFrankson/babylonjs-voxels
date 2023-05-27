@@ -215,14 +215,16 @@ class Chunck {
     public static _TmpGenMaps2: GenMap[][] = [[], [], []];
     public static _TmpGenMaps3: GenMap[][] = [[], [], []];
     public static _TmpGenMaps4: GenMap[][] = [[], [], []];
-    public static _TmpBioPoles0: BABYLON.Vector3[][] = [
-        [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()],
-        [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()],
-        [BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero(), BABYLON.Vector3.Zero()]
-    ];
+
     public initializeData(): void {
         //this.initializeData2();
         //return;
+        let biomesRef: IBiomesValue = {
+            biomeA: 0,
+            biomeB: 0,
+            f: 0
+        };
+
         let m = DRAW_CHUNCK_MARGIN;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
@@ -234,16 +236,6 @@ class Chunck {
             }
         }
         
-        let parent = this.getParent(4);
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                let adjMap = this.terrain.getGenMap(0, parent.level, parent.iPos - 1 + i, parent.jPos - 1 + j) as GenMap;
-                Chunck._TmpBioPoles0[i][j].x = adjMap.randIGlobal;
-                Chunck._TmpBioPoles0[i][j].z = adjMap.randJGlobal;
-                Chunck._TmpBioPoles0[i][j].y = adjMap.randNumber;
-            }
-        }
-
         if (!this.dataInitialized) {
             this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
             this._dataSizeSquare = this._dataSize * this._dataSize;
@@ -253,21 +245,6 @@ class Chunck {
                 let iGlobal = this.iPos * this.levelFactor * CHUNCK_LENGTH + i * this.levelFactor;
                 for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
                     let jGlobal = this.jPos * this.levelFactor * CHUNCK_LENGTH + j * this.levelFactor;
-
-                    // Find closest BioPole
-                    let bestDist = Infinity;
-                    let bestPole = 0;
-                    for (let a = 0; a <= 2; a++) {
-                        for (let b = 0; b <= 2; b++) {
-                            let di = iGlobal - Chunck._TmpBioPoles0[a][b].x;
-                            let dj = jGlobal - Chunck._TmpBioPoles0[a][b].z;
-                            let dist = di * di + dj * dj;
-                            if (dist < bestDist) {
-                                bestDist = dist;
-                                bestPole = Math.floor(Chunck._TmpBioPoles0[a][b].y * 3);
-                            }
-                        }
-                    }
 
                     let IMap = 1;
                     let JMap = 1;
@@ -290,19 +267,20 @@ class Chunck {
                         JMap++;
                     }
 
-                    let altFactor = 0.5;
-                    if (bestPole === 1) {
-                        altFactor = 0.2;
-                    }
-                    else if (bestPole === 2) {
-                        altFactor = 0.1;
-                    }
-
-                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight * altFactor, ii, jj) + this.terrain.halfTerrainHeight;
                     let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getDataTunnel(15, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
                     let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
                     let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getDataTunnel(4, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
+
+                    BiomeUtils.ValueToBiomesToRef(Chunck._TmpGenMaps2[IMap][JMap].getRawData(ii, jj), biomesRef);
+
+                    let altFactor = BiomeAltFactor[biomesRef.biomeA] * biomesRef.f + BiomeAltFactor[biomesRef.biomeB] * (1 - biomesRef.f);
+                    let bestBiome = biomesRef.biomeA;
+                    if (biomesRef.f < 0.5) {
+                        bestBiome = biomesRef.biomeB;
+                    }
+
+                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight * altFactor, ii, jj) + this.terrain.halfTerrainHeight;
 
                     for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
                         let kGlobal = this.kPos * this.levelFactor * CHUNCK_LENGTH + k * this.levelFactor;
@@ -315,7 +293,7 @@ class Chunck {
                             this.setRawData(BlockType.None, i + m, j + m, k + m);
                         }
                         else if (kGlobal < hAltitude) {
-                            if (bestPole === 0) {
+                            if (bestBiome === Biome.Forest) {
                                 if (hColor > this.terrain.halfTerrainHeight) {
                                     this.setRawData(BlockType.Grass, i + m, j + m, k + m);
                                 }
@@ -323,10 +301,10 @@ class Chunck {
                                     this.setRawData(BlockType.Dirt, i + m, j + m, k + m);
                                 }
                             }
-                            else if (bestPole === 1) {
+                            else if (bestBiome === Biome.Cold) {
                                 this.setRawData(BlockType.Snow, i + m, j + m, k + m);
                             }
-                            else {
+                            else if (bestBiome === Biome.Desert) {
                                 this.setRawData(BlockType.Sand, i + m, j + m, k + m);
                             }
                         }
