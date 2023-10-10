@@ -55,7 +55,7 @@ class Main {
 	}
 
     public createScene(): void {
-        window.localStorage.clear();
+        //window.localStorage.clear();
 
 		this.scene = new BABYLON.Scene(this.engine);
 
@@ -224,8 +224,8 @@ class Main {
                     }
                 }
             }
-            this.scene.onBeforeRenderObservable.add(cb);
-            //debugPlane0.isVisible = false;
+            //this.scene.onBeforeRenderObservable.add(cb);
+            debugPlane0.isVisible = false;
             debugPlane1.isVisible = false;
         });
 	}

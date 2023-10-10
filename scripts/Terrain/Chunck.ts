@@ -217,120 +217,16 @@ class Chunck {
     public static _TmpGenMaps4: GenMap[][] = [[], [], []];
     public static _TmpGenMaps5: GenMap[][] = [[], [], []];
 
-    public initializeData(): void {
-        //this.initializeData2();
-        //return;
-        let biomesRef: IBiomesValue = {
-            biomeA: 0,
-            biomeB: 0,
-            f: 0
-        };
-
-        let m = DRAW_CHUNCK_MARGIN;
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                Chunck._TmpGenMaps0[i][j] = this.terrain.getGenMap(0, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;                
-                Chunck._TmpGenMaps1[i][j] = this.terrain.getGenMap(1, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
-                Chunck._TmpGenMaps2[i][j] = this.terrain.getGenMap(2, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
-                Chunck._TmpGenMaps3[i][j] = this.terrain.getGenMap(3, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
-                Chunck._TmpGenMaps4[i][j] = this.terrain.getGenMap(4, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
-                Chunck._TmpGenMaps5[i][j] = this.terrain.getGenMap(5, this.level, this.iPos - 1 + i, this.jPos - 1 + j) as GenMap;
-            }
-        }
-        
+    public initializeData(): void {        
         if (!this.dataInitialized) {
-            this._dataSize = 2 * m + CHUNCK_LENGTH + 1;
+            this._dataSize = 2 * DRAW_CHUNCK_MARGIN + CHUNCK_LENGTH + 1;
             this._dataSizeSquare = this._dataSize * this._dataSize;
             this._data = new Uint8Array(this._dataSizeSquare * this._dataSize);
 
-            for (let i: number = - m; i <= CHUNCK_LENGTH + m; i++) {
-                let iGlobal = this.iPos * this.levelFactor * CHUNCK_LENGTH + i * this.levelFactor;
-                for (let j: number = - m; j <= CHUNCK_LENGTH + m; j++) {
-                    let jGlobal = this.jPos * this.levelFactor * CHUNCK_LENGTH + j * this.levelFactor;
+            ChunckDataGenerator.InitializeData(this);
 
-                    let IMap = 1;
-                    let JMap = 1;
-                    let ii = i;
-                    if (ii < 0) {
-                        ii += CHUNCK_LENGTH;
-                        IMap--;
-                    }
-                    if (ii > CHUNCK_LENGTH) {
-                        ii -= CHUNCK_LENGTH;
-                        IMap++;
-                    }
-                    let jj = j;
-                    if (jj < 0) {
-                        jj += CHUNCK_LENGTH;
-                        JMap--;
-                    }
-                    if (jj > CHUNCK_LENGTH) {
-                        jj -= CHUNCK_LENGTH;
-                        JMap++;
-                    }
-
-                    let holeHeight = Chunck._TmpGenMaps1[IMap][JMap].getDataTunnel(15, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
-                    let hAltitudeHole = Chunck._TmpGenMaps2[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
-                    let hColor = Chunck._TmpGenMaps3[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight, ii, jj) + this.terrain.halfTerrainHeight;
-                    let rockHeight = Chunck._TmpGenMaps4[IMap][JMap].getDataTunnel(4, BLOCK_SIZE_M / BLOCK_HEIGHT_M, ii, jj);
-
-                    BiomeUtils.ValueToBiomesToRef(Chunck._TmpGenMaps5[IMap][JMap].getRawData(ii, jj), biomesRef);
-
-                    let altFactor = BiomeAltFactor[biomesRef.biomeA] * biomesRef.f + BiomeAltFactor[biomesRef.biomeB] * (1 - biomesRef.f);
-                    let bestBiome = biomesRef.biomeA;
-                    if (biomesRef.f < 0.5) {
-                        bestBiome = biomesRef.biomeB;
-                    }
-
-                    let hAltitude = Chunck._TmpGenMaps0[IMap][JMap].getDataHeightMap(this.terrain.halfTerrainHeight * altFactor, ii, jj) + this.terrain.halfTerrainHeight;
-
-                    for (let k: number = - m; k <= CHUNCK_LENGTH + m; k++) {
-                        let kGlobal = this.kPos * this.levelFactor * CHUNCK_LENGTH + k * this.levelFactor;
-                        
-                        this.setRawData(BlockType.None, i + m, j + m, k + m);
-                        if (Math.abs(kGlobal - hAltitude) < rockHeight) {
-                            this.setRawData(BlockType.Rock, i + m, j + m, k + m);
-                        }
-                        else if (Math.abs(kGlobal - hAltitudeHole) < holeHeight) {
-                            this.setRawData(BlockType.None, i + m, j + m, k + m);
-                        }
-                        else if (kGlobal < hAltitude) {
-                            if (bestBiome === Biome.Forest) {
-                                if (hColor > this.terrain.halfTerrainHeight) {
-                                    this.setRawData(BlockType.Grass, i + m, j + m, k + m);
-                                }
-                                else {
-                                    this.setRawData(BlockType.Dirt, i + m, j + m, k + m);
-                                }
-                            }
-                            else if (bestBiome === Biome.Cold) {
-                                this.setRawData(BlockType.Snow, i + m, j + m, k + m);
-                            }
-                            else if (bestBiome === Biome.Desert) {
-                                this.setRawData(BlockType.Sand, i + m, j + m, k + m);
-                            }
-                        }
-                        else {
-                            this.setRawData(BlockType.None, i + m, j + m, k + m);
-                        }
-                    }
-                }
-            }
-
-            /*
-            let modData = window.localStorage.getItem(this.getUniqueName());
-            if (modData) {
-                this.modDataOctree = OctreeNode.DeserializeFromString(modData);
-                if (this.modDataOctree) {
-                    this.modDataOctree.forEach((v, i, j, k) => {
-                        this.data[i][j][k] = v;
-                    });
-                }
-            }
-            */
-
-            this._dataInitialized = true;
             this.updateIsEmptyIsFull();
+            this._dataInitialized = true;
         }
     }
 
@@ -430,10 +326,28 @@ class Chunck {
         return this.parent.getParent(level);
     }
 
-    public getIJKAtPos(pos: BABYLON.Vector3): { i: number, j: number, k: number } {
+    public getIJKAtPos(pos: BABYLON.Vector3): IJK {
         let i = Math.floor((pos.x - this.position.x) / BLOCK_SIZE_M);
         let j = Math.floor((pos.z - this.position.z) / BLOCK_SIZE_M);
         let k = Math.floor((pos.y - this.position.y) / BLOCK_HEIGHT_M);
+        return { i: i, j: j, k: k };
+    }
+
+    public IJKGlobalToIJKLocal(iGlobal: number, jGlobal: number, kGlobal: number): IJK;
+    public IJKGlobalToIJKLocal(ijkGlobal: IJK): IJK;
+    public IJKGlobalToIJKLocal(a: number | IJK, jGlobal?: number, kGlobal?: number): IJK {
+        let iGlobal: number;
+        if (typeof(a) === "number") {
+            iGlobal = a;
+        }
+        else {
+            iGlobal = a.i;
+            jGlobal = a.j;
+            kGlobal = a.k;
+        }
+        let i = Math.floor(iGlobal / this.levelFactor) - CHUNCK_LENGTH * this.iPos;
+        let j = Math.floor(jGlobal / this.levelFactor) - CHUNCK_LENGTH * this.jPos;
+        let k = Math.floor(kGlobal / this.levelFactor) - CHUNCK_LENGTH * this.kPos;
         return { i: i, j: j, k: k };
     }
 
